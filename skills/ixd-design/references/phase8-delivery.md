@@ -362,3 +362,17 @@ Final document review:
 - [ ] Desktop: window management specs complete (Ch7.10)
 - [ ] Desktop: keyboard interaction specs complete (Ch7.2)
 - [ ] Desktop: desktop component specs complete (Ch5.4)
+
+---
+
+## Final Review Gate
+
+After the quality checklist above passes, a **mandatory review gate** must be executed before the workflow is considered complete. See SKILL.md "Phase 8 — Final Review Gate" for the full procedure.
+
+Summary:
+1. Run **交互走查** (Tool 2) against 3-5 representative pages
+2. Run **多角色评审** (Tool 4) against the complete design
+3. Save report to `doc/ixd/phase8-review-round-<N>.md`
+4. **PASS** if: no walkthrough priority fixes AND no P0/P1 review items
+5. **FAIL** → fix source files + document → re-review (max 3 rounds)
+6. **BLOCK** after 3 failures → terminate, require human intervention

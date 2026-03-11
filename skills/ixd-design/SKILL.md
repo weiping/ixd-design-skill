@@ -38,6 +38,7 @@ doc/ixd/
 ├── phase7-prototype-mobile.html  ← Phase 7 output (cross-platform: mobile)
 ├── phase7-prototype-desktop.html ← Phase 7 output (cross-platform: desktop)
 ├── phase8-document.md          ← Phase 8 output
+├── phase8-review-round-1.md    ← Review report (round 1)
 └── progress.json               ← Phase progress tracker
 ```
 
@@ -57,7 +58,7 @@ Create `doc/ixd/` if it doesn't exist. After each phase, save the deliverable AN
     "5": { "status": "pending", "file": null, "summary": null },
     "6": { "status": "pending", "file": null, "summary": null },
     "7": { "status": "pending", "file": null, "summary": null },
-    "8": { "status": "pending", "file": null, "summary": null }
+    "8": { "status": "pending", "file": null, "summary": null, "reviewRounds": 0, "reviewResult": null }
   },
   "lastUpdated": "2026-03-11T12:00:00Z"
 }
@@ -442,6 +443,136 @@ Read: `references/phase7-prototype.md`
 Save to: `doc/ixd/phase8-document.md`
 Read: `references/phase8-delivery.md`
 
+---
+
+### Phase 8 — Final Review Gate (评审门禁)
+
+**After the Phase 8 document is saved**, a mandatory two-part review must pass before the workflow is considered complete. This is NOT optional.
+
+#### Review Procedure
+
+**Step 1: 交互走查** — Run the full 47-item heuristic checklist (Tool 2 from `references/auxiliary-tools.md`) against 3-5 representative pages from the design document. Output the scoring table.
+
+**Step 2: 多角色评审** — Run the 6-perspective review (Tool 4 from `references/auxiliary-tools.md`) against the complete design. Output the priority table.
+
+**Step 3: Save review report** to `doc/ixd/phase8-review-round-<N>.md` (N = 1, 2, or 3).
+
+**Step 4: Pass/Fail judgment**:
+
+| Condition | Verdict |
+|---|---|
+| 走查：无优先修复项 AND 评审：无 P0/P1 改进项 | ✅ **PASS** — workflow complete |
+| 走查：存在优先修复项 OR 评审：存在 P0 或 P1 改进项 | ❌ **FAIL** — enter fix cycle |
+
+P2 (建议) items do NOT block — record them in the report for future iteration.
+
+#### Fix Cycle (修复循环)
+
+When review **FAILS**:
+
+1. List all blocking items (走查优先修复项 + 评审 P0/P1 items)
+2. Trace each item to its **source phase and file**:
+   - 页面交互问题 → fix `doc/ixd/phase4-page-specs/<page>.md`
+   - 组件规范问题 → fix `doc/ixd/phase5-components.md`
+   - 视觉一致性问题 → fix `doc/ixd/phase6-visual.md`
+   - 流程缺陷 → fix `doc/ixd/phase3-userflows.md`
+   - 架构/导航问题 → fix `doc/ixd/phase2-architecture.md`
+3. Fix the source files **and** update the corresponding sections in `doc/ixd/phase8-document.md`
+4. Re-run Step 1-4 as **Round N+1**
+
+#### Hard Block (三振出局)
+
+If **Round 3 still FAILS**:
+
+1. Save `doc/ixd/phase8-review-round-3.md` with all remaining blocking items
+2. Update `doc/ixd/progress.json`:
+   ```json
+   {
+     "8": {
+       "status": "blocked",
+       "file": "phase8-document.md",
+       "summary": "评审3轮未通过; 阻塞项: <<blocking items summary>>",
+       "reviewRounds": 3,
+       "blockingItems": ["<<item1>>", "<<item2>>"]
+     }
+   }
+   ```
+3. Output to user:
+   > ⛔ **评审未通过（3/3 轮）**，已阻塞。剩余阻塞项需人工介入：
+   > 1. <<阻塞项1>> — 建议从阶段 <<N>> 重做
+   > 2. <<阻塞项2>> — 建议从阶段 <<N>> 重做
+   >
+   > 修正后请说「从阶段N继续」以恢复工作流。
+4. **TERMINATE** — do NOT proceed further or auto-fix. Wait for human instruction.
+
+#### Review Report Template
+
+```markdown
+# Phase 8 设计评审报告 — Round <<N>>
+
+**产品**: <<产品名称>>
+**日期**: <<YYYY-MM-DD>>
+**评审结果**: ✅ 通过 / ❌ 未通过
+
+---
+
+## Part 1: 交互走查
+
+### 抽样页面
+<<列出被走查的 3-5 个代表性页面>>
+
+### 走查评分
+
+| 维度 | 通过/总数 | 得分 |
+|------|----------|------|
+| 基础交互 | /5 | % |
+| 页面状态 | /4 | % |
+| 导航与流程 | /4 | % |
+| 表单与输入 | /4 | % |
+| 数据加载 | /4 | % |
+| 内容展示 | /4 | % |
+| 视觉与品牌 | /5 | % |
+| 触摸与点击 | /3 | % |
+| 桌面端专属 | /10 | % |
+| 跨平台一致性 | /4 | % |
+| **综合** | **/47** | **%** |
+
+### 优先修复项（阻塞）
+<<若无则写「无」>>
+
+### 一般问题（不阻塞）
+<<若无则写「无」>>
+
+---
+
+## Part 2: 多角色评审
+
+### 各视角意见
+（6 个视角各 2 赞同 + 2 改进）
+
+### 综合改进优先级
+
+| 优先级 | 改进项 | 来源视角 | 影响范围 | 溯源阶段 |
+|--------|--------|---------|---------|---------|
+| P0 | <<改进项>> | <<视角>> | <<影响>> | Phase <<N>> |
+| P1 | <<改进项>> | <<视角>> | <<影响>> | Phase <<N>> |
+| P2 | <<改进项>> | <<视角>> | <<影响>> | Phase <<N>> |
+
+---
+
+## 判定
+
+- 走查优先修复项: <<N>> 项
+- 评审 P0 项: <<N>> 项
+- 评审 P1 项: <<N>> 项
+- **结论**: ✅ PASS / ❌ FAIL（原因: <<概述>>）
+
+<<若 FAIL>>
+### 修复计划
+| # | 阻塞项 | 溯源文件 | 修复动作 |
+|---|--------|---------|---------|
+| 1 | <<项>> | `doc/ixd/<<file>>` | <<具体修复>> |
+```
 
 
 ---
