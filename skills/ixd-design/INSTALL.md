@@ -1,6 +1,8 @@
 # IxD Design Skill — Installation Guide
 
 **Version:** v1.0
+**Standard:** [AgentSkills](https://agentskills.io) compatible
+**No external dependencies** — pure instruction skill, no CLI tools or API keys required.
 
 ## What This Skill Does
 
@@ -19,6 +21,42 @@ Guides an AI assistant through a structured 8-phase interaction design workflow,
 - Complete design system and component documentation
 
 ## Installation
+
+### Pi (recommended)
+
+Copy the `ixd-design/` folder to any of these locations:
+
+```bash
+# Global (all projects)
+~/.pi/skills/ixd-design/
+
+# Or project-level
+<project>/.pi/skills/ixd-design/
+<project>/.agents/skills/ixd-design/
+```
+
+Pi discovers `SKILL.md` automatically. No configuration needed.
+
+### OpenClaw
+
+```bash
+# Via ClawHub (if published)
+clawhub install ixd-design
+
+# Or manually copy to workspace
+cp -r ixd-design/ ~/.openclaw/workspace/skills/ixd-design/
+
+# Or shared across agents
+cp -r ixd-design/ ~/.openclaw/skills/ixd-design/
+```
+
+Refresh skills or start a new session to pick up the skill.
+
+### Claude Code
+
+```bash
+cp -r ixd-design/ ~/.claude/skills/ixd-design/
+```
 
 ### Claude Projects / Custom Instructions
 
@@ -67,16 +105,16 @@ ixd-design/
 ├── SKILL.md                       ← Main entry point
 ├── INSTALL.md                     ← This file
 ├── references/
-│   ├── phase1-context.md          ← Product context
-│   ├── phase2-architecture.md     ← Information architecture (22 page types)
-│   ├── phase3-userflow.md         ← User flows
-│   ├── phase4-page-interaction.md ← Page interaction specs (10 sections)
-│   ├── phase5-components.md       ← Component specifications
-│   ├── phase6-visual.md           ← Visual design (10 dimensions)
-│   ├── phase7-prototype.md        ← Prototype patterns
-│   ├── phase8-delivery.md         ← Delivery documentation
-│   ├── auxiliary-tools.md         ← Auxiliary design tools
-│   └── quickref.md                ← Quick reference card
+    ├── phase1-context.md          ← Product context
+    ├── phase2-architecture.md     ← Information architecture (22 page types)
+    ├── phase3-userflow.md         ← User flows
+    ├── phase4-page-interaction.md ← Page interaction specs (10 sections)
+    ├── phase5-components.md       ← Component specifications
+    ├── phase6-visual.md           ← Visual design (10 dimensions)
+    ├── phase7-prototype.md        ← Prototype patterns (mobile + desktop frames)
+    ├── phase8-delivery.md         ← Delivery documentation
+    ├── auxiliary-tools.md         ← Auxiliary design tools
+    └── quickref.md                ← Quick reference card
 └── templates/
     └── prototype-shell.js         ← Prototype framework template
 ```

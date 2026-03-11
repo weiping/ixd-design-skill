@@ -1,13 +1,14 @@
 ---
 name: ixd-design
-description: >-
-  AI-driven interaction design workflow skill that guides through 8 phases:
-  product context, information architecture, user flows, page interaction specs,
-  component library, visual design, interactive prototype, and design delivery.
-  Supports mobile, web, mini-programs, and PC desktop clients.
-  Triggers: 交互设计, 原型设计, 页面流程, 信息架构, 设计文档, 视觉设计,
-  配色方案, wireframe, mockup, prototype, user flow, interaction spec,
+description: |
+  Use when designing apps, websites, mini-programs, or desktop clients (PC/Mac/Electron/Tauri).
+  Covers interaction design, visual design, prototyping, and developer handoff.
+  Triggers: '交互设计', '原型设计', '页面流程', '信息架构', '设计文档', '视觉设计',
+  '配色方案', 'wireframe', 'mockup', 'prototype', 'user flow', 'interaction spec',
   设计页面, 设计App, 做原型, PC客户端设计, 桌面端交互, design screens/pages/features.
+  8-phase workflow: context → architecture → flows → page specs → components → visual → prototype → delivery.
+compatibility: No external tools required. Works with any LLM that supports markdown instructions.
+metadata: {"openclaw": {"emoji": "🎨"}}
 ---
 
 # IxD Full Workflow Skill v1.0
