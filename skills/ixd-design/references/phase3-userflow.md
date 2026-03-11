@@ -1,4 +1,4 @@
-# Phase 3: User Flows （核心用户流程）
+# Phase 3: User Flows
 
 ## Objective
 
@@ -48,33 +48,33 @@ Labels:
 
 ```mermaid
 flowchart TD
-    Start([用户打开App]) --> A{已登录?}
-    A -->|是| B[首页]
-    A -->|否| C[登录页]
+    Start([User opens App]) --> A{Logged in?}
+    A -->|Yes| B[Home]
+    A -->|No| C[Login Page]
 
-    C --> D{登录方式}
-    D -->|手机号| E[输入手机号]
-    E --> F[输入验证码]
-    F --> G{验证通过?}
-    G -->|是| H{新用户?}
-    G -->|否| F
-    G -.->|3次失败| I[账号锁定提示]
+    C --> D{Login method}
+    D -->|Phone| E[Enter phone number]
+    E --> F[Enter verification code]
+    F --> G{Verification passed?}
+    G -->|Yes| H{New user?}
+    G -->|No| F
+    G -.->|3 failures| I[Account locked message]
 
-    H -->|是| J[完善资料页]
-    H -->|否| B
+    H -->|Yes| J[Complete profile]
+    H -->|No| B
     J --> B
 
-    B --> K[浏览内容列表]
-    K --> L[内容详情页]
-    L --> M{操作选择}
-    M -->|收藏| N[[保存到收藏夹]]
-    M -->|分享| O[分享面板]
-    M -->|返回| K
+    B --> K[Browse content list]
+    K --> L[Content detail]
+    L --> M{Action choice}
+    M -->|Save| N[[Save to favorites]]
+    M -->|Share| O[Share panel]
+    M -->|Back| K
 
-    N --> P[Toast: 收藏成功]
+    N --> P[Toast: Saved successfully]
     P --> L
 
-    End([流程结束])
+    End([Flow ends])
 ```
 
 ### Flowchart Patterns to Cover
@@ -94,24 +94,24 @@ For each task, the flowchart must show:
 For each flowchart, provide a detailed step table:
 
 ```markdown
-| 步骤 | 页面/组件 | 用户操作 | 系统响应 | 异常处理 | 耗时预估 |
-|------|----------|---------|---------|---------|---------|
-| 1 | App启动 | 点击App图标 | 显示启动页→检查登录态 | - | < 2s |
-| 2 | 登录页 | 输入手机号 | 实时格式校验 | 格式错误：红色提示 | - |
-| 3 | 登录页 | 点击获取验证码 | 发送短信+60s倒计时 | 网络失败：Toast提示，可重试 | < 1s |
-| 4 | 登录页 | 输入验证码 | 自动提交验证 | 验证码错误：清空+提示 | < 2s |
-| 5 | 首页 | - | 加载首页数据（骨架屏） | 加载失败：错误态+重试 | < 3s |
+| Step | Page/Component | User Action | System Response | Exception Handling | Time Estimate |
+|------|----------------|-------------|-----------------|-------------------|---------------|
+| 1 | App Launch | Tap app icon | Show splash → Check login state | - | < 2s |
+| 2 | Login Page | Enter phone number | Real-time format validation | Format error: red hint | - |
+| 3 | Login Page | Tap get code | Send SMS + 60s countdown | Network fail: Toast, retry | < 1s |
+| 4 | Login Page | Enter code | Auto-submit verification | Code error: clear + hint | < 2s |
+| 5 | Home | - | Load home data (skeleton) | Load fail: error state + retry | < 3s |
 ```
 
 ### Time Estimate Guidelines
 
-| 操作类型 | 用户预期 | 超时处理 |
-|---------|---------|---------|
-| 页面跳转 | < 300ms | 不需要 loading |
-| 本地数据加载 | < 1s | 骨架屏 |
-| 网络请求 | < 3s | 骨架屏 + loading 指示器 |
-| 复杂计算/上传 | < 10s | 进度条 |
-| 后台处理 | > 10s | 轮询/推送通知 |
+| Operation Type | User Expectation | Timeout Handling |
+|----------------|------------------|------------------|
+| Page transition | < 300ms | No loading needed |
+| Local data load | < 1s | Skeleton screen |
+| Network request | < 3s | Skeleton + loading indicator |
+| Complex calc/upload | < 10s | Progress bar |
+| Background process | > 10s | Polling / Push notification |
 
 ---
 
@@ -120,19 +120,19 @@ For each flowchart, provide a detailed step table:
 For each decision node in the flowchart, document the business logic:
 
 ```markdown
-## 关键决策点
+## Key Decision Points
 
-### 决策点 1：登录态判断
-- **判断条件**：检查本地 token 是否存在且未过期
-- **是**：直接进入首页
-- **否**：跳转登录页
-- **边界情况**：token 过期但有 refresh token → 静默刷新
+### Decision Point 1: Login State Check
+- **Condition**: Check if local token exists and is not expired
+- **Yes**: Go directly to home
+- **No**: Redirect to login page
+- **Edge case**: Token expired but refresh token exists → Silent refresh
 
-### 决策点 2：新老用户判断
-- **判断条件**：服务端返回 is_new_user 字段
-- **新用户**：进入引导流程（完善资料→新手教程）
-- **老用户**：直接进入首页
-- **边界情况**：老用户首次登录新设备 → 不算新用户
+### Decision Point 2: New/Returning User Check
+- **Condition**: Server returns is_new_user field
+- **New user**: Enter onboarding flow (complete profile → tutorial)
+- **Returning user**: Go directly to home
+- **Edge case**: Returning user on new device → Not counted as new user
 ```
 
 ---
@@ -169,8 +169,8 @@ Start → Create/Edit → Preview → Submit →
 ```
 Start → Download installer → Run installer → Installation options →
   → Installing (progress) → First launch → Config wizard → Main workspace
-  
-Update: Check for updates → Update available prompt → 
+
+Update: Check for updates → Update available prompt →
   → User accepts → Background download → Ready to install →
   → Restart & apply → Updated workspace
 ```
@@ -187,6 +187,3 @@ Before moving to Phase 4:
 - [ ] Step table includes time estimates
 - [ ] No dead-end nodes (every path reaches an end or loops back)
 - [ ] Mermaid flowcharts render correctly
-
-
-

@@ -1,47 +1,59 @@
-# AI 交互设计全流程提示词体系
+# AI Interaction Design Full-Workflow Prompt System
 
-> 适用于 Claude / GPT 等大模型，产出对标墨刀、Figma 等工具的完整交互+视觉设计成果物
-> 作者：Weiping | 版本：v2.1
-
----
-
-## 版本记录
-
-| 版本 | 日期 | 变更内容 |
-|------|------|---------|
-| v1.0 | 2025-03 | 初版，7 阶段交互设计体系 |
-| v2.0 | 2025-03 | 新增阶段六「视觉设计」；页面类型体系从 7 类扩展到 18 类；新增完整页面穷举清单模板（附录 E）；更新一次性 Prompt 和对照表；阶段总数调整为 8 |
-| v2.1 | 2026-03 | 新增 PC 客户端平台支持（Windows/macOS 原生应用、Flutter/Electron 跨平台桌面端）；全阶段补充桌面端交互范式（鼠标悬停、键盘快捷键、窗口管理、信息密度等）；页面类型新增「窗口/面板类」；适配说明覆盖桌面端布局；附录 E 补充桌面端专属页面清单 |
+> For Claude / GPT and other LLMs, produces complete interaction + visual design deliverables comparable to Modao, Figma, and other professional tools.
+> Author: Weiping | Version: v2.2
 
 ---
 
-## 使用说明
+## Language Policy
 
-本提示词体系分为 **8 个阶段**，对应从需求到交付的完整设计流程。每个阶段包含：
+**Source Code**: All structural elements use English.
+**Output Language**: Dialogue and deliverables follow the user's input language.
+- Chinese input → Chinese output
+- English input → English output
+- Mixed input → Primary language
 
-- **阶段说明**：该阶段的目标和产出物
-- **提示词模板**：可直接使用的 Prompt（`<<变量>>` 为需替换内容）
-- **产出格式说明**：期望 AI 输出的格式和结构
-- **质量检查清单**：用于验收 AI 产出
+---
 
-### 全流程一览
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.0 | 2025-03 | Initial release, 7-phase interaction design system |
+| v2.0 | 2025-03 | Added Phase 6 "Visual Design"; expanded page type taxonomy from 7 to 18 types; added complete page exhaustiveness checklist template (Appendix E); updated one-shot prompt and comparison tables; adjusted to 8 phases total |
+| v2.1 | 2026-03 | Added PC client platform support (Windows/macOS native apps, Flutter/Electron cross-platform desktop); supplemented desktop interaction paradigms across all phases (mouse hover, keyboard shortcuts, window management, information density, etc.); added "Window/Panel" page types; adaptation specs cover desktop layouts; Appendix E supplemented with desktop-exclusive page checklist |
+| v2.2 | 2026-03 | Phase 7 refactor: unified to platform-parameter-driven mode, default output mobile prototype, desktop requires explicit specification, dual-platform prototypes as independent option; removed "single-platform" vs "cross-platform" distinction, simplified prompt structure |
+
+---
+
+## Usage Guide
+
+This prompt system is divided into **8 phases**, corresponding to the complete design flow from requirements to delivery. Each phase includes:
+
+- **Phase Description**: Goals and deliverables
+- **Prompt Template**: Ready-to-use prompts (`<<variable>>` indicates content to replace)
+- **Output Format**: Expected AI output format and structure
+- **Quality Checklist**: For validating AI deliverables
+
+### Full Workflow Overview
 
 ```
-阶段一 → 阶段二 → 阶段三 → 阶段四 → 阶段五 → 阶段六 → 阶段七 → 阶段八
-产品上下文  信息架构  用户流程  页面交互说明  组件规范   视觉设计   可交互原型  设计交付
-                                                    ▲ NEW
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8
+Context   IA        Flows      Page Specs   Components  Visual    Prototype   Delivery
 ```
 
-建议按阶段顺序使用，每阶段确认后再进入下一阶段。也可以将多个阶段合并为一个 Prompt 一次性执行。
+Recommended to proceed phase by phase, confirming each before moving to the next. Multiple phases can also be combined into a single prompt for one-shot execution.
 
 ---
 
-## 阶段一：产品上下文建立
+## Phase 1: Product Context Establishment
 
-### 目标
-让 AI 理解产品背景，建立设计约束，相当于设计师的 Kick-off 会议。
+### Goal
+Help AI understand product background and establish design constraints, equivalent to a designer's Kick-off meeting.
 
-### 提示词模板
+### Prompt Template (Bilingual)
+
+**[Chinese Version - 中文版]**
 
 ```
 你是一位拥有 10 年经验的资深交互设计师兼视觉设计师，精通移动端、Web 端和桌面端产品设计，
@@ -81,12 +93,52 @@
 5. 输出初步 **视觉方向建议**（色彩倾向、字体气质、视觉风格关键词 3-5 个）
 ```
 
-### 产出格式
-- 产品设计摘要：自然段落
-- 设计挑战：编号列表 + 简要说明
-- 设计原则：原则名 + 解释
-- 设计参考：产品名 + 参考理由
-- 视觉方向：关键词 + 简要描述
+**[English Version]**
+
+```
+You are a senior interaction designer and visual designer with 10 years of experience, proficient in mobile, web, and desktop product design.
+You are familiar with major design systems including Material Design 3, Apple HIG, Fluent Design (Windows), macOS HIG,
+and have professional expertise in brand visuals, UI design, and motion design.
+
+Based on the following product background, establish the design context:
+
+## Product Information
+- Product Name: <<product_name>>
+- Product Type: <<App/Web/Mini-program/PC Client/Cross-platform>>
+- Target Platform: <<iOS/Android/Web/Windows/macOS/Linux/Flutter/Electron/React Native>>
+- Product Positioning: <<one-sentence value proposition>>
+
+## Target Users
+- Primary User Roles: <<role1: description>>, <<role2: description>>
+- Usage Scenarios: <<core usage scenarios>>
+- Technical Proficiency: <<novice/average/expert>>
+- Age Range: <<age range>>
+
+## Core Features
+<<List 3-7 core feature modules>>
+
+## Design Constraints
+- Design Language: <<design system to follow, desktop can use Fluent Design / macOS HIG / custom>>
+- Brand Colors: <<primary/secondary/accent colors, if any>>
+- Brand Tone: <<professional/energetic/warm/futuristic/minimal/...>>
+- Existing Assets: <<existing design system, component library, or brand guidelines>>
+- Technical Constraints: <<frontend framework, desktop framework (Flutter/Electron/Tauri/Swift/WPF), performance requirements, etc.>>
+- Competitor References: <<1-3 competitor names and reference points>>
+
+## Your Tasks
+1. Confirm your understanding of the product, output a **Product Design Summary** (within 200 words)
+2. Identify **Design Challenges** (3-5 key design difficulties, including interaction and visual aspects)
+3. Propose **Design Principles** (3-5 principles to guide subsequent design)
+4. List **Design References** (recommend 2-3 excellent products with reasons, covering both interaction and visual dimensions)
+5. Output preliminary **Visual Direction Suggestions** (color tendencies, typography personality, 3-5 visual style keywords)
+```
+
+### Output Format
+- Product Design Summary: Natural paragraph
+- Design Challenges: Numbered list + brief explanation
+- Design Principles: Principle name + explanation
+- Design References: Product name + reference reason
+- Visual Direction: Keywords + brief description
 
 ---
 
@@ -818,20 +870,41 @@ flowchart TD
 生成可点击的高保真 HTML 原型，对标墨刀的"原型演示"功能。这是 AI 相比传统工具的差异化优势。
 
 > **v2.0 更新**：原型现在应直接使用阶段六定义的视觉方案（色彩/字体/圆角/阴影），实现交互+视觉一体化。
+>
+> **v2.2 更新**：统一为平台参数驱动模式。默认输出移动端原型，桌面端需显式指定。需要双端原型时作为独立选项处理。
 
 ### 提示词模板
 
 ```
 请基于前述交互设计方案和视觉设计方案，生成可交互的高保真 HTML 原型。
 
+## 原型配置
+- **目标平台**：<<移动端（默认）/ 桌面端>>
+- **双端输出**：<<否（默认）/ 是>>（同时生成移动端 + 桌面端两套原型）
+
 ## 技术要求
+
+### 基础要求（所有平台通用）
 - 单文件 HTML（内联 CSS + JS），或 React JSX 组件
 - 使用 Tailwind CSS 进行样式编写
-- 移动端优先：使用 max-width: 390px 居中模拟手机屏幕
-- 桌面端模式（PC 客户端）：使用 max-width: 1280px 模拟桌面窗口，含侧边栏布局
 - 实现真实的点击跳转（多页面用 SPA 路由模拟或 Tab 切换）
 - 包含过渡动画（页面转场 / 组件状态变化）
-- 桌面端支持键盘导航和快捷键模拟（如有）
+- 支持深色模式切换
+
+### 移动端原型
+- 视口：max-width: 390px 居中模拟手机屏幕
+- 导航模式：底部 Tab + 顶部导航栏
+- 页面转场：slide 动画
+- 触摸交互：下拉刷新、左滑删除、惯性滚动
+
+### 桌面端原型
+- 视口：max-width: 1280px 模拟桌面窗口
+- 导航模式：侧边栏导航（可折叠）+ 顶部工具栏/菜单栏
+- 页面转场：fade 动画
+- 多面板布局：侧边栏 + 主内容区 + 辅助面板（可拖拽分割线）
+- 键盘导航：Tab 焦点 / Enter 确认 / Esc 取消 / 快捷键模拟
+- 窗口标题栏：模拟关闭/最小化/最大化按钮样式
+- 鼠标交互：hover 态、右键菜单、拖拽行为、Tooltip
 
 ## 视觉落地要求（来自阶段六）
 - 使用阶段六定义的完整色彩系统（通过 CSS 变量实现）
@@ -844,12 +917,9 @@ flowchart TD
 ## 交互实现要求
 
 ### 页面导航
-- 移动端：Tab 切换实现底部导航
-- 桌面端：侧边栏导航 + 顶部工具栏（可折叠侧栏）
-- 页面跳转使用 slide 动画（桌面端可用 fade 替代）
-- 返回按钮支持 history back
+- 移动端：Tab 切换实现底部导航，返回按钮支持 history back
+- 桌面端：侧边栏导航 + 顶部工具栏，支持 Alt+←/→ 或 Cmd+[/] 前进后退
 - 页面间传参（如列表→详情的 ID 传递）
-- 桌面端：支持浏览器式前进/后退快捷键模拟（Alt+←/→ 或 Cmd+[/]）
 
 ### 表单交互
 - 输入框实时校验 + 错误提示
@@ -861,39 +931,35 @@ flowchart TD
 ### 状态模拟
 - 用 setTimeout 模拟加载态（骨架屏 → 内容）
 - 空态展示（可通过开关切换）
-- 下拉刷新动画
+- 下拉刷新动画（移动端）
 - Toast 弹出和自动消失
 
-### 附加功能（可选）
+## 附加功能（可选）
 - 左上角添加"交互说明"浮窗按钮，点击展示当前页面的交互标注
 - 页面底部添加页面状态切换器（默认/加载/空态/错误态）
-- 支持深色模式切换
 - 右上角添加"视觉标注"模式，开启后显示间距/色值/字号标注
-- 添加"移动端/桌面端"视口切换按钮，体验不同平台的布局差异（跨平台产品适用）
-- 桌面端原型：模拟窗口标题栏（含关闭/最小化/最大化按钮样式）
 
-## 输出格式
+## 输出文件
 
-**单平台产品**：输出为单个 .html 文件或 .jsx 文件，可直接在浏览器中运行。
+### 单端原型（默认）
+输出为 **单个 .html 或 .jsx 文件**：
+- 移动端：`prototype.html` 或 `prototype.jsx`
+- 桌面端：`prototype-desktop.html` 或 `prototype-desktop.jsx`
 
-**跨平台产品（同时覆盖移动端 + PC 客户端）**：输出为 **两套独立 HTML 文件**：
+### 双端原型
+输出为两套独立文件，共享同一套 CSS 变量（Design Token）：
 
 | 文件 | 模拟视口 | 导航模式 | 交互重点 |
 |------|---------|---------|---------|
-| `prototype-mobile.html` | 390×844px（iPhone 居中模拟） | 底部 Tab + 顶部导航栏 | 触摸手势、下拉刷新、滑动操作 |
-| `prototype-desktop.html` | 1280×800px（桌面窗口模拟） | 侧边栏 + 顶部工具栏/菜单栏 | 悬停态、右键菜单、键盘快捷键、多面板拖拽、窗口标题栏 |
+| `prototype-mobile.html` | 390×844px | 底部 Tab + 顶部导航栏 | 触摸手势、下拉刷新、滑动操作 |
+| `prototype-desktop.html` | 1280×800px | 侧边栏 + 顶部工具栏 | 悬停态、右键菜单、键盘快捷键、多面板拖拽 |
 
-两套文件共享同一套 CSS 变量（Design Token），但各自实现平台原生的交互范式。
-不要用响应式断点在一个文件里同时模拟两端 — 移动端和桌面端的信息架构、导航层级、
-信息密度差异过大，单文件模拟会导致两端体验都不到位。
-
+两套文件各自实现平台原生的交互范式，不使用响应式断点混排。
 ```
 
 ### 分步生成策略
 
 如果页面较多，可按以下策略分步生成：
-
-#### 单平台产品
 
 ```
 ## 第一步：生成框架和视觉基础
@@ -901,11 +967,17 @@ flowchart TD
 - CSS 变量（阶段六的全部 Design Token）
 - 深色模式 CSS 变量切换
 - 页面路由系统（Hash 路由）
-- 移动端：底部 Tab 导航组件（使用阶段六的图标和颜色规范）
-- 桌面端：侧边栏导航组件（可折叠）+ 顶部工具栏
-- 顶部导航栏组件
 - 全局样式变量
 - 页面转场动画（使用阶段六的动效曲线）
+
+**移动端原型**：
+- 底部 Tab 导航组件（使用阶段六的图标和颜色规范）
+- 顶部导航栏组件
+
+**桌面端原型**：
+- 侧边栏导航组件（可折叠）+ 顶部工具栏
+- 窗口标题栏模拟（含关闭/最小化/最大化按钮）
+- 多面板布局框架（侧边栏 + 主内容区 + 辅助面板）
 
 暂时每个页面用占位内容即可。
 
@@ -922,20 +994,23 @@ flowchart TD
 4. 各状态是否可正常切换
 5. 视觉样式是否严格遵循阶段六的视觉方案
 6. 深色模式是否正确切换
+7. 桌面端专属（如有）：键盘导航、悬停态、右键菜单是否正常
 ```
 
-#### 跨平台产品（两套原型）
+### 双端原型分步生成
+
+当需要同时输出移动端和桌面端原型时：
 
 ```
 ## 第一步：生成共享 Design Token
-请先输出一段可复用的 CSS 变量代码块（design-tokens.css），包含：
+请先输出一段可复用的 CSS 变量代码块，包含：
 - 阶段六的全部色彩变量（Light + Dark）
 - 字体系统变量
 - 间距 / 圆角 / 阴影变量
 - 动效曲线变量
 两套原型文件将各自内联引用该变量集，确保视觉一致性。
 
-## 第二步：生成移动端原型 (prototype-mobile.html)
+## 第二步：生成移动端原型
 请生成移动端高保真原型，要求：
 - 390×844px 居中手机模拟器
 - 底部 Tab 导航 + 顶部导航栏
@@ -944,7 +1019,7 @@ flowchart TD
 - 内联第一步的 Design Token
 暂时每个页面用占位内容，后续逐页填充。
 
-## 第三步：生成桌面端原型 (prototype-desktop.html)
+## 第三步：生成桌面端原型
 请生成桌面端高保真原型，要求：
 - 1280×800px 桌面窗口模拟（含自绘标题栏 + 窗口控制按钮）
 - 侧边栏导航（可折叠）+ 顶部工具栏/菜单栏
@@ -973,26 +1048,15 @@ flowchart TD
 
 ### 批量输出提示词
 
-**单平台产品**：
 ```
-请按照上述可交互的高保真 HTML 原型要求，依次输出以下页面的完整可交互的高保真 HTML 原型：
+请按照上述可交互的高保真 HTML 原型要求，依次输出以下页面的完整原型：
 <<粘贴阶段二的页面清单表>>
 
-可以按优先级顺序分批输出，每次输出 3-5 个页面。
-```
+**目标平台**：<<移动端（默认）/ 桌面端>>
+**双端输出**：<<否（默认）/ 是>>
 
-**跨平台产品**：
-```
-请按照上述跨平台两套原型的要求，依次输出以下页面：
-<<粘贴阶段二的页面清单表>>
-
-每次同时输出同一页面的移动端和桌面端两个版本，方便对比审查。
-可以按模块分批输出，每次输出 2-3 个页面 × 2 端 = 4-6 个版本。
-
-输出顺序建议：
-1. 先输出两端差异最大的核心页面（如首页/工作区），确认布局策略
-2. 再批量输出差异较小的内容页面（如详情页、表单页）
-3. 最后输出各端专属页面（移动端：引导页/权限页；桌面端：偏好设置/快捷键面板）
+按优先级顺序分批输出，每次输出 3-5 个页面。
+如为双端输出，每次同时输出同一页面的移动端和桌面端两个版本。
 ```
 ---
 

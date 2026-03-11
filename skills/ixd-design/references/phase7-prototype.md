@@ -1,8 +1,20 @@
-# Phase 7: Interactive Prototype （可交互原型）
+# Phase 7: Interactive Prototype
 
 ## Objective
 
 Generate a clickable, high-fidelity prototype that can be tested in a browser or rendered as a claude.ai artifact. This is the AI's unique advantage over traditional tools like Modao — producing real, functional code.
+
+## Platform Configuration
+
+The `platform` field in `progress.json` determines the output:
+
+| platform | Output File(s) | Viewport | Primary Interactions |
+|----------|---------------|----------|---------------------|
+| `"mobile"` (default) | `phase7-prototype.html` | 390×844px phone frame | Touch, swipe, pull-to-refresh |
+| `"desktop"` | `phase7-prototype-desktop.html` | 1280×800px window frame | Hover, right-click, keyboard, drag |
+| `"both"` | Two files (mobile + desktop) | Both viewports | Both interaction sets |
+
+**Default behavior**: If `platform` is not set, assume `"mobile"`.
 
 ## Output Formats
 
@@ -13,27 +25,6 @@ Generate a clickable, high-fidelity prototype that can be tested in a browser or
 | Multi-file React | Complex prototypes (via web-artifacts-builder skill) | `.jsx` + supporting files |
 
 Default to **React JSX** when in claude.ai, **single HTML** when in Claude Code.
-
-### Cross-Platform Dual-File Strategy
-
-For cross-platform projects, output **TWO separate files** instead of one responsive file:
-
-| File | Viewport | Purpose |
-|------|----------|---------|
-| `prototype-mobile.html` | 390×844 phone simulation | Mobile-native interaction patterns |
-| `prototype-desktop.html` | 1280×800 desktop window simulation | Desktop-native interaction patterns |
-
-Both files share the **same Design Token CSS variables** (colors, typography scale, spacing units, border-radius, shadows) but implement **different platform-native interaction patterns**.
-
-**Why two files instead of responsive CSS?**
-
-- Mobile and desktop have fundamentally different **information architecture** — mobile uses flat, card-based stacking; desktop uses sidebar + multi-panel spatial layouts
-- **Navigation paradigms** differ: bottom tab bar (mobile) vs. sidebar + top toolbar (desktop)
-- **Information density** differs: mobile shows 3-5 items per viewport; desktop shows 10-20+ with auxiliary info
-- **Interaction models** differ: touch/swipe/pull-to-refresh (mobile) vs. hover/right-click/keyboard shortcuts/drag-resize (desktop)
-- A single responsive file forces compromises that make neither platform feel native
-
-**Single-platform projects** still use one file (`.html` or `.jsx`).
 
 ## Architecture: Mobile Phone Frame
 
@@ -178,8 +169,8 @@ const DesktopFrame = ({ children, title = 'App', platform = 'macos' }) => {
         fontSize: '11px',
         color: '#888'
       }}>
-        <span>就绪</span>
-        <span style={{ marginLeft: 'auto' }}>共 42 项</span>
+        <span>Ready</span>
+        <span style={{ marginLeft: 'auto' }}>42 items total</span>
       </div>
     </div>
   );
@@ -307,10 +298,10 @@ const StateSwitcher = () => (
 ```jsx
 const TabBar = ({ current, onChange }) => {
   const tabs = [
-    { id: 'home', label: '首页', icon: '🏠' },
-    { id: 'discover', label: '发现', icon: '🔍' },
-    { id: 'messages', label: '消息', icon: '💬', badge: 3 },
-    { id: 'profile', label: '我的', icon: '👤' },
+    { id: 'home', label: 'Home', icon: '🏠' },
+    { id: 'discover', label: 'Discover', icon: '🔍' },
+    { id: 'messages', label: 'Messages', icon: '💬', badge: 3 },
+    { id: 'profile', label: 'Profile', icon: '👤' },
   ];
 
   return (
@@ -343,11 +334,11 @@ const TabBar = ({ current, onChange }) => {
 ```jsx
 const SidebarNav = ({ collapsed, onToggle, current, onChange }) => {
   const items = [
-    { id: 'home', label: '首页', icon: '🏠' },
-    { id: 'projects', label: '项目', icon: '📁' },
-    { id: 'messages', label: '消息', icon: '💬', badge: 3 },
-    { id: 'analytics', label: '分析', icon: '📊' },
-    { id: 'settings', label: '设置', icon: '⚙️' },
+    { id: 'home', label: 'Home', icon: '🏠' },
+    { id: 'projects', label: 'Projects', icon: '📁' },
+    { id: 'messages', label: 'Messages', icon: '💬', badge: 3 },
+    { id: 'analytics', label: 'Analytics', icon: '📊' },
+    { id: 'settings', label: 'Settings', icon: '⚙️' },
   ];
 
   return (
@@ -503,7 +494,7 @@ const Hoverable = ({ children, hoverStyle, style, ...props }) => {
   hoverStyle={{ background: '#f5f5f5' }}
   onClick={() => navigate('detail')}
 >
-  <span>项目文档</span>
+  <span>Project Documents</span>
 </Hoverable>
 ```
 
@@ -563,13 +554,13 @@ const handleContextMenu = (e) => {
   setContextMenu({
     x: e.clientX, y: e.clientY,
     items: [
-      { label: '打开', shortcut: '⏎', action: () => navigate('detail') },
-      { label: '在新窗口打开', shortcut: '⌘⏎', action: () => {} },
+      { label: 'Open', shortcut: '⏎', action: () => navigate('detail') },
+      { label: 'Open in New Window', shortcut: '⌘⏎', action: () => {} },
       { separator: true },
-      { label: '复制', shortcut: '⌘C', action: () => {} },
-      { label: '移动到…', action: () => {} },
+      { label: 'Copy', shortcut: '⌘C', action: () => {} },
+      { label: 'Move to...', action: () => {} },
       { separator: true },
-      { label: '删除', shortcut: '⌫', danger: true, action: () => {} },
+      { label: 'Delete', shortcut: '⌫', danger: true, action: () => {} },
     ]
   });
 };
@@ -731,7 +722,7 @@ const Tooltip = ({ children, text, delay = 500 }) => {
 
 ## Realistic Mock Data
 
-Always use Chinese mock data for Chinese products:
+Use mock data that matches the output language. For Chinese products:
 
 ```jsx
 const mockUsers = [
@@ -746,14 +737,34 @@ const mockMessages = [
 ];
 ```
 
+For English products:
+
+```jsx
+const mockUsers = [
+  { name: 'John', avatar: '👨‍💼', role: 'Product Manager' },
+  { name: 'Sarah', avatar: '👩‍💻', role: 'Frontend Engineer' },
+  { name: 'Mike', avatar: '👨‍🔬', role: 'Data Analyst' },
+];
+
+const mockMessages = [
+  { from: 'John', content: 'The review meeting has been moved to 3pm', time: '10:32', unread: true },
+  { from: 'Product Team', content: 'Sarah: The new prototype has been updated', time: '09:45', unread: false },
+];
+```
+
 ## Implementation Strategy
 
-### Single Platform (3-5 pages)
+### Step 1 — Read Platform Configuration
 
-Generate everything in one file. Three steps:
+```js
+// Read from progress.json
+const { platform } = require('./doc/ixd/progress.json');
+// Values: "mobile" (default) | "desktop" | "both"
+```
 
-**Step 1 — Framework**: Set up the shell (routing + navigation + frame wrapper)
+### Step 2 — Generate Framework
 
+**Mobile (`platform: "mobile"`)**:
 ```jsx
 export default function App() {
   const [page, setPage] = useState('home');
@@ -769,26 +780,53 @@ export default function App() {
   };
 
   return (
-    <PhoneFrame> {/* or <DesktopFrame> */}
+    <PhoneFrame>
       <StatusBar />
       <div className="flex-1 overflow-y-auto">
         {renderPage()}
       </div>
-      <TabBar current={page} onChange={setPage} /> {/* or <SidebarNav /> */}
+      <TabBar current={page} onChange={setPage} />
     </PhoneFrame>
   );
 }
 ```
 
-**Step 2 — Fill pages**: Implement each page with real content, states, and interactions
+**Desktop (`platform: "desktop"`)**:
+```jsx
+export default function App() {
+  const [page, setPage] = useState('home');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // ... state management
 
-**Step 3 — Polish**: Add animations, loading states, error states, edge cases
+  return (
+    <DesktopFrame title="App Name" platform="macos">
+      <SidebarNav
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        current={page}
+        onChange={setPage}
+      />
+      <div className="flex-1 overflow-y-auto">
+        {renderPage()}
+      </div>
+    </DesktopFrame>
+  );
+}
+```
 
-### Cross-Platform (5 steps)
+### Step 3 — Fill Pages
 
-For projects targeting both mobile and desktop:
+Implement each page with real content, states, and interactions.
 
-**Step 1 — Shared Design Tokens**: Define CSS variables shared by both files
+### Step 4 — Polish
+
+Add animations, loading states, error states, edge cases.
+
+### Cross-Platform (`platform: "both"`)
+
+For projects targeting both mobile and desktop, generate **two separate files**:
+
+1. **Generate shared Design Token CSS variables** (used by both files):
 
 ```css
 :root {
@@ -831,22 +869,220 @@ For projects targeting both mobile and desktop:
 }
 ```
 
-**Step 2 — Mobile prototype** (`prototype-mobile.html`): Build the mobile version with phone frame, tab bar, touch interactions
+2. **Generate mobile prototype** (`phase7-prototype-mobile.html`): Phone frame, tab bar, touch interactions
 
-**Step 3 — Desktop prototype** (`prototype-desktop.html`): Build the desktop version with window frame, sidebar, hover/keyboard interactions
+3. **Generate desktop prototype** (`phase7-prototype-desktop.html`): Window frame, sidebar, hover/keyboard interactions
 
-**Step 4 — Fill pages for both**: Implement all pages in both files, ensuring content parity but platform-appropriate layouts
+4. **Fill pages for both**: Implement all pages in both files, ensuring content parity but platform-appropriate layouts
 
-**Step 5 — Independent QA**: Test each prototype independently against its platform's quality checklist
+5. **Independent QA**: Test each prototype independently against its platform's quality checklist
 
-## Cross-Platform Batch Output Strategy
+## Resume Logic (Breakpoint Recovery)
 
-When outputting pages for both platforms, follow this strategy:
+When resuming Phase 7 after a break, follow this process:
+
+### Step 1: Read Progress State
+
+```js
+// Read from progress.json
+const phase7Status = progress.phases['7'];
+const completedPages = phase7Status.pagesCompleted || [];
+const pagesTotal = phase7Status.pagesTotal || 0;
+const platform = progress.platform || 'mobile'; // "mobile" | "desktop" | "both"
+```
+
+### Step 2: Calculate Remaining Pages
+
+```js
+// Read Phase 2 page inventory
+const expectedPages = readPageInventory('doc/ixd/phase2-architecture.md');
+// Returns: [{ id: 'P01', name: 'Home', type: 'Hub' }, ...]
+
+// Calculate remaining
+const remainingPages = expectedPages.filter(p => !completedPages.includes(p.id));
+```
+
+### Step 3: Resume Decision
+
+```
+IF remainingPages.length > 0:
+  OUTPUT: "## Phase 7 Resume
+
+  **Platform**: <<mobile/desktop/both>>
+  **Completed**: <<M>>/<<total>> pages
+  **Remaining**: <<K>> pages to implement
+
+  | Page ID | Page Name | Page Type |
+  |---------|-----------|-----------|
+  | <<P04>> | <<Product Detail>> | Detail |
+  | ... | ... | ... |
+
+  Resuming from **<<first remaining page>>**."
+
+  → Process remaining pages in batches (3-5 for single platform, 2-3×2 for cross-platform)
+  → Update pagesCompleted after each batch
+
+ELSE (remainingPages.length === 0):
+  → Run Completeness Check (Step 4)
+```
+
+### Step 4: Completeness Check (when all pages marked complete)
+
+Even when `pagesCompleted.length === pagesTotal`, verify actual implementation:
+
+```js
+// For single platform
+const actualPages = extractPagesFromPrototype('phase7-prototype.html');
+
+// For cross-platform
+const mobilePages = extractPagesFromPrototype('phase7-prototype-mobile.html');
+const desktopPages = extractPagesFromPrototype('phase7-prototype-desktop.html');
+
+// Compare with Phase 2 inventory
+const missingPages = expectedPages.filter(p => !actualPages.includes(p.id));
+```
+
+**Result Handling**:
+```
+IF missingPages.length === 0:
+  OUTPUT: "✅ Completeness check passed, all <<N>> pages implemented. Proceeding to Phase 8."
+  → Set phase 7 status to "done"
+  → Proceed to Phase 8
+
+ELSE:
+  OUTPUT: "⚠️ Found <<N>> missing pages: <<page name list>>
+
+  Will supplement these page implementations first."
+  → Generate missing pages
+  → Re-run completeness check
+  → Then proceed to Phase 8
+```
+
+---
+
+## Batch Output Strategy
+
+### Single-Platform Batch Output (`platform: "mobile"` or `"desktop"`)
+
+When generating pages for a single platform, follow this strategy:
+
+1. **Read page inventory** from `doc/ixd/phase2-architecture.md` — get the complete list of pages
+2. **Prioritize by importance**: dashboard/home → core lists → detail pages → forms → settings → secondary pages
+3. **Output in batches of 3-5 pages** per turn to avoid token limits
+4. **Track progress**: After each batch, record which pages are completed in `progress.json`
+
+**Batch order example**:
+```
+Batch 1: Home(Hub) + Core list pages + Core detail pages
+Batch 2: Secondary list pages + Secondary detail pages + Form pages
+Batch 3: Settings pages + Profile pages + Search pages
+Batch 4: Onboarding pages + Empty states + Error pages + Other auxiliary pages
+```
+
+### Cross-Platform Batch Output (`platform: "both"`)
+
+When `platform: "both"`, follow this strategy for outputting pages:
 
 1. **Start with the page that has the biggest layout difference** between mobile and desktop (e.g., a dashboard or multi-panel workspace) — this establishes the pattern for how content maps across platforms
 2. **Output the same page for both platforms simultaneously** (mobile first, then desktop) before moving to the next page — this ensures content parity and catches design inconsistencies early
 3. **Shared components** (cards, badges, avatars) should use the same Design Token variables — only the layout container and interaction patterns differ
 4. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
+5. **Output in batches of 2-3 pages × 2 platforms = 4-6 files per turn**
+
+## Page Completeness Check
+
+After all pages are generated, perform a **completeness check** against the Phase 2 page inventory:
+
+### Step 1: Read Page Inventory
+
+```js
+// Read from phase2-architecture.md
+// Extract the page list table to get all expected pages
+const expectedPages = [
+  { id: 'P01', name: 'Home', type: 'Hub' },
+  { id: 'P02', name: 'Product List', type: 'List' },
+  { id: 'P03', name: 'Product Detail', type: 'Detail' },
+  // ... all pages from Phase 2
+];
+```
+
+### Step 2: Check Implemented Pages
+
+Scan the prototype code to identify which pages have been implemented:
+
+```js
+// For single platform
+const implementedPages = []; // Extract from switch/case or route definitions
+
+// For cross-platform, check both files
+const mobilePages = [];   // from phase7-prototype-mobile.html
+const desktopPages = [];  // from phase7-prototype-desktop.html
+```
+
+### Step 3: Identify Missing Pages
+
+```js
+const missingPages = expectedPages.filter(p => !implementedPages.includes(p.id));
+
+if (missingPages.length > 0) {
+  console.log(`⚠️ Missing ${missingPages.length} pages:`, missingPages);
+  // Proceed to Step 4
+} else {
+  console.log('✅ All pages implemented');
+}
+```
+
+### Step 4: Generate Missing Pages
+
+For each missing page:
+1. Read the corresponding page spec from `doc/ixd/phase4-page-specs/<page-id>.md`
+2. Implement the page in the prototype(s)
+3. Add the page to the routing switch/case
+4. Ensure navigation links point to the new page
+
+### Step 5: Update Progress
+
+```json
+// Update progress.json
+{
+  "7": {
+    "status": "done",
+    "file": "phase7-prototype.html",
+    "summary": "Completed <<N>>/<<total>> pages; mobile prototype",
+    "pagesCompleted": ["P01", "P02", "P03", "..."],
+    "pagesTotal": 15
+  }
+}
+```
+
+### Completeness Report Template
+
+After the check, output a brief report:
+
+```
+## Phase 7 Page Completeness Check
+
+**Platform**: Mobile / Desktop / Both
+**Phase 2 Total Pages**: <<N>>
+**Implemented Pages**: <<M>>
+
+| Status | Page ID | Page Name | Page Type |
+|--------|---------|-----------|-----------|
+| ✅ | P01 | Home | Hub |
+| ✅ | P02 | List | List |
+| ⚠️ | P05 | Settings | Settings | ← Needs supplement
+| ... | ... | ... | ... |
+
+**Missing Pages**: <<N-M>>
+<<If none missing, write "None, all pages implemented">>
+
+<<If missing>>
+### Supplement Plan
+Will supplement missing pages in this order:
+1. <<Page Name>> (<<Page ID>>)
+2. <<Page Name>> (<<Page ID>>)
+...
+```
 
 ## Quality Checklist
 

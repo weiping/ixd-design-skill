@@ -1,4 +1,4 @@
-# Phase 6: Visual Design （视觉设计）
+# Phase 6: Visual Design
 
 ## Objective
 
@@ -80,12 +80,12 @@ Verify these critical combos:
 - Chinese font: Match brand tone (PingFang=modern, Noto=neutral, Source Han=professional)
 - English font: Complement Chinese font rhythm
 - Numeric font: Consider tabular (monospace) figures for data/prices
-- 代码/等宽: Menlo / Consolas / JetBrains Mono / Fira Code
+- Code/monospace: Menlo / Consolas / JetBrains Mono / Fira Code
 
 ### Type Scale (8 levels)
 
 | Token | Size | Line Height | Weight | Usage |
-|-------|------|------------|--------|-------|
+|-------|------|-------------|--------|-------|
 | Display | 32px | 40px | Bold | Hero numbers, marketing |
 | H1 | 24px | 32px | Semibold | Page titles |
 | H2 | 20px | 28px | Semibold | Section titles |
@@ -101,15 +101,15 @@ Verify these critical combos:
 - Chinese-English mixed: 0.25em natural spacing
 - Truncation: single-line ellipsis or multi-line (max N lines)
 
-### 桌面端字体补充说明
+### Desktop Font Fallback
 
-| 平台 | 中文降级顺序 |
-|------|------------|
+| Platform | Fallback Order |
+|----------|----------------|
 | Windows | Microsoft YaHei → SimHei → sans-serif |
 | macOS | PingFang SC → Hiragino Sans GB → sans-serif |
 
-- 桌面端可内嵌自定义字体（Web: @font-face / 客户端: 随包分发）
-- 字号基准：桌面端可比移动端小 1-2px
+- Desktop can embed custom fonts (Web: @font-face / Client: bundle with app)
+- Base font size: Desktop can be 1-2px smaller than mobile
 
 ---
 
@@ -124,16 +124,16 @@ Define one consistent icon style for the entire product:
 
 ### Size Rules
 | Context | Icon Size | Touch/Click Area | Example |
-|---------|-----------|-----------------|---------|
+|---------|-----------|------------------|---------|
 | Tab bar | 24px | 44×44px | Home/Search/Messages/Profile |
-| Nav bar action | 24px | 44×44px（移动端）/ 32×32px（桌面端） | Back/Search/More |
+| Nav bar action | 24px | 44×44px (mobile) / 32×32px (desktop) | Back/Search/More |
 | List prefix | 20px | — | List item icon |
 | Input internal | 16px | — | Search/Clear/Toggle |
 | Button icon | 16-20px | — | Icon before/after label |
-| 侧边栏导航（桌面端） | 20px | 32×32px | Navigation items |
-| 工具栏按钮（桌面端） | 16-20px | 28×28px | Toolbar actions |
-| 系统托盘（桌面端） | 16-22px | —（Win 16 / macOS 22） | Tray icon |
-| 菜单项前缀（桌面端） | 16px | — | Menu item icon |
+| Sidebar navigation (desktop) | 20px | 32×32px | Navigation items |
+| Toolbar button (desktop) | 16-20px | 28×28px | Toolbar actions |
+| System tray (desktop) | 16-22px | — (Win 16 / macOS 22) | Tray icon |
+| Menu item prefix (desktop) | 16px | — | Menu item icon |
 
 ### Recommended Libraries
 - Lucide (clean, consistent, React-friendly)
@@ -149,14 +149,14 @@ Define one consistent icon style for the entire product:
 Define illustration style and usage scenarios:
 
 | Scenario | Dimensions | Content Direction | Copy Pattern |
-|----------|-----------|-------------------|--------------|
-| Empty-no-data | 200×160px | Relevant to context | "暂无数据" |
-| Empty-no-network | 200×160px | Disconnected device | "网络开小差了" |
-| Empty-no-permission | 200×160px | Lock/shield | "暂无权限" |
-| Empty-no-results | 200×160px | Magnifying glass | "未找到相关内容" |
+|----------|------------|-------------------|--------------|
+| Empty-no-data | 200×160px | Relevant to context | "No data yet" |
+| Empty-no-network | 200×160px | Disconnected device | "Network unavailable" |
+| Empty-no-permission | 200×160px | Lock/shield | "No permission" |
+| Empty-no-results | 200×160px | Magnifying glass | "No results found" |
 | Onboarding | Full-width | Feature illustration | Feature description |
-| Success | 120×120px | Celebration/checkmark | "操作成功" |
-| Error/404 | 200×160px | Lost/confused | "页面走丢了" |
+| Success | 120×120px | Celebration/checkmark | "Operation successful" |
+| Error/404 | 200×160px | Lost/confused | "Page not found" |
 
 ---
 
@@ -168,10 +168,10 @@ See the component library (Phase 5) for base values. Visual design adds:
 - Spacing: Visual rhythm verification across key screens
 
 ### Grid Columns
-- 4 栏（手机）/ 8 栏（平板）/ 12 栏（桌面浏览器）/ 12-16 栏（桌面客户端）
+- 4 columns (phone) / 8 columns (tablet) / 12 columns (desktop browser) / 12-16 columns (desktop client)
 
-### 桌面端最大内容宽度
-- <<1200px / 1440px / 无限制（根据产品类型选择）>>
+### Desktop Max Content Width
+- <<1200px / 1440px / unlimited (choose based on product type)>>
 
 ---
 
@@ -196,13 +196,13 @@ For 3-5 core screens, produce detailed visual annotations:
   header gradient, brand illustration, decorative shapes, etc.>>
 ```
 
-> 跨平台产品需分别标注移动端和桌面端版本
+> Cross-platform products need separate annotations for mobile and desktop versions
 
-#### 桌面端差异（每个关键页面需补充）
-- 标题栏 / 工具栏样式
-- 侧边栏宽度
-- 信息密度调整
-- 窗口 chrome 样式
+#### Desktop Differences (per key screen)
+- Title bar / toolbar style
+- Sidebar width
+- Information density adjustment
+- Window chrome style
 
 ---
 
@@ -223,10 +223,10 @@ For 3-5 core screens, produce detailed visual annotations:
 ### Color Mapping Table
 Must provide a complete mapping for all neutral and brand colors.
 
-### 桌面端暗色模式策略
-- 跟随系统主题自动切换 / 应用内独立设置 / 两者兼支持
-- 系统集成：监听系统主题变化实时切换
-- Windows 高对比度模式支持
+### Desktop Dark Mode Strategy
+- Follow system theme auto-switch / In-app independent setting / Both supported
+- System integration: Monitor system theme changes and switch in real-time
+- Windows high contrast mode support
 
 ---
 
@@ -248,14 +248,14 @@ Define 2-3 principles (e.g., "purposeful", "natural", "restrained")
 |------|----------|----------|
 | Micro | 100-200ms | Toggle, press, hover |
 | Component | 200-300ms | Expand, collapse, fade |
-| 窗口动画（桌面端） | 200-300ms | 窗口打开、关闭、最小化 |
+| Window animation (desktop) | 200-300ms | Window open, close, minimize |
 | Page | 300-400ms | Push, present, tab switch |
 | Complex | 400-600ms | Onboarding, celebration |
 
-### 桌面端动效补充
-- 动效时长比移动端缩短 20-30%
-- 尊重系统"减少动效"设置（prefers-reduced-motion）
-- 窗口拖拽即时响应，无缓动
+### Desktop Motion Notes
+- Animation duration 20-30% shorter than mobile
+- Respect system "reduce motion" setting (prefers-reduced-motion)
+- Window drag instant response, no easing
 
 ---
 
@@ -284,5 +284,3 @@ Generate an HTML page that visually demonstrates all design tokens:
 - [ ] Motion curves and durations are specified
 - [ ] 3-5 key screens have detailed visual annotations
 - [ ] Visual system is consistent with the brand tone from Phase 1
-
-

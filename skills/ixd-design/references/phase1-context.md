@@ -1,4 +1,4 @@
-# Phase 1: Product Context （产品上下文建立）
+# Phase 1: Product Context
 
 ## Objective
 
@@ -20,7 +20,7 @@ Use the answers from Step A combined with the user's original input. If they pro
 
 | Category | Details to Collect |
 |----------|-------------------|
-| Product basics | Name, type (App/Web/Mini-program/PC客户端/Cross-platform), target platform (iOS/Android/Web/Windows/macOS/Linux/Flutter/RN/Electron/Tauri) |
+| Product basics | Name, type (App/Web/Mini-program/PC Client/Cross-platform), target platform (iOS/Android/Web/Windows/macOS/Linux/Flutter/RN/Electron/Tauri) |
 | Positioning | One-sentence value proposition |
 | Target users | Primary user roles (2-3), core usage scenarios, tech literacy level, age range |
 | Core features | 3-7 feature modules with brief descriptions |
@@ -56,12 +56,12 @@ If the user provides partial info, ask targeted follow-up questions for the gaps
 ### Product Design Brief
 
 ```markdown
-## 产品设计摘要
+## Product Design Summary
 
-**<<产品名称>>** 是一款面向 <<目标用户>> 的 <<产品类型>>，
-核心解决 <<用户痛点>> 的问题。产品基于 <<技术平台>> 构建，
-遵循 <<设计规范>> 设计语言，主要包含 <<N>> 个功能模块：
-<<模块列表>>。
+**<<product_name>>** is a <<product_type>> designed for <<target_users>>,
+solving the problem of <<user_pain_point>>. Built on <<tech_platform>>,
+following <<design_system>> design language, with <<N>> core modules:
+<<module_list>>.
 ```
 
 ### Design Challenges
@@ -75,10 +75,10 @@ Identify 3-5 key design challenges specific to this product. Think about:
 
 Format:
 ```markdown
-## 设计挑战
+## Design Challenges
 
-1. **<<挑战名称>>**：<<具体描述，为什么这是一个设计难点>>
-2. **<<挑战名称>>**：<<具体描述>>
+1. **<<challenge_name>>**: <<description, why this is a design difficulty>>
+2. **<<challenge_name>>**: <<description>>
 ...
 ```
 
@@ -91,37 +91,37 @@ Derive 3-5 design principles that will guide all subsequent decisions. Good prin
 
 Format:
 ```markdown
-## 设计原则
+## Design Principles
 
-1. **<<原则名称>>**：<<一句话解释 + 在本产品中的具体含义>>
-2. **<<原则名称>>**：<<解释>>
+1. **<<principle_name>>**: <<one-line explanation + specific meaning in this product>>
+2. **<<principle_name>>**: <<explanation>>
 ...
 ```
 
 Example:
 ```
-1. **三步可达**：核心功能从任何页面出发，3 步内必须可以触达。
-   体现在导航结构设计和快捷入口的设置上。
+1. **Three-Step Access**: Core features must be reachable within 3 steps from any page.
+   Reflected in navigation structure design and shortcut entry placement.
 ```
 
 ### Design References
 
 ```markdown
-## 设计参考
+## Design References
 
-| 参考产品 | 参考维度 | 借鉴理由 |
-|---------|---------|---------|
-| <<产品名>> | <<信息架构/交互模式/视觉风格/特定功能>>（需涵盖交互和视觉两个维度） | <<具体说明>> |
+| Reference Product | Reference Dimension | Reason |
+|-------------------|--------------------| -------|
+| <<product_name>> | <<IA/interaction pattern/visual style/specific feature>> (must cover both interaction and visual dimensions) | <<specific explanation>> |
 ```
 
-### 视觉方向建议
+### Visual Direction Suggestions
 
 ```markdown
-## 视觉方向建议
+## Visual Direction Suggestions
 
-- **色彩倾向**：<<主色调方向、情感表达意图>>
-- **字体气质**：<<字体风格方向，如现代简约/人文温暖/专业严谨>>
-- **视觉风格关键词（3-5 个）**：<<如：克制、留白、圆润、科技感、自然>>
+- **Color Tendency**: <<primary color direction, emotional expression intent>>
+- **Typography Personality**: <<font style direction, e.g., modern minimal / warm humanistic / professional rigorous>>
+- **Visual Style Keywords (3-5)**: <<e.g., restrained, whitespace, rounded, tech-forward, natural>>
 ```
 
 ## Quality Checklist
@@ -132,4 +132,3 @@ Before moving to Phase 2, verify:
 - [ ] Core features are scoped (not too broad, not too narrow)
 - [ ] Design constraints are documented
 - [ ] Design principles are specific enough to guide decisions
-

@@ -4,40 +4,40 @@
 
 ```
 P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8
-上下文 架构  流程  交互说明 组件  视觉  原型  交付
+Context → Architecture → Flows → Page Specs → Components → Visual → Prototype → Delivery
 ```
 
 ## Natural Language Quick-Start
 
 | User says | Start Phase |
 |-----------|-------------|
-| 从阶段N开始 | Phase N |
-| 帮我设计一个App | Phase 1 |
-| 我有PRD了 | Phase 2 |
-| 画用户流程图 | Phase 3 |
-| 设计这个页面 | Phase 4 |
-| 整理组件规范 | Phase 5 |
-| 做视觉方案/配色 | Phase 6 |
-| 做可点击原型 | Phase 7 |
-| 写设计文档 | Phase 8 |
+| Start from Phase N | Phase N |
+| Help me design an App | Phase 1 |
+| I have a PRD ready | Phase 2 |
+| Draw user flow diagrams | Phase 3 |
+| Design this page | Phase 4 |
+| Organize component specs | Phase 5 |
+| Create visual scheme/colors | Phase 6 |
+| Build clickable prototype | Phase 7 |
+| Write design document | Phase 8 |
 
 ## File Map
 
 ```
 ixd-design/
-├── SKILL.md                       ← 主入口
-├── INSTALL.md                     ← 安装说明
+├── SKILL.md                       ← Main entry
+├── INSTALL.md                     ← Installation guide
 └── references/
-    ├── phase1-context.md          ← 产品上下文
-    ├── phase2-architecture.md     ← 信息架构（22类页面）
-    ├── phase3-userflow.md         ← 用户流程
-    ├── phase4-page-interaction.md ← 页面交互说明（10节交互规格）
-    ├── phase5-components.md       ← 组件规范
-    ├── phase6-visual.md           ← 视觉设计（10维度）
-    ├── phase7-prototype.md        ← 原型代码模式（含移动端+桌面端框架）
-    ├── phase8-delivery.md         ← 交付文档
-    ├── auxiliary-tools.md         ← 辅助工具
-    └── quickref.md                ← 本文件
+    ├── phase1-context.md          ← Product context
+    ├── phase2-architecture.md     ← Information architecture (22 page types)
+    ├── phase3-userflow.md         ← User flows
+    ├── phase4-page-interaction.md ← Page interaction specs (10-section spec)
+    ├── phase5-components.md       ← Component specifications
+    ├── phase6-visual.md           ← Visual design (10 dimensions)
+    ├── phase7-prototype.md        ← Prototype code patterns (mobile + desktop frameworks)
+    ├── phase8-delivery.md         ← Delivery document
+    ├── auxiliary-tools.md         ← Auxiliary tools
+    └── quickref.md                ← This file
 ```
 
 ## Key Numbers
@@ -63,4 +63,4 @@ ixd-design/
 
 ## Cross-Platform Note
 
-跨平台产品（移动端 + 桌面端）需为每个页面输出双端原型，确保交互对等、数据同步、品牌统一。
+Cross-platform products (mobile + desktop) need dual-platform prototypes for each page, ensuring interaction parity, data synchronization, and brand consistency.

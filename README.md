@@ -12,6 +12,7 @@ An [AgentSkills](https://agentskills.io)-compatible skill that guides AI assista
 
 - **8-phase structured workflow** — Context → Architecture → Flows → Page Specs → Components → Visual → Prototype → Delivery
 - **Socratic discovery** — Adaptive 0–8 question pre-interview that analyzes user input and only asks what's missing
+- **Bilingual output** — Source code in English; dialogue and deliverables follow user's input language (Chinese → Chinese, English → English)
 - **22-type page taxonomy** — Exhaustive page classification including 4 desktop-specific types
 - **10-section per-page specs** — Developer-ready interaction specifications with mandatory walkthrough
 - **Cross-platform dual prototypes** — Separate mobile (390×844) + desktop (1280×800) HTML prototypes sharing design tokens
@@ -137,6 +138,23 @@ Just talk naturally. The skill auto-detects your intent:
 ```
 
 ## 🧠 Key Design Decisions
+
+### Language Policy
+
+The skill follows a bilingual approach:
+
+| Component | Language |
+|-----------|----------|
+| Source code (SKILL.md, references/) | English |
+| Variable names, placeholders | English |
+| Dialogue output | Follows user's input language |
+| Generated deliverables | Follows user's input language |
+| Mock data examples | Both Chinese and English provided |
+
+**How it works**:
+- User inputs in Chinese → All dialogue and deliverables in Chinese
+- User inputs in English → All dialogue and deliverables in English
+- Language is auto-detected from the first message and stored in `progress.json`
 
 ### Socratic Discovery (Phase 1)
 
