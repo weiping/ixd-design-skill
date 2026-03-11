@@ -66,7 +66,6 @@ Create `doc/ixd/` if it doesn't exist. After each phase, save the deliverable AN
 
 **Summary field guidelines**: Each summary should be a **single line, ≤200 chars**, capturing the key decisions and numbers that downstream phases need. This enables lightweight context loading — later phases can read summaries instead of full files for indirect dependencies.
 
-
 ---
 
 ## Phase Map
@@ -174,7 +173,7 @@ Each phase depends on specific prior outputs. Loading everything wastes tokens; 
 
 **Goal**: Establish shared understanding of product, users, and constraints.
 
-**#### Phase 1 Step A: Socratic Discovery (苏格拉底式提问)
+#### Phase 1 Step A: Socratic Discovery (苏格拉底式提问)
 
 Before producing the Phase 1 deliverable, analyze what the user has already provided and determine what critical gaps remain. This step generates **0-8 targeted questions** — zero means the user's input is already sufficient, skip directly to Step B.
 
@@ -712,7 +711,6 @@ If **Round 3 still FAILS**:
 |---|--------|---------|---------|
 | 1 | <<项>> | `doc/ixd/<<file>>` | <<具体修复>> |
 ```
-
 
 ---
 
