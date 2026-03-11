@@ -27,19 +27,17 @@ P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8
 ixd-design/
 ├── SKILL.md                       ← 主入口
 ├── INSTALL.md                     ← 安装说明
-├── references/
-│   ├── phase1-context.md          ← 产品上下文
-│   ├── phase2-architecture.md     ← 信息架构（22类页面）
-│   ├── phase3-userflow.md         ← 用户流程
-│   ├── phase4-page-interaction.md ← 页面交互说明（10节交互规格）
-│   ├── phase5-components.md       ← 组件规范
-│   ├── phase6-visual.md           ← 视觉设计（10维度）
-│   ├── phase7-prototype.md        ← 原型代码模式
-│   ├── phase8-delivery.md         ← 交付文档
-│   ├── auxiliary-tools.md         ← 辅助工具
-│   └── quickref.md                ← 本文件
-└── templates/
-    └── prototype-shell.js         ← 原型框架
+└── references/
+    ├── phase1-context.md          ← 产品上下文
+    ├── phase2-architecture.md     ← 信息架构（22类页面）
+    ├── phase3-userflow.md         ← 用户流程
+    ├── phase4-page-interaction.md ← 页面交互说明（10节交互规格）
+    ├── phase5-components.md       ← 组件规范
+    ├── phase6-visual.md           ← 视觉设计（10维度）
+    ├── phase7-prototype.md        ← 原型代码模式（含移动端+桌面端框架）
+    ├── phase8-delivery.md         ← 交付文档
+    ├── auxiliary-tools.md         ← 辅助工具
+    └── quickref.md                ← 本文件
 ```
 
 ## Key Numbers

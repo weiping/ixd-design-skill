@@ -62,7 +62,6 @@ cp -r ixd-design/ ~/.claude/skills/ixd-design/
 
 1. Copy the contents of `SKILL.md` into your Claude Project's custom instructions
 2. Place the `references/` folder contents as project knowledge files
-3. Place `templates/prototype-shell.js` as a project knowledge file
 
 ### Other AI Assistants (GPT-4+, Gemini Pro+)
 
@@ -104,7 +103,7 @@ Start a conversation with natural language:
 ixd-design/
 ├── SKILL.md                       ← Main entry point
 ├── INSTALL.md                     ← This file
-├── references/
+└── references/
     ├── phase1-context.md          ← Product context
     ├── phase2-architecture.md     ← Information architecture (22 page types)
     ├── phase3-userflow.md         ← User flows
@@ -115,8 +114,6 @@ ixd-design/
     ├── phase8-delivery.md         ← Delivery documentation
     ├── auxiliary-tools.md         ← Auxiliary design tools
     └── quickref.md                ← Quick reference card
-└── templates/
-    └── prototype-shell.js         ← Prototype framework template
 ```
 
 ## Notes
