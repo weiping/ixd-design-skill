@@ -174,7 +174,146 @@ Each phase depends on specific prior outputs. Loading everything wastes tokens; 
 
 **Goal**: Establish shared understanding of product, users, and constraints.
 
-****Platform Detection**: When filling product info, explicitly ask/detect the target platform:
+**#### Phase 1 Step A: Socratic Discovery (苏格拉底式提问)
+
+Before producing the Phase 1 deliverable, analyze what the user has already provided and determine what critical gaps remain. This step generates **0-8 targeted questions** — zero means the user's input is already sufficient, skip directly to Step B.
+
+**Question Generation Process:**
+
+1. Parse the user's input (natural language description, PRD, or requirements doc)
+2. Check each of the 8 info dimensions below against what was provided
+3. For each dimension: if the info is **clearly stated or can be confidently inferred** → mark as resolved; if **ambiguous or missing** → generate a question
+4. Eliminate redundant questions (if one answer would resolve multiple dimensions, merge)
+5. Sort by downstream impact (questions affecting more phases come first)
+6. Cap at 8 questions maximum — ask only what truly matters
+
+**The 8 Info Dimensions (by downstream impact):**
+
+| # | Dimension | Why Critical | Affects Phases |
+|---|-----------|-------------|----------------|
+| D1 | 产品平台 | Determines page types, navigation, components, prototype strategy | P2-P8 all |
+| D2 | 核心功能模块 | Drives page inventory and user flows | P2, P3, P4 |
+| D3 | 目标用户与场景 | Drives flow design and interaction complexity | P3, P4 |
+| D4 | 设计风格/视觉方向 | Drives visual system, component style | P5, P6, P7 |
+| D5 | 技术框架 | Constrains component approach and prototype | P5, P7 |
+| D6 | 设计规范基底 | Determines component library foundation | P5, P6 |
+| D7 | 竞品/参考产品 | Calibrates design direction and scope | P1, P2, P6 |
+| D8 | 产品定位与差异化 | Guides design principles and trade-offs | P1, all |
+
+**Question Format Rules:**
+
+- Each question is either **open-ended** (自由回答) or **multiple-choice** (选择题)
+- Multiple-choice questions MUST include a **recommended option** marked with `⭐ 推荐`
+- Multiple-choice can be single-select or multi-select (indicate which)
+- Every question includes a brief reason explaining WHY this info matters
+- One question per turn, show progress: `📋 问题 (2/5)`
+
+**Question Templates by Dimension:**
+
+```
+D1 — 产品平台 [选择题, 可多选]
+📋 问题 (1/N)
+产品的目标平台是？（可多选，直接影响后续所有阶段的设计方向）
+  A. 📱 iOS / Android App
+  B. 🌐 Web 应用（浏览器）
+  C. 🔮 微信小程序 / 支付宝小程序
+  D. 🖥️ PC 桌面客户端 (Electron / Tauri / Flutter Desktop / 原生)  ⭐ 如果你提到了桌面端功能
+  E. 📱+🖥️ 跨平台（移动端 + 桌面端）
+  F. 其他: ___
+
+D2 — 核心功能模块 [问答题]
+📋 问题 (2/N)
+产品的核心功能模块有哪些？（3-7 个即可，每个用一句话描述。这决定了信息架构和页面数量）
+例如："① 内容发布 — 用户创建和编辑图文内容；② 社交互动 — 点赞、评论、关注；③ 消息中心 — 私信和系统通知"
+
+D3 — 目标用户与场景 [问答题]
+📋 问题 (3/N)
+产品的主要用户是谁？他们在什么场景下使用？（2-3 个用户角色即可。这决定了用户流程设计和交互复杂度）
+例如："① 内容创作者 — 日常通勤时用手机发布短内容；② 读者 — 睡前浏览推荐内容"
+
+D4 — 设计风格 [选择题, 单选]
+📋 问题 (4/N)
+你期望的设计风格方向？（这决定了视觉系统和原型的整体调性）
+  A. 🧊 简约克制 — 大量留白，信息密度低（如 Apple、Linear）⭐ 推荐：适合工具类和内容类产品
+  B. 🎨 活泼多彩 — 丰富色彩，圆润元素（如 Notion、Figma）
+  C. 🏢 专业严谨 — 高信息密度，数据导向（如 Bloomberg、飞书）
+  D. 🌿 温暖人文 — 柔和配色，自然元素（如 Calm、小红书）
+  E. 🔮 科技未来 — 深色基调，渐变光效（如 Vercel、Arc）
+  F. 其他: ___
+
+D5 — 技术框架 [选择题, 单选]
+📋 问题 (5/N)
+前端技术栈是？（影响组件规范的粒度和原型的实现方式）
+  A. React / Next.js  ⭐ 推荐：原型可直接复用
+  B. Vue / Nuxt
+  C. React Native / Expo
+  D. Flutter
+  E. SwiftUI (iOS/macOS 原生)
+  F. Electron / Tauri（桌面端）
+  G. 尚未确定
+  H. 其他: ___
+
+D6 — 设计规范基底 [选择题, 单选]
+📋 问题 (6/N)
+采用哪个设计规范作为基底？（影响组件库选型和交互范式）
+  A. Ant Design  ⭐ 推荐：中后台/B端产品
+  B. Material Design 3 (Google)
+  C. Apple HIG (iOS/macOS)
+  D. Fluent Design (Windows)
+  E. 自建设计系统（从零开始）
+  F. 尚未确定（由我根据产品类型推荐）
+  G. 其他: ___
+
+D7 — 竞品参考 [问答题]
+📋 问题 (7/N)
+有没有想参考的竞品或产品？（1-3 个，说明具体参考哪个维度：交互方式/视觉风格/信息架构/某个功能）
+例如："参考 Notion 的 block 编辑交互 + Linear 的视觉极简风格"
+如果没有也可以跳过，我会根据产品类型推荐。
+
+D8 — 产品定位 [问答题]
+📋 问题 (8/N)
+用一句话描述：这个产品和市面上已有的同类产品相比，最大的不同是什么？（这会影响设计原则的制定）
+例如："和 Notion 相比，我们更聚焦于中国用户的协作习惯，强调移动端优先"
+```
+
+**Adaptive Question Selection Algorithm:**
+
+```
+FOR each dimension D1-D8:
+  IF user input clearly covers this dimension:
+    SKIP (don't ask)
+  ELIF user input partially covers (ambiguous):
+    Generate a SHORTER follow-up question (not the full template)
+  ELSE (no info at all):
+    Use the full question template
+END FOR
+
+REMOVE questions where the answer can be confidently inferred:
+  e.g., user says "我要做一个 iOS App" → D1 resolved, skip
+  e.g., user says "类似 Notion 的笔记工具" → D7 partially resolved, D8 partially resolved
+
+MERGE questions that overlap:
+  e.g., if both D5 and D6 are missing, combine into one question about tech + design system
+
+SORT by impact (D1 > D2 > D3 > D4 > D5 ≈ D6 > D7 ≈ D8)
+
+RESULT: 0-8 questions
+```
+
+**Asking Flow:**
+
+1. After analyzing user input, announce: `"我需要了解 <<N>> 个关键信息，每次一个问题："` (if N=0: `"你提供的信息已经足够，直接进入设计！"`)
+2. Ask question 1, wait for answer
+3. Ask question 2, wait for answer
+4. ... repeat until all questions answered
+5. Summarize all gathered context in a brief recap
+6. Proceed to Step B
+
+If user says "跳过" / "不重要" / "你决定" for any question, use the recommended option (for choice questions) or make a reasonable assumption (for open-ended questions), and note the assumption in the deliverable.
+
+#### Phase 1 Step B: Deliverable Generation
+
+**Platform Detection**: When filling product info, explicitly ask/detect the target platform:
 - Mobile (iOS/Android/跨平台)
 - Web
 - 小程序/Mini-program

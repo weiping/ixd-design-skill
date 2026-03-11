@@ -4,9 +4,17 @@
 
 Establish a complete design context so that all subsequent phases have a solid foundation. This is the equivalent of a design kick-off meeting.
 
-## Information to Gather
+## Step A: Socratic Discovery
 
-Ask the user for the following. If they provide a PRD or requirements doc, extract this information from it instead of asking.
+Before producing any deliverable, the Socratic questioning step (defined in SKILL.md) analyzes user input and asks 0-8 targeted questions to fill critical gaps across 8 info dimensions (platform, features, users, visual style, tech stack, design system, references, positioning).
+
+See SKILL.md "Phase 1 Step A: Socratic Discovery" for the full question generation algorithm, templates, and flow.
+
+## Step B: Information Gathering & Deliverable Generation
+
+### Information to Gather
+
+Use the answers from Step A combined with the user's original input. If they provide a PRD or requirements doc, extract this information from it instead of asking.
 
 ### Required Information
 
@@ -26,9 +34,9 @@ Ask the user for the following. If they provide a PRD or requirements doc, extra
 - Team size and capabilities (affects component granularity)
 - Existing user research or personas
 
-## How to Ask
+### How to Ask (Superseded by Socratic Discovery)
 
-If the user hasn't provided a brief, guide them with this structure:
+The structured questioning is now handled by SKILL.md Step A. If Step A was skipped (N=0) and the user hasn't provided a brief, use this fallback structure to fill remaining gaps:
 
 ```
 To design the best interaction experience, I need some product context.
