@@ -1,5 +1,7 @@
 # 🎨 IxD Design Skill
 
+[中文版](README_CN.md)
+
 An [AgentSkills](https://agentskills.io)-compatible skill that guides AI assistants through a structured 8-phase interaction design workflow — from product context to developer handoff.
 
 **No external tools required.** Pure instruction skill. Works with any LLM that supports markdown instructions.
@@ -9,7 +11,7 @@ An [AgentSkills](https://agentskills.io)-compatible skill that guides AI assista
 ## ✨ Features
 
 - **8-phase structured workflow** — Context → Architecture → Flows → Page Specs → Components → Visual → Prototype → Delivery
-- **Socratic discovery** — Adaptive 0-8 question pre-interview that analyzes user input and only asks what's missing
+- **Socratic discovery** — Adaptive 0–8 question pre-interview that analyzes user input and only asks what's missing
 - **22-type page taxonomy** — Exhaustive page classification including 4 desktop-specific types
 - **10-section per-page specs** — Developer-ready interaction specifications with mandatory walkthrough
 - **Cross-platform dual prototypes** — Separate mobile (390×844) + desktop (1280×800) HTML prototypes sharing design tokens
@@ -22,21 +24,22 @@ An [AgentSkills](https://agentskills.io)-compatible skill that guides AI assista
 ## 📋 Workflow Overview
 
 ```
-P1          P2           P3          P4             P5         P6        P7         P8
-产品上下文 → 信息架构   → 用户流程 → 页面交互说明 → 组件规范 → 视觉设计 → 原型     → 交付+评审
-Context     Architecture  Flows      Page Specs     Components Visual    Prototype   Delivery
+P1              P2               P3           P4              P5           P6       P7          P8
+Product       → Information    → User       → Page          → Component → Visual → Prototype → Delivery
+Context         Architecture     Flows        Interaction      Specs       Design               & Review
+                                              Specs
 ```
 
 | Phase | Key Output | File |
 |-------|------------|------|
-| P1 — 产品上下文 | Design brief, principles, visual direction | `phase1-context.md` |
-| P2 — 信息架构 | 22-type page inventory, sitemap, navigation | `phase2-architecture.md` |
-| P3 — 用户流程 | Mermaid flow diagrams, edge cases | `phase3-userflows.md` |
-| P4 — 页面交互说明 | Per-page 10-section interaction specs | `phase4-page-specs/` |
-| P5 — 组件规范 | Design tokens, component library | `phase5-components.md` |
-| P6 — 视觉设计 | 10-dimension visual system | `phase6-visual.md` |
-| P7 — 可交互原型 | High-fidelity HTML prototype | `phase7-prototype*.html` |
-| P8 — 设计交付 | Complete spec document + review report | `phase8-document.md` |
+| P1 — Product Context | Design brief, principles, visual direction | `phase1-context.md` |
+| P2 — Information Architecture | 22-type page inventory, sitemap, navigation | `phase2-architecture.md` |
+| P3 — User Flows | Mermaid flow diagrams, edge cases | `phase3-userflows.md` |
+| P4 — Page Interaction Specs | Per-page 10-section interaction specs | `phase4-page-specs/` |
+| P5 — Component Specs | Design tokens, component library | `phase5-components.md` |
+| P6 — Visual Design | 10-dimension visual system | `phase6-visual.md` |
+| P7 — Interactive Prototype | High-fidelity HTML prototype | `phase7-prototype*.html` |
+| P8 — Design Delivery | Complete spec document + review report | `phase8-document.md` |
 
 All outputs are saved to `doc/ixd/` in the working project directory.
 
@@ -121,10 +124,16 @@ Claude Code reads `.claude-plugin/plugin.json` and loads `skills/` automatically
 Just talk naturally. The skill auto-detects your intent:
 
 ```
-"帮我设计一个记账 App"          → starts from Phase 1
-"我有PRD了，直接开始信息架构"    → starts from Phase 2
-"从阶段4开始"                   → starts from Phase 4
-"继续上次的设计"                → auto-detects from progress.json
+"Design a budgeting app for me"                → starts from Phase 1
+"I already have a PRD, start from architecture" → starts from Phase 2
+"Start from phase 4"                            → starts from Phase 4
+"Continue the previous design"                  → auto-detects from progress.json
+
+# Chinese triggers also work:
+# "帮我设计一个记账 App"          → starts from Phase 1
+# "我有PRD了，直接开始信息架构"    → starts from Phase 2
+# "从阶段4开始"                   → starts from Phase 4
+# "继续上次的设计"                → auto-detects from progress.json
 ```
 
 ## 🧠 Key Design Decisions
@@ -134,12 +143,12 @@ Just talk naturally. The skill auto-detects your intent:
 The skill doesn't blindly ask a checklist. It analyzes user input against 8 information dimensions, skips what's already known, and generates only the questions that matter — between 0 and 8.
 
 ```
-User: "帮我设计一个类似 Notion 的协作笔记工具，React 技术栈"
+User: "Design a collaborative note-taking tool like Notion, React stack"
                     ↓
      D1 platform: missing  → ask
      D2 features: partial  → shorter follow-up
      D3 users: missing     → ask
-     D4 style: inferred from "类似 Notion" → skip
+     D4 style: inferred from "like Notion" → skip
      D5 tech: resolved (React) → skip
      D6 design system: missing → ask
      D7 reference: resolved (Notion) → skip
@@ -183,7 +192,8 @@ Generate document → Walkthrough (47 items) + Multi-perspective review (6 roles
 ixd-design-skill/
 ├── .claude-plugin/
 │   └── plugin.json                 ← Claude Code plugin metadata
-├── README.md                       ← This file
+├── README.md                       ← This file (English)
+├── README_CN.md                    ← Chinese version
 ├── LICENSE                         ← MIT
 └── skills/
     └── ixd-design/                 ← AgentSkills-compatible skill folder
@@ -227,13 +237,13 @@ These tools can be invoked at any point via natural language:
 
 | Tool | Trigger |
 |------|---------|
-| Competitor Analysis | "分析竞品" / "competitor analysis" |
-| Design Heuristic Review | "交互走查" / "review checklist" |
-| A/B Comparison | "对比方案" / "compare approaches" |
-| Visual Style Exploration | "探索风格" / "style options" |
-| Multi-Perspective Review | "多角色评审" / "different viewpoints" |
-| Micro-Interaction Design | "微交互" / "micro-interaction" |
-| PC Client Interaction | "PC客户端设计" / "desktop interaction" |
+| Competitor Analysis | "competitor analysis" / "分析竞品" |
+| Design Heuristic Review | "review checklist" / "交互走查" |
+| A/B Comparison | "compare approaches" / "对比方案" |
+| Visual Style Exploration | "style options" / "探索风格" |
+| Multi-Perspective Review | "different viewpoints" / "多角色评审" |
+| Micro-Interaction Design | "micro-interaction" / "微交互" |
+| PC Client Interaction | "desktop interaction" / "PC客户端设计" |
 
 ## 📊 Key Numbers
 
