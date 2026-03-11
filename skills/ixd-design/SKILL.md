@@ -50,10 +50,10 @@ Create `doc/ixd/` if it doesn't exist. After each phase, save the deliverable AN
   "platform": ["mobile", "web", "pc-client"],
   "crossPlatform": true,
   "phases": {
-    "1": { "status": "done", "file": "phase1-context.md", "summary": "一句话摘要" },
-    "2": { "status": "done", "file": "phase2-architecture.md", "summary": "..." },
-    "3": { "status": "active", "file": null, "summary": null },
-    "4": { "status": "pending", "file": null, "summary": null },
+    "1": { "status": "done", "file": "phase1-context.md", "summary": "<<产品定位>>; 目标用户<<用户角色>>; 平台<<平台>>; 设计原则<<原则关键词>>; 视觉方向<<关键词>>" },
+    "2": { "status": "done", "file": "phase2-architecture.md", "summary": "共<<N>>个页面(<<类型分布>>); 导航<<导航模式>>; 关键模块<<模块名>>" },
+    "3": { "status": "done", "file": "phase3-userflows.md", "summary": "<<N>>条核心流程: <<流程1名>>/<<流程2名>>...; 关键决策点<<描述>>" },
+    "4": { "status": "done", "file": "phase4-page-specs/", "summary": "已完成<<N>>/<<总数>>个页面交互说明; 最近批次: <<页面名列表>>" },
     "5": { "status": "pending", "file": null, "summary": null },
     "6": { "status": "pending", "file": null, "summary": null },
     "7": { "status": "pending", "file": null, "summary": null },
@@ -62,6 +62,8 @@ Create `doc/ixd/` if it doesn't exist. After each phase, save the deliverable AN
   "lastUpdated": "2026-03-11T12:00:00Z"
 }
 ```
+
+**Summary field guidelines**: Each summary should be a **single line, ≤200 chars**, capturing the key decisions and numbers that downstream phases need. This enables lightweight context loading — later phases can read summaries instead of full files for indirect dependencies.
 
 
 ---
@@ -125,13 +127,45 @@ After detection, confirm with the user:
 
 ## Phase Execution Guide
 
-### Before Each Phase
-1. Check `doc/ixd/progress.json` — load context from prior phases if available
-2. Read the phase's reference file: `references/phase<N>-<name>.md`
-3. If resumed workflow (not Phase 1), briefly recap what's been decided
-4. Execute the phase, producing all deliverables
-5. **Save deliverables to `doc/ixd/`**
-6. Update `doc/ixd/progress.json`
+### Before Each Phase — Context Loading Strategy
+
+Each phase depends on specific prior outputs. Loading everything wastes tokens; loading too little produces inconsistent results.
+
+**Step 1**: Always read `doc/ixd/progress.json` first (lightweight, has per-phase summaries).
+
+**Step 2**: Load prior phase outputs according to this dependency table:
+
+| Starting Phase | MUST Load (Full Files) | Summary Only (from progress.json) | Skip |
+|---|---|---|---|
+| P1 | — | — | — |
+| P2 | P1 | — | — |
+| P3 | P1, P2 | — | — |
+| P4 | P2, P3 | P1 | — |
+| P5 | P4 (batch being worked on or completed) | P1, P2 | P3 |
+| P6 | P1, P5 | P2 | P3, P4 |
+| P7 | P5, P6, P4 (pages being prototyped) | P1, P2 | P3 |
+| P8 | P1, P2, P3, P5, P6, P4 (chapter-by-chapter) | — | — |
+
+**P4 Special Handling**: Phase 4 outputs are per-page files in `doc/ixd/phase4-page-specs/`. Do NOT load all at once.
+- **Phase 5** reads P4 batch-by-batch to extract components, then synthesizes.
+- **Phase 7** loads only the pages being prototyped in the current batch.
+- **Phase 8** references P4 by section, does not need all pages in memory simultaneously.
+
+**Step 3**: Read the current phase's reference file: `references/phase<N>-<name>.md`
+
+**Step 4**: If resuming (not Phase 1), briefly recap key decisions before executing:
+> "根据已有产出，产品为 <<产品名>>，目标平台 <<平台>>，共 <<N>> 个页面。现在进入阶段 <<N>>..."
+
+**Step 5**: Execute the phase, save deliverables to `doc/ixd/`, update `progress.json`.
+
+**Why this dependency structure:**
+- **P1 (context)** is small (~2K tokens) and contains foundational decisions (platform, brand direction, design principles). Most phases benefit from having it.
+- **P2 (architecture)** defines the page inventory and navigation — essential for any phase that deals with pages or navigation.
+- **P3 (flows)** describes user journeys — needed by P4 to write per-page interaction logic, but its information is already embedded in P4's output. Later phases can skip P3.
+- **P4 (page specs)** is the largest deliverable. Only load the specific pages relevant to the current task.
+- **P5 (components/tokens)** is the bridge between interaction specs and visual/prototype — compact enough to always load when needed.
+- **P6 (visual)** must be loaded for P7 (prototype needs the visual system).
+- **P8 (delivery)** packages everything but works chapter-by-chapter, not all-at-once.
 
 ---
 
