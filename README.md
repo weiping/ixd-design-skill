@@ -62,22 +62,51 @@ Pi discovers `SKILL.md` automatically. No configuration needed.
 <summary><strong>OpenClaw</strong></summary>
 
 ```bash
-# Manual install
-cp -r skills/ixd-design ~/.openclaw/workspace/skills/ixd-design
+# From ClawHub (if published)
+clawhub install ixd-design
 
-# Or shared across agents
+# Manual: shared across all agents
 cp -r skills/ixd-design ~/.openclaw/skills/ixd-design
+
+# Manual: per-agent (workspace-level, highest precedence)
+cp -r skills/ixd-design <workspace>/skills/ixd-design
 ```
 
-Refresh skills or start a new session.
+Skill precedence: workspace > `~/.openclaw/skills` > bundled.
+Refresh skills or start a new session to pick up the skill.
+
+You can also add a shared folder via `skills.load.extraDirs` in `~/.openclaw/openclaw.json` for multi-agent setups.
 </details>
 
 <details>
 <summary><strong>Claude Code</strong></summary>
 
+**Option A — Plugin marketplace (recommended)**
+
+The repo includes a `.claude-plugin/plugin.json`. If published to the [Claude Code Plugins Directory](https://github.com/anthropics/claude-plugins-official), install with:
+
+```bash
+/plugin install ixd-design@claude-plugin-directory
+```
+
+Or browse for it in `/plugin > Discover`.
+
+**Option B — Manual install as local skill**
+
 ```bash
 cp -r skills/ixd-design ~/.claude/skills/ixd-design
 ```
+
+**Option C — Manual install as local plugin**
+
+Clone the repo and install from local path:
+
+```bash
+git clone https://github.com/user/ixd-design-skill.git
+/plugin install /path/to/ixd-design-skill
+```
+
+Claude Code reads `.claude-plugin/plugin.json` and loads `skills/` automatically.
 </details>
 
 <details>
@@ -152,12 +181,14 @@ Generate document → Walkthrough (47 items) + Multi-perspective review (6 roles
 
 ```
 ixd-design-skill/
-├── README.md                           ← This file
-├── LICENSE                             ← MIT
+├── .claude-plugin/
+│   └── plugin.json                 ← Claude Code plugin metadata
+├── README.md                       ← This file
+├── LICENSE                         ← MIT
 └── skills/
-    └── ixd-design/                     ← AgentSkills-compatible skill folder
-        ├── SKILL.md                    ← Main entry point (743 lines)
-        ├── INSTALL.md                  ← Installation guide
+    └── ixd-design/                 ← AgentSkills-compatible skill folder
+        ├── SKILL.md                ← Main entry point (740+ lines)
+        ├── INSTALL.md              ← Installation guide
         └── references/
             ├── phase1-context.md       ← Product context gathering
             ├── phase2-architecture.md  ← 22-type page taxonomy
@@ -220,13 +251,13 @@ These tools can be invoked at any point via natural language:
 
 ## 🌐 Platform Compatibility
 
-| Platform | Status | Notes |
-|----------|--------|-------|
-| [Pi](https://github.com/mariozechner/pi-coding-agent) | ✅ Native | Auto-discovered via `SKILL.md` |
-| [OpenClaw](https://openclaw.ai) | ✅ Compatible | With `metadata.openclaw.emoji` |
-| Claude Code | ✅ Compatible | Via `~/.claude/skills/` |
-| Claude Projects | ✅ Compatible | Via custom instructions + knowledge |
-| GPT-4+ / Gemini Pro+ | ✅ Compatible | Via system prompt |
+| Platform | Status | Install Method |
+|----------|--------|----------------|
+| [Pi](https://github.com/mariozechner/pi-coding-agent) | ✅ Native | `~/.pi/skills/` or project-level |
+| [OpenClaw](https://openclaw.ai) | ✅ Compatible | `clawhub install` or `~/.openclaw/skills/` |
+| [Claude Code](https://code.claude.com) | ✅ Plugin | `/plugin install` marketplace or `~/.claude/skills/` |
+| Claude Projects | ✅ Compatible | Custom instructions + knowledge files |
+| GPT-4+ / Gemini Pro+ | ✅ Compatible | System prompt |
 
 Follows the [AgentSkills](https://agentskills.io) open standard (CSO v1).
 
