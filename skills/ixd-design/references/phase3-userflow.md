@@ -93,6 +93,7 @@ For each task, the flowchart must show:
 
 For each flowchart, provide a detailed step table:
 
+[English]
 ```markdown
 | Step | Page/Component | User Action | System Response | Exception Handling | Time Estimate |
 |------|----------------|-------------|-----------------|-------------------|---------------|
@@ -102,6 +103,18 @@ For each flowchart, provide a detailed step table:
 | 4 | Login Page | Enter code | Auto-submit verification | Code error: clear + hint | < 2s |
 | 5 | Home | - | Load home data (skeleton) | Load fail: error state + retry | < 3s |
 ```
+
+[中文]
+```markdown
+| 步骤 | 页面/组件 | 用户操作 | 系统响应 | 异常处理 | 耗时预估 |
+|------|----------|---------|---------|---------|---------|
+| 1 | App启动 | 点击App图标 | 显示启动页→检查登录态 | - | < 2s |
+| 2 | 登录页 | 输入手机号 | 实时格式校验 | 格式错误：红色提示 | - |
+| 3 | 登录页 | 点击获取验证码 | 发送短信+60s倒计时 | 网络失败：Toast提示，可重试 | < 1s |
+| 4 | 登录页 | 输入验证码 | 自动提交验证 | 验证码错误：清空+提示 | < 2s |
+| 5 | 首页 | - | 加载首页数据（骨架屏） | 加载失败：错误态+重试 | < 3s |
+```
+
 
 ### Time Estimate Guidelines
 
@@ -119,6 +132,7 @@ For each flowchart, provide a detailed step table:
 
 For each decision node in the flowchart, document the business logic:
 
+[English]
 ```markdown
 ## Key Decision Points
 
@@ -133,6 +147,23 @@ For each decision node in the flowchart, document the business logic:
 - **New user**: Enter onboarding flow (complete profile → tutorial)
 - **Returning user**: Go directly to home
 - **Edge case**: Returning user on new device → Not counted as new user
+```
+
+[中文]
+```markdown
+## 关键决策点
+
+### 决策点 1：登录态判断
+- **判断条件**：检查本地 token 是否存在且未过期
+- **是**：直接进入首页
+- **否**：跳转登录页
+- **边界情况**：token 过期但有 refresh token → 静默刷新
+
+### 决策点 2：新老用户判断
+- **判断条件**：服务端返回 is_new_user 字段
+- **新用户**：进入引导流程（完善资料→新手教程）
+- **老用户**：直接进入首页
+- **边界情况**：老用户首次登录新设备 → 不算新用户
 ```
 
 ---

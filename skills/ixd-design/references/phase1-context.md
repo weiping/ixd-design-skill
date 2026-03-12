@@ -55,6 +55,7 @@ If the user provides partial info, ask targeted follow-up questions for the gaps
 
 ### Product Design Brief
 
+[English]
 ```markdown
 ## Product Design Summary
 
@@ -62,6 +63,16 @@ If the user provides partial info, ask targeted follow-up questions for the gaps
 solving the problem of <<user_pain_point>>. Built on <<tech_platform>>,
 following <<design_system>> design language, with <<N>> core modules:
 <<module_list>>.
+```
+
+[中文]
+```markdown
+## 产品设计摘要
+
+**<<产品名称>>** 是一款面向 <<目标用户>> 的 <<产品类型>>，
+核心解决 <<用户痛点>> 的问题。产品基于 <<技术平台>> 构建，
+遵循 <<设计规范>> 设计语言，主要包含 <<N>> 个功能模块：
+<<模块列表>>。
 ```
 
 ### Design Challenges
@@ -74,11 +85,21 @@ Identify 3-5 key design challenges specific to this product. Think about:
 - Competitive differentiation (how to stand out?)
 
 Format:
+[English]
 ```markdown
 ## Design Challenges
 
 1. **<<challenge_name>>**: <<description, why this is a design difficulty>>
 2. **<<challenge_name>>**: <<description>>
+...
+```
+
+[中文]
+```markdown
+## 设计挑战
+
+1. **<<挑战名称>>**：<<具体描述，为什么这是一个设计难点>>
+2. **<<挑战名称>>**：<<具体描述>>
 ...
 ```
 
@@ -90,6 +111,7 @@ Derive 3-5 design principles that will guide all subsequent decisions. Good prin
 - Memorable (short enough to recall)
 
 Format:
+[English]
 ```markdown
 ## Design Principles
 
@@ -98,14 +120,30 @@ Format:
 ...
 ```
 
+[中文]
+```markdown
+## 设计原则
+
+1. **<<原则名称>>**：<<一句话解释 + 在本产品中的具体含义>>
+2. **<<原则名称>>**：<<解释>>
+...
+```
+
 Example:
+[English]
 ```
 1. **Three-Step Access**: Core features must be reachable within 3 steps from any page.
    Reflected in navigation structure design and shortcut entry placement.
 ```
 
-### Design References
+[中文]
+```
+1. **三步可达**：核心功能从任何页面出发，3 步内必须可以触达。
+   体现在导航结构设计和快捷入口的设置上。
+```
 
+### Design References
+[English]
 ```markdown
 ## Design References
 
@@ -114,14 +152,33 @@ Example:
 | <<product_name>> | <<IA/interaction pattern/visual style/specific feature>> (must cover both interaction and visual dimensions) | <<specific explanation>> |
 ```
 
+[中文]
+```markdown
+## 设计参考
+
+| 参考产品 | 参考维度 | 借鉴理由 |
+|---------|---------|---------|
+| <<产品名>> | <<信息架构/交互模式/视觉风格/特定功能>>（需涵盖交互和视觉两个维度） | <<具体说明>> |
+```
+
 ### Visual Direction Suggestions
 
+[English]
 ```markdown
 ## Visual Direction Suggestions
 
 - **Color Tendency**: <<primary color direction, emotional expression intent>>
 - **Typography Personality**: <<font style direction, e.g., modern minimal / warm humanistic / professional rigorous>>
 - **Visual Style Keywords (3-5)**: <<e.g., restrained, whitespace, rounded, tech-forward, natural>>
+```
+
+[中文]
+```markdown
+## 视觉方向建议
+
+- **色彩倾向**：<<主色调方向、情感表达意图>>
+- **字体气质**：<<字体风格方向，如现代简约/人文温暖/专业严谨>>
+- **视觉风格关键词（3-5 个）**：<<如：克制、留白、圆润、科技感、自然>>
 ```
 
 ## Quality Checklist

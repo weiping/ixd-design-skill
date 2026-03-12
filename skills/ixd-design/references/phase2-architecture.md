@@ -17,6 +17,7 @@ Map out the complete page structure of the product. This is the equivalent of Mo
 
 List every page/screen in the product. Use this table format:
 
+[English]
 ```markdown
 | ID | Page Name | Module | Level | Page Type | Entry Source | Description |
 |----|-----------|--------|-------|-----------|--------------|-------------|
@@ -25,71 +26,80 @@ List every page/screen in the product. Use this table format:
 | P03 | Detail | Content | L3 | Detail | List item tap | Content detail and actions |
 ```
 
+[中文]
+```markdown
+| 编号 | 页面名称 | 所属模块 | 层级 | 页面类型 | 入口来源 | 简要说明 |
+|------|---------|---------|------|---------|---------|---------|
+| P01 | 首页 | 核心 | L1 | 聚合页 | App启动/底部Tab | 首页信息流和快捷入口 |
+| P02 | 搜索页 | 搜索 | L2 | 搜索页 | 首页搜索栏 | 搜索输入+结果展示 |
+| P03 | 详情页 | 内容 | L3 | 详情页 | 列表项点击 | 内容详情和操作区 |
+```
+
 ### Page Type Reference
 
 **Core Content Types (1-5)**
 
-| ID | Type | Characteristics | Examples |
-|----|------|-----------------|----------|
-| 1 | Hub | Multi-module entry collection | Home, Dashboard |
-| 2 | List | Collection display of similar content | Message list, Order list |
-| 3 | Detail | Complete display of single content | Product detail, User profile |
-| 4 | Search | Search input + results | Global search |
-| 5 | Filter | Condition combination to narrow results | Product filter, Advanced search |
+| ID | Type | Chinese | Characteristics | Examples |
+|----|------|---------|-----------------|----------|
+| 1 | Hub | 聚合页 | Multi-module entry collection | Home, Dashboard |
+| 2 | List | 列表页 | Collection display of similar content | Message list, Order list |
+| 3 | Detail | 详情页 | Complete display of single content | Product detail, User profile |
+| 4 | Search | 搜索页 | Search input + results | Global search |
+| 5 | Filter | 筛选/排序页 | Condition combination to narrow results | Product filter, Advanced search |
 
 **Form & Input Types (6-8)**
 
-| ID | Type | Characteristics | Examples |
-|----|------|-----------------|----------|
-| 6 | Form | User input/edit information | Registration, Edit profile, Publish |
-| 7 | Wizard | Step-by-step guidance for complex input | Account opening flow, Publish wizard |
-| 8 | Picker | Select from preset options | City picker, Tag selection |
+| ID | Type | Chinese | Characteristics | Examples |
+|----|------|---------|-----------------|----------|
+| 6 | Form | 表单页 | User input/edit information | Registration, Edit profile, Publish |
+| 7 | Wizard | 多步表单 | Step-by-step guidance for complex input | Account opening flow, Publish wizard |
+| 8 | Picker | 选择器页 | Select from preset options | City picker, Tag selection |
 
 **Feedback & Result Types (9-10)**
 
-| ID | Type | Characteristics | Examples |
-|----|------|-----------------|----------|
-| 9 | Result | Operation result feedback | Payment success, Submit success |
-| 10 | Empty | Placeholder when no content | (Usually a state, not a standalone page) |
+| ID | Type | Chinese | Characteristics | Examples |
+|----|------|---------|-----------------|----------|
+| 9 | Result | 结果页 | Operation result feedback | Payment success, Submit success |
+| 10 | Empty | 空态页 | Placeholder when no content | (Usually a state, not a standalone page) |
 
 **Account & System Types (11-14)**
 
-| ID | Type | Characteristics | Examples |
-|----|------|-----------------|----------|
-| 11 | Auth | Authentication entry | Login, Register, Forgot password |
-| 12 | Profile | User personal info and feature entries | My page, Account center |
-| 13 | Settings | Configuration item list | System settings, Account settings |
-| 14 | About | Product info and legal text | About us, User agreement, Privacy policy |
+| ID | Type | Chinese | Characteristics | Examples |
+|----|------|---------|-----------------|----------|
+| 11 | Auth | 登录/注册页 | Authentication entry | Login, Register, Forgot password |
+| 12 | Profile | 个人中心 | User personal info and feature entries | My page, Account center |
+| 13 | Settings | 设置页 | Configuration item list | System settings, Account settings |
+| 14 | About | 关于/协议页 | Product info and legal text | About us, User agreement, Privacy policy |
 
 **Onboarding & Transition Types (15-17)**
 
-| ID | Type | Characteristics | Examples |
-|----|------|-----------------|----------|
-| 15 | Splash | Brand display at app launch | Launch screen, Splash page |
-| 16 | Onboarding | Feature intro for first-time users | New user guide, Feature carousel |
-| 17 | Transition | Feedback during waiting | Loading, Processing |
+| ID | Type | Chinese. | Characteristics | Examples |
+|----|------|----------|-----------------|----------|
+| 15 | Splash | 启动页 | Brand display at app launch | Launch screen, Splash page |
+| 16 | Onboarding | 引导页 |  Feature intro for first-time users | New user guide, Feature carousel |
+| 17 | Transition | 过渡/加载页 |  Feedback during waiting | Loading, Processing |
 
 **Overlay Types (18)**
 
-| ID | Type | Characteristics | Examples |
-|----|------|-----------------|----------|
-| 18 | Overlay | Temporary layer above page | Confirm dialog, Bottom sheet, Popover menu |
+| ID | Type | Chinese | Characteristics | Examples |
+|----|------|---------|-----------------|----------|
+| 18 | Overlay | 弹窗/浮层 | Temporary layer above page | Confirm dialog, Bottom sheet, Popover menu |
 
 **Desktop-Exclusive Types (19-22)**
 
-| ID | Type | Characteristics | Examples |
-|----|------|-----------------|----------|
-| 19 | Workspace | Desktop core operation area | Editor main interface, IDE workspace |
-| 20 | Side Panel | Expandable/collapsible auxiliary panel | File tree, Properties panel |
-| 21 | Preferences | Desktop standalone settings window | App preferences |
-| 22 | Tray/Menu Bar | System tray or menu bar entry | Status icon, Quick menu |
+| ID | Type | Chinese | Characteristics | Examples |
+|----|------|---------|-----------------|----------|
+| 19 | Workspace | 主窗口/工作区 |  Desktop core operation area | Editor main interface, IDE workspace |
+| 20 | Side Panel | 侧边面板 | Expandable/collapsible auxiliary panel | File tree, Properties panel |
+| 21 | Preferences | 偏好设置窗口 |  Desktop standalone settings window | App preferences |
+| 22 | Tray/Menu Bar | 托盘/菜单栏 | System tray or menu bar entry | Status icon, Quick menu |
 
 ### Level Convention
 
-- **L1**: Tab-direct pages (shown in bottom navigation)
-- **L2**: First-level subpages (entered from L1)
-- **L3**: Second-level subpages (entered from L2)
-- **L4**: Third-level subpages (avoid if possible; >4 levels indicates architecture needs optimization)
+- **L1**: Tab-direct(Tab 直达页) pages (shown in bottom navigation)
+- **L2**: First-level(一级子页) subpages (entered from L1)
+- **L3**: Second-level(二级子页) subpages (entered from L2)
+- **L4**: Third-level(三级子页) subpages (avoid if possible; >4 levels indicates architecture needs optimization)
 
 ### Page Exhaustiveness Check
 
@@ -162,6 +172,7 @@ Tips for Mermaid sitemaps:
 
 ### Tab Bar / Bottom Navigation
 
+[English]
 ```markdown
 ## Bottom Navigation Design
 
@@ -179,8 +190,28 @@ Tips for Mermaid sitemaps:
 - Right actions: <<common action buttons>>
 ```
 
+
+[中文]
+```markdown
+## 底部导航设计
+
+| Tab | 名称 | 图标 | 默认页面 | 角标策略 |
+|-----|------|------|---------|---------|
+| Tab 1 | 首页 | home (outline/filled) | 首页信息流 | 无 |
+| Tab 2 | 发现 | compass | 发现列表 | 新内容时显示红点 |
+| Tab 3 | 消息 | message-circle | 会话列表 | 显示未读数（99+封顶） |
+| Tab 4 | 我的 | user | 个人中心 | 有待办事项时显示红点 |
+
+### 导航栏行为
+- 滚动时：<<固定/隐藏/变色/缩小>>
+- 返回按钮：<<显示条件和行为>>
+- 标题：<<居中/居左，是否支持大标题模式>>
+- 右侧操作：<<常见操作按钮>>
+```
+
 ### Desktop Navigation Patterns
 
+[English]
 ```markdown
 ## Desktop Navigation Design
 
@@ -205,6 +236,32 @@ Tips for Mermaid sitemaps:
 - Shortcut conflict detection: <<no conflicts with system shortcuts>>
 ```
 
+[中文]
+```markdown
+## 桌面端导航设计
+
+### 侧边栏导航（可折叠）
+- 展开宽度：<<200-280px>>
+- 折叠宽度：<<48-64px，仅显示图标>>
+- 折叠触发：<<手动按钮/窗口宽度阈值>>
+- 层级：<<支持嵌套分组/树形结构>>
+
+### 顶部菜单栏
+- 菜单项：<<文件/编辑/视图/帮助等>>
+- 快捷键显示：<<菜单项右侧显示快捷键>>
+
+### 混合导航
+- 顶部：<<菜单栏 + 工具栏>>
+- 侧边：<<模块导航 + 树形结构>>
+- 底部：<<状态栏>>
+
+### 键盘快捷键绑定
+- 全局快捷键：<<Cmd/Ctrl+K 命令面板, Cmd/Ctrl+, 设置>>
+- 模块快捷键：<<按功能模块分组>>
+- 快捷键冲突检测：<<与系统快捷键不冲突>>
+```
+
+
 ### Navigation Type Decision
 
 | Product Type | Recommended Navigation | Reason |
@@ -223,6 +280,7 @@ Tips for Mermaid sitemaps:
 
 List components shared across multiple pages:
 
+[English]
 ```markdown
 ## Global Component Inventory
 
@@ -251,6 +309,36 @@ List components shared across multiple pages:
 ### Business-Specific
 (Add based on specific product, e.g., user avatar card, content card, action toolbar, etc.)
 ```
+
+[中文]
+```markdown
+## 全局组件清单
+
+### 导航类
+- **顶部导航栏**：标准样式（返回+标题+操作）/ 透明样式（沉浸式）/ 搜索样式
+- **底部 Tab 栏**：固定底部，切换时无动画 / 有动画
+
+### 反馈类
+- **Toast 提示**：成功（绿色✓）/ 失败（红色✗）/ 加载中（转圈）/ 纯文本
+- **确认弹窗**：标题+内容+双按钮 / 标题+内容+单按钮
+- **底部操作面板 (Action Sheet)**：操作列表 + 取消
+- **加载状态**：全页骨架屏 / 列表骨架屏 / 内容加载转圈
+
+### 空态类
+- **无数据空态**：插图 + 文案 + 可选操作按钮
+- **网络错误**：插图 + 文案 + 重试按钮
+- **无权限**：插图 + 文案 + 引导按钮
+
+### 桌面端专属类
+- **侧边栏 (Sidebar)**：可折叠导航面板，支持树形结构和拖拽排序
+- **工具栏 (Toolbar)**：上下文相关的操作按钮栏，支持自定义布局
+- **右键菜单 (Context Menu)**：上下文操作菜单，支持嵌套子菜单和快捷键提示
+- **命令面板 (Command Palette)**：Cmd/Ctrl+K 快捷搜索命令和页面
+- **状态栏 (Status Bar)**：底部信息栏，显示状态、进度、通知
+
+### 业务类
+（根据具体产品补充，如：用户头像卡片、内容卡片、操作工具栏等）
+``
 
 ---
 
