@@ -1,59 +1,48 @@
-# AI Interaction Design Full-Workflow Prompt System
+# AI 交互设计全流程提示词体系
 
-> For Claude / GPT and other LLMs, produces complete interaction + visual design deliverables comparable to Modao, Figma, and other professional tools.
-> Author: Weiping | Version: v2.2
-
----
-
-## Language Policy
-
-**Source Code**: All structural elements use English.
-**Output Language**: Dialogue and deliverables follow the user's input language.
-- Chinese input → Chinese output
-- English input → English output
-- Mixed input → Primary language
+> 适用于 Claude / GPT 等大模型，产出对标墨刀、Figma 等工具的完整交互+视觉设计成果物
+> 作者：Weiping | 版本：v2.2
 
 ---
 
-## Version History
+## 版本记录
 
-| Version | Date | Changes |
-|---------|------|---------|
-| v1.0 | 2025-03 | Initial release, 7-phase interaction design system |
-| v2.0 | 2025-03 | Added Phase 6 "Visual Design"; expanded page type taxonomy from 7 to 18 types; added complete page exhaustiveness checklist template (Appendix E); updated one-shot prompt and comparison tables; adjusted to 8 phases total |
+| 版本 | 日期 | 变更内容 |
+|------|------|---------|
+| v1.0 | 2026-03 | 初版，7 阶段交互设计体系 |
+| v2.0 | 2026-03 | 新增阶段六「视觉设计」；页面类型体系从 7 类扩展到 18 类；新增完整页面穷举清单模板（附录 E）；更新一次性 Prompt 和对照表；阶段总数调整为 8 |
 | v2.1 | 2026-03 | Added PC client platform support (Windows/macOS native apps, Flutter/Electron cross-platform desktop); supplemented desktop interaction paradigms across all phases (mouse hover, keyboard shortcuts, window management, information density, etc.); added "Window/Panel" page types; adaptation specs cover desktop layouts; Appendix E supplemented with desktop-exclusive page checklist |
 | v2.2 | 2026-03 | Phase 7 refactor: unified to platform-parameter-driven mode, default output mobile prototype, desktop requires explicit specification, dual-platform prototypes as independent option; removed "single-platform" vs "cross-platform" distinction, simplified prompt structure |
 
 ---
 
-## Usage Guide
+## 使用说明
 
-This prompt system is divided into **8 phases**, corresponding to the complete design flow from requirements to delivery. Each phase includes:
+本提示词体系分为 **8 个阶段**，对应从需求到交付的完整设计流程。每个阶段包含：
 
-- **Phase Description**: Goals and deliverables
-- **Prompt Template**: Ready-to-use prompts (`<<variable>>` indicates content to replace)
-- **Output Format**: Expected AI output format and structure
-- **Quality Checklist**: For validating AI deliverables
+- **阶段说明**：该阶段的目标和产出物
+- **提示词模板**：可直接使用的 Prompt（`<<变量>>` 为需替换内容）
+- **产出格式说明**：期望 AI 输出的格式和结构
+- **质量检查清单**：用于验收 AI 产出
 
-### Full Workflow Overview
+### 全流程一览
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8
-Context   IA        Flows      Page Specs   Components  Visual    Prototype   Delivery
+阶段一 → 阶段二 → 阶段三 → 阶段四 → 阶段五 → 阶段六 → 阶段七 → 阶段八
+产品上下文  信息架构  用户流程  页面交互说明  组件规范   视觉设计   可交互原型  设计交付
+                                                    ▲ NEW
 ```
 
-Recommended to proceed phase by phase, confirming each before moving to the next. Multiple phases can also be combined into a single prompt for one-shot execution.
+建议按阶段顺序使用，每阶段确认后再进入下一阶段。也可以将多个阶段合并为一个 Prompt 一次性执行。
 
 ---
 
-## Phase 1: Product Context Establishment
+## 阶段一：产品上下文建立
 
-### Goal
-Help AI understand product background and establish design constraints, equivalent to a designer's Kick-off meeting.
+### 目标
+让 AI 理解产品背景，建立设计约束，相当于设计师的 Kick-off 会议。
 
-### Prompt Template (Bilingual)
-
-**[Chinese Version - 中文版]**
+### 提示词模板
 
 ```
 你是一位拥有 10 年经验的资深交互设计师兼视觉设计师，精通移动端、Web 端和桌面端产品设计，
@@ -93,52 +82,12 @@ Help AI understand product background and establish design constraints, equivale
 5. 输出初步 **视觉方向建议**（色彩倾向、字体气质、视觉风格关键词 3-5 个）
 ```
 
-**[English Version]**
-
-```
-You are a senior interaction designer and visual designer with 10 years of experience, proficient in mobile, web, and desktop product design.
-You are familiar with major design systems including Material Design 3, Apple HIG, Fluent Design (Windows), macOS HIG,
-and have professional expertise in brand visuals, UI design, and motion design.
-
-Based on the following product background, establish the design context:
-
-## Product Information
-- Product Name: <<product_name>>
-- Product Type: <<App/Web/Mini-program/PC Client/Cross-platform>>
-- Target Platform: <<iOS/Android/Web/Windows/macOS/Linux/Flutter/Electron/React Native>>
-- Product Positioning: <<one-sentence value proposition>>
-
-## Target Users
-- Primary User Roles: <<role1: description>>, <<role2: description>>
-- Usage Scenarios: <<core usage scenarios>>
-- Technical Proficiency: <<novice/average/expert>>
-- Age Range: <<age range>>
-
-## Core Features
-<<List 3-7 core feature modules>>
-
-## Design Constraints
-- Design Language: <<design system to follow, desktop can use Fluent Design / macOS HIG / custom>>
-- Brand Colors: <<primary/secondary/accent colors, if any>>
-- Brand Tone: <<professional/energetic/warm/futuristic/minimal/...>>
-- Existing Assets: <<existing design system, component library, or brand guidelines>>
-- Technical Constraints: <<frontend framework, desktop framework (Flutter/Electron/Tauri/Swift/WPF), performance requirements, etc.>>
-- Competitor References: <<1-3 competitor names and reference points>>
-
-## Your Tasks
-1. Confirm your understanding of the product, output a **Product Design Summary** (within 200 words)
-2. Identify **Design Challenges** (3-5 key design difficulties, including interaction and visual aspects)
-3. Propose **Design Principles** (3-5 principles to guide subsequent design)
-4. List **Design References** (recommend 2-3 excellent products with reasons, covering both interaction and visual dimensions)
-5. Output preliminary **Visual Direction Suggestions** (color tendencies, typography personality, 3-5 visual style keywords)
-```
-
-### Output Format
-- Product Design Summary: Natural paragraph
-- Design Challenges: Numbered list + brief explanation
-- Design Principles: Principle name + explanation
-- Design References: Product name + reference reason
-- Visual Direction: Keywords + brief description
+### 产出格式
+- 产品设计摘要：自然段落
+- 设计挑战：编号列表 + 简要说明
+- 设计原则：原则名 + 解释
+- 设计参考：产品名 + 参考理由
+- 视觉方向：关键词 + 简要描述
 
 ---
 
