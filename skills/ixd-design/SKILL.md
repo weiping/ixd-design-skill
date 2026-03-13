@@ -782,6 +782,15 @@ For cross-platform (`platform: "both"`):
 **Batch Output Strategy**:
 - Read page inventory from `doc/ixd/phase2-architecture.md`
 - Output in batches: 3-5 pages (single platform) or 2-3 pages × 2 platforms (cross-platform)
+- **After each batch**:
+  1. Run `bundle-artifact.sh` to produce the latest prototype HTML file(s)
+  2. Save/overwrite the output to `doc/ixd/phase7-prototype*.html`
+  3. Update `progress.json`: increment `pagesCompleted`, record `lastBatch`
+  4. **PAUSE** — output a batch summary and ask the user:
+     > "✅ Batch N complete — pages X, Y, Z implemented. Prototype updated: `phase7-prototype.html`
+     > Progress: <<M>>/<<total>> pages done.
+     > **Continue to next batch?** (yes / stop here)"
+  5. Wait for user confirmation before proceeding to the next batch
 - Track completed pages in `progress.json`
 - Update `pagesCompleted` after each batch
 
