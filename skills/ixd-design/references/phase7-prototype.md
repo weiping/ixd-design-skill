@@ -121,6 +121,15 @@ Define Phase 6 Design Tokens in `src/index.css` as CSS variables and Tailwind th
   --foreground: <<dark-text>>;
   /* ... */
 }
+
+/* Hide scrollbar utility for prototype content areas */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
 ```
 
 **Tailwind Theme Extension** (tailwind.config.js):
@@ -458,16 +467,23 @@ export function PrototypeShell({ productName, platform, children, interactions }
       <div className="flex justify-center">
         {platform === 'mobile' ? (
           // iPhone frame
-          <div className="relative bg-black dark:bg-gray-800 rounded-[40px] p-3 shadow-2xl"
+          <div className="relative bg-black dark:bg-gray-800 rounded-[40px] p-3 shadow-2xl overflow-hidden"
                style={{ width: '416px', height: '890px' }}>
             {/* Status bar */}
-            <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-center text-white text-sm z-10">
+            <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-between px-6 text-white text-sm z-10">
               <span>9:41</span>
-              {/* Signal, WiFi, battery icons */}
+              <div className="flex items-center gap-1">
+                {/* Signal, WiFi, battery icons */}
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+              </div>
             </div>
-            {/* Screen area */}
-            <div className="bg-white dark:bg-gray-900 rounded-[32px] h-full overflow-hidden">
-              {children}
+            {/* Screen area - with proper top padding for status bar */}
+            <div className="bg-white dark:bg-gray-900 rounded-[32px] h-full overflow-hidden flex flex-col">
+              {/* Content area - scrollable without visible scrollbars */}
+              <div className="flex-1 overflow-auto scrollbar-hide pt-12 pb-4">
+                {children}
+              </div>
             </div>
             {/* Home Indicator */}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/80 rounded-full" />
@@ -638,7 +654,15 @@ const [theme, setTheme] = useState<'light' | 'dark'>('light');
 1. **Read page inventory** from `doc/ixd/phase2-architecture.md`
 2. **Prioritize by importance**: dashboard/home → core lists → detail pages → forms → settings → secondary pages
 3. **Output in batches of 3-5 pages** per turn to avoid token limits
-4. **Track progress**: record completed pages in `progress.json` after each batch
+4. **After each batch**:
+   - Run `bundle-artifact.sh` to produce updated prototype HTML
+   - Save/overwrite `doc/ixd/phase7-prototype.html` (or platform-specific filename)
+   - Update `progress.json`: record completed page IDs and `lastBatch`
+   - **PAUSE** — output a summary then ask the user:
+     > "✅ Batch N complete — pages X, Y, Z implemented. Prototype updated: `phase7-prototype.html`
+     > Progress: M/total pages done.
+     > **Continue to next batch?** (yes / stop here)"
+   - Wait for user confirmation before proceeding
 
 **Batch order example**:
 ```
@@ -658,6 +682,16 @@ When `platform: "both"`, implement both platforms in a single project:
 4. **Batch by page, not by platform**: Complete the mobile + desktop versions of a page together before moving to the next
 5. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
 6. **Output in batches of 2-3 page pairs per turn**
+7. **After each batch**:
+   - Bundle both platforms: run `bundle-artifact.sh` for mobile + desktop entries
+   - Save/overwrite `doc/ixd/phase7-prototype-mobile.html` and `phase7-prototype-desktop.html`
+   - Update `progress.json` with completed page IDs for both platforms
+   - **PAUSE** — output a summary then ask:
+     > "✅ Batch N complete — page pairs X, Y implemented (mobile + desktop).
+     > Prototypes updated: `phase7-prototype-mobile.html` + `phase7-prototype-desktop.html`
+     > Progress: M/total page pairs done.
+     > **Continue to next batch?** (yes / stop here)"
+   - Wait for user confirmation before proceeding
 
 ## Resume Logic (Breakpoint Recovery)
 

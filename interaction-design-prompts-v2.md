@@ -885,6 +885,15 @@ flowchart TD
   --foreground: <<深色文字>>;
   /* ... */
 }
+
+/* 隐藏滚动条工具类 - 用于原型内容区域 */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE 和 Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome、Safari、Opera */
+}
 ```
 
 **Tailwind 主题扩展**（tailwind.config.js）：
@@ -1212,16 +1221,23 @@ export function PrototypeShell({ productName, platform, children, interactions }
       <div className="flex justify-center">
         {platform === 'mobile' ? (
           // iPhone 框架
-          <div className="relative bg-black dark:bg-gray-800 rounded-[40px] p-3 shadow-2xl"
+          <div className="relative bg-black dark:bg-gray-800 rounded-[40px] p-3 shadow-2xl overflow-hidden"
                style={{ width: '416px', height: '890px' }}>
             {/* 状态栏 */}
-            <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-center text-white text-sm z-10">
+            <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-between px-6 text-white text-sm z-10">
               <span>9:41</span>
-              {/* 信号、WiFi、电量图标 */}
+              <div className="flex items-center gap-1">
+                {/* 信号、WiFi、电量图标 */}
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+              </div>
             </div>
-            {/* 屏幕区域 */}
-            <div className="bg-white dark:bg-gray-900 rounded-[32px] h-full overflow-hidden">
-              {children}
+            {/* 屏幕区域 - 为状态栏留出顶部空间 */}
+            <div className="bg-white dark:bg-gray-900 rounded-[32px] h-full overflow-hidden flex flex-col">
+              {/* 内容区域 - 可滚动且隐藏滚动条 */}
+              <div className="flex-1 overflow-auto scrollbar-hide pt-12 pb-4">
+                {children}
+              </div>
             </div>
             {/* Home Indicator */}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/80 rounded-full" />
