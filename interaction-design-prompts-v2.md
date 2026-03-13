@@ -1,7 +1,7 @@
 # AI 交互设计全流程提示词体系
 
 > 适用于 Claude / GPT 等大模型，产出对标墨刀、Figma 等工具的完整交互+视觉设计成果物
-> 作者：Weiping | 版本：v2.2
+> 作者：Weiping | 版本：v2.5
 
 ---
 
@@ -11,8 +11,11 @@
 |------|------|---------|
 | v1.0 | 2026-03 | 初版，7 阶段交互设计体系 |
 | v2.0 | 2026-03 | 新增阶段六「视觉设计」；页面类型体系从 7 类扩展到 18 类；新增完整页面穷举清单模板（附录 E）；更新一次性 Prompt 和对照表；阶段总数调整为 8 |
-| v2.1 | 2026-03 | Added PC client platform support (Windows/macOS native apps, Flutter/Electron cross-platform desktop); supplemented desktop interaction paradigms across all phases (mouse hover, keyboard shortcuts, window management, information density, etc.); added "Window/Panel" page types; adaptation specs cover desktop layouts; Appendix E supplemented with desktop-exclusive page checklist |
-| v2.2 | 2026-03 | Phase 7 refactor: unified to platform-parameter-driven mode, default output mobile prototype, desktop requires explicit specification, dual-platform prototypes as independent option; removed "single-platform" vs "cross-platform" distinction, simplified prompt structure |
+| v2.1 | 2026-03 | 新增 PC 客户端平台支持（Windows/macOS 原生应用、Flutter/Electron 跨平台桌面端）；补充全流程桌面端交互范式（鼠标悬停、键盘快捷键、窗口管理、信息密度等）；新增「窗口/面板」页面类型；适配规范覆盖桌面布局；附录 E 补充桌面端专属页面清单 |
+| v2.2 | 2026-03 | 阶段七重构：统一为平台参数驱动模式，默认输出移动端原型，桌面端需显式指定，双端原型作为独立选项；移除「单平台」与「跨平台」区分，简化提示词结构 |
+| v2.3 | 2026-03 | 阶段七重构：集成 React 18 + TypeScript + Tailwind CSS + shadcn/ui 技术栈，输出可在浏览器直接打开的单文件 HTML；新增技术栈表格、开发流程、shadcn/ui 组件推荐、代码示例、AI 设计风格指南 |
+| v2.4 | 2026-03 | 阶段七更新：新增「原型展示入口页面」章节，包含 iPhone 框架模拟器（状态栏、Home Indicator）、桌面端窗口框架（标题栏、窗口控制按钮）、项目名称展示、浅色/深色模式切换、页面导航器、PrototypeShell 组件示例 |
+| v2.5 | 2026-03 | 阶段七更新：跨平台双端原型改为**单项目双入口**模式，共享 Design Token 和业务组件，打包输出两个 HTML 文件 |
 
 ---
 
@@ -30,7 +33,7 @@
 ```
 阶段一 → 阶段二 → 阶段三 → 阶段四 → 阶段五 → 阶段六 → 阶段七 → 阶段八
 产品上下文  信息架构  用户流程  页面交互说明  组件规范   视觉设计   可交互原型  设计交付
-                                                    ▲ NEW
+                                                    ▲ NEW: web-artifacts-builder skill
 ```
 
 建议按阶段顺序使用，每阶段确认后再进入下一阶段。也可以将多个阶段合并为一个 Prompt 一次性执行。
@@ -818,9 +821,24 @@ flowchart TD
 ### 目标
 生成可点击的高保真 HTML 原型，对标墨刀的"原型演示"功能。这是 AI 相比传统工具的差异化优势。
 
-> **v2.0 更新**：原型现在应直接使用阶段六定义的视觉方案（色彩/字体/圆角/阴影），实现交互+视觉一体化。
->
-> **v2.2 更新**：统一为平台参数驱动模式。默认输出移动端原型，桌面端需显式指定。需要双端原型时作为独立选项处理。
+### 技术栈
+
+本阶段使用以下技术栈生成高保真原型：
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| React | 18 | 组件化 UI 框架 |
+| TypeScript | Latest | 类型安全 |
+| Vite | Latest | 开发构建工具 |
+| Tailwind CSS | 3.4.1 | 原子化 CSS 框架 |
+| shadcn/ui | Latest | 高质量 UI 组件库（40+ 预装组件） |
+| Parcel | Latest | 打包为单文件 HTML |
+
+**技术栈优势**：
+- shadcn/ui 提供 40+ 开箱即用的专业组件（Button、Card、Dialog、Sheet、Tabs、Toast 等）
+- Tailwind CSS 配合 shadcn/ui 的主题系统，轻松实现 Design Token
+- React 组件化架构，便于页面复用和状态管理
+- 最终输出单文件 HTML，可在浏览器直接打开，无需服务器
 
 ### 提示词模板
 
@@ -828,82 +846,476 @@ flowchart TD
 请基于前述交互设计方案和视觉设计方案，生成可交互的高保真 HTML 原型。
 
 ## 原型配置
-- **目标平台**：<<移动端（默认）/ 桌面端>>
-- **双端输出**：<<否（默认）/ 是>>（同时生成移动端 + 桌面端两套原型）
+- **目标平台**：<<移动端（默认）/ 桌面端 / 双端>>
+- **双端输出**：<<否（默认）/ 是>>（同时生成移动端 + 桌面端原型）
 
-## 技术要求
+## 开发流程
 
-### 基础要求（所有平台通用）
-- 单文件 HTML（内联 CSS + JS），或 React JSX 组件
-- 使用 Tailwind CSS 进行样式编写
-- 实现真实的点击跳转（多页面用 SPA 路由模拟或 Tab 切换）
-- 包含过渡动画（页面转场 / 组件状态变化）
-- 支持深色模式切换
+### 第一步：初始化项目
+使用 web-artifacts-builder skill 创建项目：
+- 项目名称建议：`<<产品名>>-prototype`
+- 此步骤会自动配置好 React + TypeScript + Tailwind CSS + shadcn/ui 环境
+
+### 第二步：实现设计 Token
+在 `src/index.css` 或全局 CSS 文件中，将阶段六的 Design Token 定义为 CSS 变量和 Tailwind 主题配置：
+
+**色彩系统**（示例）：
+```css
+:root {
+  --primary: <<主色色值>>;
+  --primary-foreground: <<主色文字色值>>;
+  --secondary: <<辅助色色值>>;
+  --accent: <<强调色色值>>;
+  --background: <<背景色色值>>;
+  --foreground: <<文字色色值>>;
+  --muted: <<弱化背景色>>;
+  --muted-foreground: <<弱化文字色>>;
+  --card: <<卡片背景色>>;
+  --border: <<边框色>>;
+  --radius: <<圆角基准值>>;
+  /* 功能色 */
+  --success: <<成功色>>;
+  --warning: <<警告色>>;
+  --destructive: <<错误色>>;
+}
+
+.dark {
+  /* 深色模式变量覆盖 */
+  --background: <<深色背景>>;
+  --foreground: <<深色文字>>;
+  /* ... */
+}
+```
+
+**Tailwind 主题扩展**（tailwind.config.js）：
+```js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: 'hsl(var(--primary))',
+        secondary: 'hsl(var(--secondary))',
+        // ...
+      },
+      fontSize: {
+        'display': ['<<Display字号>>', { lineHeight: '<<行高>>' }],
+        'h1': ['<<H1字号>>', { lineHeight: '<<行高>>', fontWeight: '600' }],
+        // ...
+      },
+      spacing: {
+        'safe-bottom': 'env(safe-area-inset-bottom)', // 移动端安全区
+      }
+    }
+  }
+}
+```
+
+### 第三步：实现页面组件
+在 `src/` 目录下按页面结构组织组件：
+
+**单平台移动端** (`platform: "mobile"` - 默认):
+```
+src/
+├── components/
+│   ├── ui/              # shadcn/ui 组件（已预装）
+│   ├── layout/
+│   │   ├── MobileLayout.tsx    # Tab Bar + 顶部导航
+│   │   └── PrototypeShell.tsx  # iPhone 框架包装
+│   └── shared/          # 共享业务组件
+├── pages/               # 页面组件
+│   ├── Home.tsx
+│   └── ...
+├── hooks/               # 自定义 Hooks
+├── lib/                 # 工具函数 + mock 数据
+├── App.tsx              # 主应用（路由配置）
+├── main.tsx             # 入口文件
+└── index.css            # 全局样式 + Design Token
+```
+
+**单平台桌面端** (`platform: "desktop"`):
+```
+src/
+├── components/
+│   ├── ui/              # shadcn/ui 组件（已预装）
+│   ├── layout/
+│   │   ├── DesktopLayout.tsx   # 侧边栏 + 工具栏 + 标题栏
+│   │   └── PrototypeShell.tsx  # 窗口框架包装
+│   └── shared/          # 共享业务组件
+├── pages/               # 页面组件
+│   ├── Home.tsx
+│   └── ...
+├── hooks/               # 自定义 Hooks
+├── lib/                 # 工具函数 + mock 数据
+├── App.tsx              # 主应用（路由配置）
+├── main.tsx             # 入口文件
+└── index.css            # 全局样式 + Design Token
+```
+
+**跨平台双端** (`platform: "both"`):
+```
+src/
+├── components/
+│   ├── ui/              # shadcn/ui 组件（已预装）
+│   ├── layout/
+│   │   ├── MobileLayout.tsx    # 移动端布局
+│   │   ├── DesktopLayout.tsx   # 桌面端布局
+│   │   └── PrototypeShell.tsx  # 设备框架包装（支持双端）
+│   └── shared/          # 共享业务组件
+├── pages/
+│   ├── mobile/          # 移动端页面
+│   └── desktop/         # 桌面端页面
+├── hooks/               # 自定义 Hooks
+├── lib/                 # 工具函数 + 共享 mock 数据
+│   └── mockData.ts
+├── App.mobile.tsx       # 移动端入口
+├── App.desktop.tsx      # 桌面端入口
+└── index.css            # 共享 Design Token
+```
+
+### 第四步：打包为单文件 HTML
+将代码打包为单个 HTML 文件：
+- **单平台**：`bundle.html` → 重命名为 `prototype.html`
+- **跨平台双端**：`prototype-mobile.html` + `prototype-desktop.html`
+- 该文件可在浏览器直接打开，无需任何服务器
+
+## 平台特定实现要求
 
 ### 移动端原型
-- 视口：max-width: 390px 居中模拟手机屏幕
-- 导航模式：底部 Tab + 顶部导航栏
-- 页面转场：slide 动画
-- 触摸交互：下拉刷新、左滑删除、惯性滚动
+- **视口**：在 `index.html` 设置 `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`
+- **布局组件**：
+  - 使用 shadcn/ui 的 `Tabs` 组件实现底部 Tab 导航
+  - 顶部导航栏自定义组件（返回按钮 + 标题 + 操作按钮）
+- **页面转场**：使用 CSS `transform: translateX()` 或 Framer Motion 实现 slide 动画
+- **触摸交互**：
+  - 下拉刷新：自定义 Hook 或使用 `@tanstack/react-query` 的 `useQuery`
+  - 左滑删除：自定义手势处理或 `framer-motion` 的 `drag` 属性
+- **shadcn/ui 推荐组件**：`Button`、`Card`、`Input`、`Sheet`（底部面板）、`Dialog`、`Toast`、`Tabs`
 
 ### 桌面端原型
-- 视口：max-width: 1280px 模拟桌面窗口
-- 导航模式：侧边栏导航（可折叠）+ 顶部工具栏/菜单栏
-- 页面转场：fade 动画
-- 多面板布局：侧边栏 + 主内容区 + 辅助面板（可拖拽分割线）
-- 键盘导航：Tab 焦点 / Enter 确认 / Esc 取消 / 快捷键模拟
-- 窗口标题栏：模拟关闭/最小化/最大化按钮样式
-- 鼠标交互：hover 态、右键菜单、拖拽行为、Tooltip
+- **视口**：`max-width: 1280px` 居中模拟桌面窗口
+- **布局组件**：
+  - 侧边栏：使用 `Sheet` 或自定义可折叠面板
+  - 顶部工具栏：使用 `Menubar` 或自定义 Toolbar 组件
+  - 窗口标题栏：模拟关闭/最小化/最大化按钮样式
+- **页面转场**：fade 动画（opacity transition）
+- **多面板布局**：使用 CSS Grid 或 Flexbox 实现可拖拽分割线
+- **键盘导航**：
+  - Tab 焦点：确保所有可交互元素有正确的 `tabIndex`
+  - 快捷键：使用自定义 Hook 监听 `keydown` 事件
+- **鼠标交互**：
+  - hover 态：Tailwind 的 `hover:` 前缀
+  - 右键菜单：shadcn/ui 的 `ContextMenu` 组件
+  - Tooltip：shadcn/ui 的 `Tooltip` 组件
+  - 拖拽：`framer-motion` 的 `drag` 或原生 drag API
+- **shadcn/ui 推荐组件**：`Button`、`Card`、`Input`、`Sheet`、`Dialog`、`Toast`、`Tabs`、`Menubar`、`ContextMenu`、`Tooltip`、`Separator`
 
-## 视觉落地要求（来自阶段六）
-- 使用阶段六定义的完整色彩系统（通过 CSS 变量实现）
-- 使用阶段六定义的字体系统和字号阶梯
-- 使用阶段六定义的圆角、阴影层级
-- 实现阶段六定义的深色模式方案（添加模式切换按钮）
-- 图标使用阶段六指定的图标库
-- 空态页面使用阶段六定义的插图风格描述（可用 emoji 或 SVG 占位）
-
-## 交互实现要求
+## 交互实现指南
 
 ### 页面导航
-- 移动端：Tab 切换实现底部导航，返回按钮支持 history back
-- 桌面端：侧边栏导航 + 顶部工具栏，支持 Alt+←/→ 或 Cmd+[/] 前进后退
-- 页面间传参（如列表→详情的 ID 传递）
+**移动端**：
+```tsx
+// 使用 Hash 路由或状态切换
+const [currentPage, setCurrentPage] = useState('home');
+
+// Tab Bar 组件使用 shadcn/ui Tabs
+<Tabs defaultValue="home" className="fixed bottom-0 ...">
+  <TabsList>
+    <TabsTrigger value="home" onClick={() => setCurrentPage('home')}>
+      <HomeIcon /> 首页
+    </TabsTrigger>
+    {/* ... */}
+  </TabsList>
+</Tabs>
+```
+
+**桌面端**：
+```tsx
+// 侧边栏导航 + 路由状态
+const navigate = (page: string) => setCurrentPage(page);
+
+// 快捷键支持
+useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.altKey && e.key === 'ArrowLeft') navigate('back');
+    if (e.altKey && e.key === 'ArrowRight') navigate('forward');
+  };
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, []);
+```
 
 ### 表单交互
-- 输入框实时校验 + 错误提示
-- 表单按钮禁用态联动
-- 移动端：键盘弹起时布局适配（底部按钮上推）
-- 桌面端：Tab 键切换表单焦点、Enter 提交
-- 选择器 / 日期选择模拟
+- 使用 shadcn/ui 的 `Input`、`Select`、`Checkbox`、`Switch`、`RadioGroup`、`Slider` 等组件
+- 表单校验：使用 `react-hook-form` + `zod`（如已安装）或自定义状态校验
+- 禁用态联动：根据表单状态控制 `Button` 的 `disabled` 属性
 
 ### 状态模拟
-- 用 setTimeout 模拟加载态（骨架屏 → 内容）
-- 空态展示（可通过开关切换）
-- 下拉刷新动画（移动端）
-- Toast 弹出和自动消失
+```tsx
+// 加载态模拟
+const [isLoading, setIsLoading] = useState(false);
+const loadData = async () => {
+  setIsLoading(true);
+  await new Promise(resolve => setTimeout(resolve, 1500)); // 模拟 1.5s 加载
+  setIsLoading(false);
+};
+
+// Toast 提示
+import { toast } from '@/components/ui/use-toast';
+toast({ title: '操作成功', description: '数据已保存' });
+```
+
+### 深色模式
+```tsx
+// 使用 next-themes 或简单状态切换
+const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+// 在根元素添加 class
+<div className={theme}>
+  {/* 应用内容 */}
+</div>
+
+// 切换按钮
+<Button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+  {theme === 'light' ? '🌙' : '☀️'}
+</Button>
+```
+
+## 原型展示入口页面
+
+所有原型必须包含一个**统一的入口展示页面**，对标墨刀的"原型演示"功能，包含以下元素：
+
+### 入口页面必备元素
+
+1. **项目名称**
+   - 显示在页面顶部中央或左上角
+   - 使用阶段六定义的品牌主色或 Display/H1 字号
+   - 可选副标题：项目版本号、更新日期
+
+2. **浅色/深色模式切换**
+   - 位置：页面右上角或导航栏
+   - 样式：图标按钮（☀️/🌙）或 Toggle Switch
+   - 切换时全局应用 `.dark` class
+   - 默认跟随系统偏好（`prefers-color-scheme`）
+
+3. **设备框架模拟器**
+   根据目标平台显示对应的设备框架：
+
+   **移动端原型（iPhone 框架）**：
+   ```
+   ┌─────────────────────────┐
+   │       ◀  □  ▶          │ ← 状态栏（时间、信号、电量）
+   ├─────────────────────────┤
+   │                         │
+   │                         │
+   │     原型内容区域        │ ← 390×844px（iPhone 14 标准）
+   │     （实际页面渲染）    │
+   │                         │
+   │                         │
+   ├─────────────────────────┤
+   │  ━━━━━━━━━━━━━━━━━━━━   │ ← Home Indicator
+   └─────────────────────────┘
+   ```
+   - 外框样式：圆角 40px、黑色/白色边框（跟随模式）
+   - 尺寸：390×844px（iPhone 14 系列）或 430×932px（iPhone 14 Pro Max）
+   - 状态栏模拟：时间、信号、WiFi、电量图标（可用 SVG 绘制）
+   - Home Indicator：底部 134×5px 圆角条
+
+   **桌面端原型（窗口框架）**：
+   ```
+   ┌──────────────────────────────────────────────────┐
+   │ ○ ○ ○  窗口标题（产品名）              ─ □ ✕   │ ← 标题栏 + 窗口控制按钮
+   ├──────────────────────────────────────────────────┤
+   │                                                  │
+   │                                                  │
+   │              原型内容区域                        │ ← 1280×800px 或自定义
+   │              （实际页面渲染）                    │
+   │                                                  │
+   │                                                  │
+   └──────────────────────────────────────────────────┘
+   ```
+   - 外框样式：圆角 8px、窗口阴影（box-shadow）
+   - 标题栏高度：32px（macOS）或 28px（Windows 11）
+   - 窗口控制按钮：
+     - macOS：红/黄/绿三个圆点（关闭/最小化/最大化）
+     - Windows：最小化/最大化/关闭图标
+   - 内容区域：居中显示，支持滚动
+
+4. **页面导航器**
+   - 位置：入口页面底部或侧边
+   - 功能：快速跳转到任意页面
+   - 样式：页面缩略图网格 或 页面名称列表
+   - 当前页高亮显示
+
+5. **交互说明浮窗（可选）**
+   - 入口：左上角"？"图标或"交互说明"按钮
+   - 内容：当前页面的交互行为列表（从阶段四提取）
+   - 样式：使用 shadcn/ui 的 `Sheet` 或 `Dialog` 组件
+
+### 入口页面代码示例
+
+```tsx
+// PrototypeShell.tsx - 原型展示外壳组件
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+
+interface PrototypeShellProps {
+  productName: string;
+  platform: 'mobile' | 'desktop';
+  children: React.ReactNode;
+  interactions?: string[]; // 交互说明列表
+}
+
+export function PrototypeShell({ productName, platform, children, interactions }: PrototypeShellProps) {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // 跟随系统偏好
+  useEffect(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(prefersDark ? 'dark' : 'light');
+  }, []);
+
+  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
+
+  return (
+    <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 p-8 ${theme}`}>
+      {/* 顶部控制栏 */}
+      <header className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {productName}
+        </h1>
+        <div className="flex items-center gap-4">
+          {/* 交互说明 */}
+          {interactions && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm">交互说明</Button>
+              </SheetTrigger>
+              <SheetContent>
+                <h2 className="text-lg font-semibold mb-4">交互说明</h2>
+                <ul className="space-y-2">
+                  {interactions.map((item, i) => (
+                    <li key={i} className="text-sm text-muted-foreground">• {item}</li>
+                  ))}
+                </ul>
+              </SheetContent>
+            </Sheet>
+          )}
+          {/* 主题切换 */}
+          <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            {theme === 'light' ? '🌙' : '☀️'}
+          </Button>
+        </div>
+      </header>
+
+      {/* 设备框架 */}
+      <div className="flex justify-center">
+        {platform === 'mobile' ? (
+          // iPhone 框架
+          <div className="relative bg-black dark:bg-gray-800 rounded-[40px] p-3 shadow-2xl"
+               style={{ width: '416px', height: '890px' }}>
+            {/* 状态栏 */}
+            <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-center text-white text-sm z-10">
+              <span>9:41</span>
+              {/* 信号、WiFi、电量图标 */}
+            </div>
+            {/* 屏幕区域 */}
+            <div className="bg-white dark:bg-gray-900 rounded-[32px] h-full overflow-hidden">
+              {children}
+            </div>
+            {/* Home Indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/80 rounded-full" />
+          </div>
+        ) : (
+          // 桌面窗口框架
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden"
+               style={{ width: '1280px', height: '800px' }}>
+            {/* 标题栏 */}
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 flex items-center px-3 gap-2">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+              </div>
+              <span className="text-xs text-gray-600 dark:text-gray-300 ml-2">{productName}</span>
+            </div>
+            {/* 内容区域 */}
+            <div className="h-[calc(100%-32px)] overflow-auto bg-gray-50 dark:bg-gray-900">
+              {children}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+### 入口页面使用方式
+
+在 `App.tsx` 中包裹所有页面：
+
+```tsx
+import { PrototypeShell } from '@/components/layout/PrototypeShell';
+
+function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+
+  return (
+    <PrototypeShell
+      productName="<<产品名>>"
+      platform="<<mobile/desktop>>"
+      interactions={[
+        "点击商品卡片跳转详情页",
+        "左滑删除购物车商品",
+        "下拉刷新首页数据",
+      ]}
+    >
+      {currentPage === 'home' && <Home />}
+      {currentPage === 'detail' && <ProductDetail />}
+      {/* ... */}
+    </PrototypeShell>
+  );
+}
+```
 
 ## 附加功能（可选）
-- 左上角添加"交互说明"浮窗按钮，点击展示当前页面的交互标注
-- 页面底部添加页面状态切换器（默认/加载/空态/错误态）
-- 右上角添加"视觉标注"模式，开启后显示间距/色值/字号标注
+- 左上角添加"交互说明"浮窗按钮：使用 `Dialog` 或 `Sheet` 展示当前页面的交互标注
+- 页面底部添加页面状态切换器：使用 `Select` 或 `RadioGroup` 切换默认/加载/空态/错误态
+- 右上角添加"视觉标注"模式：使用 CSS overlay 显示间距/色值/字号标注
 
 ## 输出文件
 
 ### 单端原型（默认）
-输出为 **单个 .html 或 .jsx 文件**：
-- 移动端：`prototype.html` 或 `prototype.jsx`
-- 桌面端：`prototype-desktop.html` 或 `prototype-desktop.jsx`
+打包输出为 **单个 bundle.html 文件**：
+- 移动端：`bundle.html`（或 `prototype-mobile.html`）
+- 桌面端：`bundle.html`（或 `prototype-desktop.html`）
 
 ### 双端原型
-输出为两套独立文件，共享同一套 CSS 变量（Design Token）：
+**同一项目，双入口打包**：
+- 项目：`<<产品名>>-prototype/`（包含移动端和桌面端两套实现）
+- 输出：
+  - `prototype-mobile.html` — 移动端原型（390×844px 手机框架）
+  - `prototype-desktop.html` — 桌面端原型（1280×800px 窗口框架）
 
-| 文件 | 模拟视口 | 导航模式 | 交互重点 |
-|------|---------|---------|---------|
-| `prototype-mobile.html` | 390×844px | 底部 Tab + 顶部导航栏 | 触摸手势、下拉刷新、滑动操作 |
-| `prototype-desktop.html` | 1280×800px | 侧边栏 + 顶部工具栏 | 悬停态、右键菜单、键盘快捷键、多面板拖拽 |
+**单项目优势**：
+- 共享 Design Token，确保视觉一致性
+- 共享 mock 数据，减少重复
+- 共享业务组件，最大化代码复用
+- 只需一次 `pnpm install`
 
-两套文件各自实现平台原生的交互范式，不使用响应式断点混排。
+两个输出文件各自实现平台原生的交互范式，不使用响应式断点混排。
+
+## 设计风格指南（避免 AI 感）
+
+为避免产出"AI 味"过重的设计，请遵循：
+- ❌ 避免过度居中布局
+- ❌ 避免大面积紫色渐变
+- ❌ 避免统一圆角（根据元素层级使用不同圆角）
+- ❌ 避免默认 Inter 字体（根据阶段六的字体系统选择合适字体）
+- ✅ 使用阶段六定义的品牌色和设计语言
+- ✅ 保持视觉层级清晰（标题 > 正文 > 辅助文字）
+- ✅ 适度使用留白和呼吸感
 ```
 
 ### 分步生成策略
@@ -911,39 +1323,54 @@ flowchart TD
 如果页面较多，可按以下策略分步生成：
 
 ```
-## 第一步：生成框架和视觉基础
-请先生成项目框架，包含：
-- CSS 变量（阶段六的全部 Design Token）
-- 深色模式 CSS 变量切换
-- 页面路由系统（Hash 路由）
-- 全局样式变量
-- 页面转场动画（使用阶段六的动效曲线）
+## 第一步：初始化项目
+使用 web-artifacts-builder skill 初始化项目。
+项目名称：`<<产品名>>-prototype`
 
-**移动端原型**：
-- 底部 Tab 导航组件（使用阶段六的图标和颜色规范）
-- 顶部导航栏组件
+初始化后，项目已包含：
+- React + TypeScript 环境
+- Tailwind CSS + shadcn/ui 配置
+- 40+ 预装 shadcn/ui 组件
+- Parcel 打包配置
 
-**桌面端原型**：
-- 侧边栏导航组件（可折叠）+ 顶部工具栏
-- 窗口标题栏模拟（含关闭/最小化/最大化按钮）
+## 第二步：实现 Design Token 和布局框架
+在 `src/index.css` 中定义阶段六的全部 Design Token（色彩/字体/间距/圆角/阴影）。
+
+创建布局组件：
+
+**移动端**：
+- `MobileLayout.tsx`：底部 Tab 导航（使用 shadcn/ui Tabs）+ 顶部导航栏
+- 页面转场动画组件
+
+**桌面端**：
+- `DesktopLayout.tsx`：侧边栏导航（可折叠）+ 顶部工具栏 + 窗口标题栏模拟
 - 多面板布局框架（侧边栏 + 主内容区 + 辅助面板）
 
 暂时每个页面用占位内容即可。
 
-## 第二步：逐页填充
-现在请填充 <<页面名>> 的完整内容，保持与之前的交互说明一致。
-需要实现以下交互：
+## 第三步：逐页填充
+现在请填充 <<页面名>> 的完整内容，需要实现以下交互：
 <<粘贴该页面的交互行为详细说明>>
 
-## 第三步：联调和润色
-所有页面完成后，请检查并优化：
+使用 shadcn/ui 组件快速构建 UI：
+- 按钮：`<Button variant="default|secondary|outline|ghost">`
+- 卡片：`<Card><CardHeader><CardTitle>...</CardTitle></CardHeader><CardContent>...</CardContent></Card>`
+- 输入框：`<Input placeholder="..." />`
+- 列表：`<Card>` 循环渲染
+- 底部面板：`<Sheet>`
+- 弹窗：`<Dialog>`
+- Toast：`toast({ title: '...', description: '...' })`
+
+## 第四步：打包和验收
+使用 web-artifacts-builder skill 打包项目。
+输出文件 `bundle.html`（或双端的 `prototype-mobile.html` + `prototype-desktop.html`），在浏览器中打开验收：
+
 1. 页面间跳转是否流畅
 2. 动画是否连贯
-3. 数据是否在页面间正确传递
-4. 各状态是否可正常切换
-5. 视觉样式是否严格遵循阶段六的视觉方案
-6. 深色模式是否正确切换
-7. 桌面端专属（如有）：键盘导航、悬停态、右键菜单是否正常
+3. 各状态是否可正常切换
+4. 视觉样式是否严格遵循阶段六的视觉方案
+5. 深色模式是否正确切换
+6. 桌面端专属（如有）：键盘导航、悬停态、右键菜单是否正常
 ```
 
 ### 双端原型分步生成
@@ -951,61 +1378,109 @@ flowchart TD
 当需要同时输出移动端和桌面端原型时：
 
 ```
-## 第一步：生成共享 Design Token
-请先输出一段可复用的 CSS 变量代码块，包含：
-- 阶段六的全部色彩变量（Light + Dark）
+## 第一步：初始化项目
+项目名称：`<<产品名>>-prototype`
+
+使用 iweb-artifacts-builder skill 初始化项目后，项目已包含：
+- React + TypeScript 环境
+- Tailwind CSS + shadcn/ui 配置
+- 40+ 预装 shadcn/ui 组件
+
+## 第二步：实现 Design Token
+在 `src/index.css` 中定义阶段六的全部 Design Token：
+- 色彩变量（Light + Dark）
 - 字体系统变量
 - 间距 / 圆角 / 阴影变量
 - 动效曲线变量
-两套原型文件将各自内联引用该变量集，确保视觉一致性。
 
-## 第二步：生成移动端原型
-请生成移动端高保真原型，要求：
-- 390×844px 居中手机模拟器
-- 底部 Tab 导航 + 顶部导航栏
-- 触摸交互为主：下拉刷新、左滑删除、惯性滚动
+两套原型将共享此文件，确保视觉一致性。
+
+## 第三步：创建双入口结构
+创建移动端和桌面端两套入口：
+
+**目录结构**：
+```
+src/
+├── components/
+│   ├── layout/
+│   │   ├── MobileLayout.tsx    # 移动端布局
+│   │   └── DesktopLayout.tsx   # 桌面端布局
+│   └── shared/                 # 共享业务组件
+├── pages/
+│   ├── mobile/                 # 移动端页面
+│   └── desktop/                # 桌面端页面
+├── lib/
+│   └── mockData.ts             # 共享 mock 数据
+├── App.mobile.tsx              # 移动端入口
+├── App.desktop.tsx             # 桌面端入口
+└── index.css                   # 共享 Design Token
+```
+
+**入口 HTML 文件**：
+- `index.mobile.html` → 引用 `App.mobile.tsx`
+- `index.desktop.html` → 引用 `App.desktop.tsx`
+
+## 第四步：实现布局组件
+**移动端布局** (`MobileLayout.tsx`)：
+- 390×844px 居中手机模拟器（使用 CSS max-width + margin auto）
+- 底部 Tab 导航（shadcn/ui Tabs）+ 顶部导航栏
 - 页面转场使用 slide 动画
-- 内联第一步的 Design Token
-暂时每个页面用占位内容，后续逐页填充。
 
-## 第三步：生成桌面端原型
-请生成桌面端高保真原型，要求：
+**桌面端布局** (`DesktopLayout.tsx`)：
 - 1280×800px 桌面窗口模拟（含自绘标题栏 + 窗口控制按钮）
 - 侧边栏导航（可折叠）+ 顶部工具栏/菜单栏
-- 鼠标交互为主：hover 态、右键菜单、拖拽面板、Tooltip
-- 键盘交互：Tab 焦点导航、快捷键标注、Esc 关闭
-- 多面板布局：侧边栏 + 主内容区 + 辅助面板（可拖拽分割线）
+- 多面板布局：CSS Grid 实现侧边栏 + 主内容区 + 辅助面板
 - 页面转场使用 fade 动画
-- 内联第一步的 Design Token
-暂时每个页面用占位内容，后续逐页填充。
 
-## 第四步：逐页填充（两端同步）
-现在请同时填充两套原型中 <<页面名>> 的内容。
+## 第五步：逐页填充（两端同步）
+同时实现 `pages/mobile/X.tsx` 和 `pages/desktop/X.tsx`：
+
 移动端和桌面端的差异点：
-- 布局差异：<<移动端单栏 vs 桌面端分栏>>
-- 导航差异：<<移动端 push 跳转 vs 桌面端面板内切换>>
-- 交互差异：<<移动端手势 vs 桌面端鼠标键盘>>
+- 布局差异：移动端单栏 vs 桌面端分栏
+- 导航差异：移动端 push 跳转 vs 桌面端面板内切换
+- 交互差异：移动端手势 vs 桌面端鼠标键盘
+
+共享的内容：
+- Design Token（视觉一致性）
+- Mock 数据（`lib/mockData.ts`）
+- 业务逻辑组件
+
 <<粘贴该页面的交互行为详细说明>>
 
-## 第五步：独立联调
-分别对两套原型独立检查：
+## 第六步：双入口打包
+使用 web-artifacts-builder skill 分别打包两个入口：
+
+```bash
+# 打包移动端
+pnpm exec parcel build index.mobile.html --dist-dir dist/mobile --no-source-maps
+pnpm exec html-inline dist/mobile/index.mobile.html > prototype-mobile.html
+
+# 打包桌面端
+pnpm exec parcel build index.desktop.html --dist-dir dist/desktop --no-source-maps
+pnpm exec html-inline dist/desktop/index.desktop.html > prototype-desktop.html
+```
+
+## 第七步：独立验收
+分别检查两个输出文件：
 1. 移动端：手势交互是否流畅、底部 Tab 切换是否正常、页面状态覆盖是否完整
-2. 桌面端：键盘导航是否可用、侧边栏折叠/展开是否正常、多面板拖拽是否稳定、
-   右键菜单是否在正确区域触发、窗口标题栏操作是否模拟到位
-3. 两端共性：深色模式切换、页面间数据传递、视觉样式是否一致遵循 Design Token
+2. 桌面端：键盘导航是否可用、侧边栏折叠/展开是否正常、右键菜单是否在正确区域触发
+3. 两端共性：深色模式切换、视觉样式是否一致
 ```
 
 ### 批量输出提示词
 
 ```
-请按照上述可交互的高保真 HTML 原型要求，依次输出以下页面的完整原型：
+请按照上述可交互高保真 HTML 原型要求，依次输出以下页面的完整原型：
 <<粘贴阶段二的页面清单表>>
 
-**目标平台**：<<移动端（默认）/ 桌面端>>
+**目标平台**：<<移动端（默认）/ 桌面端 / 双端>>
 **双端输出**：<<否（默认）/ 是>>
 
 按优先级顺序分批输出，每次输出 3-5 个页面。
 如为双端输出，每次同时输出同一页面的移动端和桌面端两个版本。
+
+技术栈：React 18 + TypeScript + Tailwind CSS + shadcn/ui
+最终输出：单文件 HTML（可在浏览器直接打开）
 ```
 ---
 
@@ -1381,7 +1856,7 @@ F. 快捷键映射总表（桌面端，macOS + Windows 双列对照）
 | **设计稿/视觉标注** | **关键页面视觉标注 + Style Tile** | **阶段六** |
 | **深色模式** | **Dark Mode 色彩对照表（支持跟随系统主题）** | **阶段六** |
 | **图标/插图管理** | **图标规范 + 插图场景清单（含桌面端托盘图标）** | **阶段六** |
-| 原型演示 | 可交互 HTML/React 高保真原型（支持移动端/桌面端切换） | 阶段七 |
+| 原型演示 | 可交互 HTML 原型（web-artifacts-builder: React + shadcn/ui，单文件 HTML） | 阶段七 |
 | 设计文档导出 | 完整交互与视觉设计说明书 | 阶段八 |
 | 评审协作 | 走查清单 + 多角色评审 | 附录 B |
 
@@ -1533,6 +2008,4 @@ F. 快捷键映射总表（桌面端，macOS + Windows 双列对照）
 - [ ] 最近文件/项目列表
 - [ ] 本地数据管理/清理
 
----
-
-*提示词体系 v2.1 完 — 从移动到桌面，从交互到视觉，从骨架到皮肤，祝设计愉快！*
+-

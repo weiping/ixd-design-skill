@@ -2,974 +2,643 @@
 
 ## Objective
 
-Generate a clickable, high-fidelity prototype that can be tested in a browser or rendered as a claude.ai artifact. This is the AI's unique advantage over traditional tools like Modao — producing real, functional code.
+Generate a clickable, high-fidelity prototype using the built-in scripts. Output is a single HTML file that can be opened directly in a browser — this is AI's unique advantage over traditional tools like Modao.
+
+> **v2.3 Update**: Integrated React 18 + TypeScript + Tailwind CSS + shadcn/ui tech stack with built-in initialization and bundling scripts.
+>
+> **v2.4 Update**: Added PrototypeShell component for unified prototype display entry page with device frame simulator, theme toggle, and page navigator.
+
+## Tech Stack
+
+This phase uses the following technology stack:
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 18 | Component-based UI framework |
+| TypeScript | Latest | Type safety |
+| Vite | Latest | Development build tool |
+| Tailwind CSS | 3.4.1 | Atomic CSS framework |
+| shadcn/ui | Latest | High-quality UI component library (40+ pre-installed components) |
+| Parcel | Latest | Bundle to single HTML file |
+
+**Tech Stack Advantages**:
+- shadcn/ui provides 40+ ready-to-use professional components (Button, Card, Dialog, Sheet, Tabs, Toast, etc.)
+- Tailwind CSS with shadcn/ui's theme system enables easy Design Token implementation
+- React component architecture for page reuse and state management
+- Final output is a single HTML file that opens directly in a browser without a server
+
+## Built-in Scripts
+
+The following scripts are provided in the `scripts/` directory:
+
+| Script | Purpose |
+|--------|---------|
+| `init-artifact.sh` | Initialize a new React + TypeScript + Tailwind + shadcn/ui project |
+| `bundle-artifact.sh` | Bundle the project into a single HTML file |
+| `shadcn-components.tar.gz` | Pre-packaged 40+ shadcn/ui components |
+
+**Script Location**: `<skill-dir>/scripts/`
 
 ## Platform Configuration
 
 The `platform` field in `progress.json` determines the output:
 
-| platform | Output File(s) | Viewport | Primary Interactions |
-|----------|---------------|----------|---------------------|
-| `"mobile"` (default) | `phase7-prototype.html` | 390×844px phone frame | Touch, swipe, pull-to-refresh |
-| `"desktop"` | `phase7-prototype-desktop.html` | 1280×800px window frame | Hover, right-click, keyboard, drag |
-| `"both"` | Two files (mobile + desktop) | Both viewports | Both interaction sets |
+| platform | Project Structure | Output File(s) | Viewport |
+|----------|-------------------|----------------|----------|
+| `"mobile"` (default) | Single project | `prototype.html` | 390×844px phone frame |
+| `"desktop"` | Single project | `prototype.html` | 1280×800px window frame |
+| `"both"` | Single project, dual entry | `prototype-mobile.html` + `prototype-desktop.html` | Both viewports |
+
+**Cross-Platform Strategy**: For `platform: "both"`, use a single project with platform-specific page components and dual bundle outputs. This ensures:
+- Single source of truth for Design Tokens
+- Shared business components and mock data
+- Automatic visual consistency across platforms
+- Easier maintenance
 
 **Default behavior**: If `platform` is not set, assume `"mobile"`.
 
-## Output Formats
+## Development Workflow
 
-| Format | Use Case | File |
-|--------|----------|------|
-| Single HTML | Quick demo, standalone sharing | `.html` |
-| React JSX | Claude.ai artifact rendering | `.jsx` |
-| Multi-file React | Complex prototypes (via web-artifacts-builder skill) | `.jsx` + supporting files |
+### Step 1: Initialize Project
 
-Default to **React JSX** when in claude.ai, **single HTML** when in Claude Code.
+Run the initialization script from the skill's scripts directory:
 
-## Architecture: Mobile Phone Frame
+```bash
+# Project naming convention
+# Single platform: <product-name>-prototype
+# Dual platform: <product-name>-prototype-mobile / <product-name>-prototype-desktop
 
-Always wrap the mobile prototype in a phone-shaped container:
-
-```jsx
-// Phone frame wrapper
-<div style={{
-  maxWidth: '390px',
-  height: '844px',
-  margin: '0 auto',
-  borderRadius: '40px',
-  overflow: 'hidden',
-  boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
-  position: 'relative',
-  background: '#fff'
-}}>
-  {/* Status bar */}
-  <div style={{ height: '47px', background: '#fff', display: 'flex', ... }}>
-    <span>9:41</span>
-    {/* battery, signal icons */}
-  </div>
-
-  {/* Page content (scrollable) */}
-  <div style={{ height: 'calc(100% - 47px - 83px)', overflowY: 'auto' }}>
-    {currentPage}
-  </div>
-
-  {/* Tab bar (if applicable) */}
-  <div style={{ height: '83px', borderTop: '1px solid #eee', ... }}>
-    {tabs}
-  </div>
-</div>
+# Replace <skill-dir> with the actual skill directory path
+bash <skill-dir>/scripts/init-artifact.sh <product-name>-prototype
+cd <product-name>-prototype
 ```
 
-## Architecture: Desktop Window Frame
-
-Wrap the desktop prototype in a window-shaped container with native chrome:
-
-```
-Desktop frame: 1280×800px
-├── Title Bar (custom, draggable)
-│   ├── Traffic lights (macOS) or Min/Max/Close (Windows)
-│   └── Window title / breadcrumb
-├── Toolbar (top actions, search, view toggles)
-├── Main Layout (horizontal)
-│   ├── Sidebar Navigation (collapsible: 240px ↔ 56px)
-│   ├── Content Area (flexible)
-│   └── Auxiliary Panel (optional, resizable)
-└── Status Bar (bottom, contextual info)
-```
-
-```jsx
-// Desktop window frame wrapper
-const DesktopFrame = ({ children, title = 'App', platform = 'macos' }) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  return (
-    <div style={{
-      width: '1280px',
-      height: '800px',
-      margin: '20px auto',
-      borderRadius: '10px',
-      overflow: 'hidden',
-      boxShadow: '0 25px 50px rgba(0,0,0,0.2)',
-      display: 'flex',
-      flexDirection: 'column',
-      background: '#fff',
-      border: '1px solid #d1d1d1'
-    }}>
-      {/* Title bar */}
-      <div style={{
-        height: '38px',
-        background: 'linear-gradient(180deg, #f6f6f6, #e8e8e8)',
-        borderBottom: '1px solid #d1d1d1',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 12px',
-        cursor: 'default',
-        WebkitUserSelect: 'none'
-      }}>
-        {platform === 'macos' ? (
-          <div style={{ display: 'flex', gap: '8px', marginRight: '16px' }}>
-            <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57' }} />
-            <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#febc2e' }} />
-            <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840' }} />
-          </div>
-        ) : (
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: '2px' }}>
-            <button style={{ width: 46, height: 30, border: 'none', background: 'transparent' }}>─</button>
-            <button style={{ width: 46, height: 30, border: 'none', background: 'transparent' }}>□</button>
-            <button style={{ width: 46, height: 30, border: 'none', background: 'transparent' }}>✕</button>
-          </div>
-        )}
-        <span style={{ fontSize: '13px', color: '#4d4d4d', fontWeight: 500 }}>{title}</span>
-      </div>
-
-      {/* Toolbar */}
-      <div style={{
-        height: '44px',
-        background: '#fafafa',
-        borderBottom: '1px solid #e5e5e5',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 16px',
-        gap: '8px'
-      }}>
-        {/* toolbar content: buttons, search, view toggles */}
-      </div>
-
-      {/* Main layout */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* Sidebar */}
-        <div style={{
-          width: sidebarCollapsed ? '56px' : '240px',
-          borderRight: '1px solid #e5e5e5',
-          background: '#f7f7f7',
-          transition: 'width 0.2s ease',
-          overflow: 'hidden',
-          flexShrink: 0
-        }}>
-          <SidebarNav collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-        </div>
-
-        {/* Content area */}
-        <div style={{ flex: 1, overflow: 'auto' }}>
-          {children}
-        </div>
-
-        {/* Optional: auxiliary panel */}
-        {/* <ResizablePanel defaultWidth={320} minWidth={240} maxWidth={480} /> */}
-      </div>
-
-      {/* Status bar */}
-      <div style={{
-        height: '24px',
-        background: '#f0f0f0',
-        borderTop: '1px solid #e5e5e5',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 12px',
-        fontSize: '11px',
-        color: '#888'
-      }}>
-        <span>Ready</span>
-        <span style={{ marginLeft: 'auto' }}>42 items total</span>
-      </div>
-    </div>
-  );
-};
-```
-
-## Routing: Hash-based SPA
-
-```jsx
-const [currentPage, setCurrentPage] = useState('home');
-const [pageHistory, setPageHistory] = useState(['home']);
-
-const navigate = (page) => {
-  setPageHistory(prev => [...prev, page]);
-  setCurrentPage(page);
-};
-
-const goBack = () => {
-  if (pageHistory.length > 1) {
-    const newHistory = pageHistory.slice(0, -1);
-    setPageHistory(newHistory);
-    setCurrentPage(newHistory[newHistory.length - 1]);
-  }
-};
-```
-
-## Page Transition Animations
-
-```css
-/* Slide in from right (push) */
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-
-/* Slide up from bottom (present/modal) */
-@keyframes slideInUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-/* Fade in */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.page-enter { animation: slideInRight 0.3s ease-out; }
-.modal-enter { animation: slideInUp 0.3s ease-out; }
-```
-
-## State Simulation Patterns
-
-### Loading State (Skeleton Screen)
-
-```jsx
-const SkeletonCard = () => (
-  <div className="animate-pulse p-4">
-    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-    <div className="h-3 bg-gray-200 rounded w-1/2" />
-  </div>
-);
-
-// Usage: simulate loading delay
-const [loading, setLoading] = useState(true);
-useEffect(() => {
-  setTimeout(() => setLoading(false), 1500);
-}, []);
-```
-
-### Empty State
-
-```jsx
-const EmptyState = ({ icon, title, description, actionText, onAction }) => (
-  <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
-    <div className="text-6xl mb-4">{icon || '📭'}</div>
-    <h3 className="text-lg font-medium text-gray-800 mb-2">{title}</h3>
-    <p className="text-sm text-gray-500 mb-6">{description}</p>
-    {actionText && (
-      <button
-        onClick={onAction}
-        className="px-6 py-2 bg-blue-500 text-white rounded-full text-sm"
-      >
-        {actionText}
-      </button>
-    )}
-  </div>
-);
-```
-
-### State Switcher (Debug Tool)
-
-Add a floating debug panel to toggle page states:
-
-```jsx
-const [debugState, setDebugState] = useState('default');
-
-const StateSwitcher = () => (
-  <div style={{
-    position: 'fixed', bottom: 100, right: 20,
-    background: '#333', borderRadius: 8, padding: 8,
-    display: 'flex', gap: 4, zIndex: 9999
-  }}>
-    {['default', 'loading', 'empty', 'error'].map(s => (
-      <button
-        key={s}
-        onClick={() => setDebugState(s)}
-        style={{
-          padding: '4px 8px', borderRadius: 4, fontSize: 10,
-          background: debugState === s ? '#007AFF' : '#555',
-          color: '#fff', border: 'none', cursor: 'pointer'
-        }}
-      >
-        {s}
-      </button>
-    ))}
-  </div>
-);
-```
-
-## Common UI Patterns
-
-### Mobile: Tab Bar
-
-```jsx
-const TabBar = ({ current, onChange }) => {
-  const tabs = [
-    { id: 'home', label: 'Home', icon: '🏠' },
-    { id: 'discover', label: 'Discover', icon: '🔍' },
-    { id: 'messages', label: 'Messages', icon: '💬', badge: 3 },
-    { id: 'profile', label: 'Profile', icon: '👤' },
-  ];
-
-  return (
-    <div className="flex justify-around items-center h-full bg-white">
-      {tabs.map(tab => (
-        <button
-          key={tab.id}
-          onClick={() => onChange(tab.id)}
-          className={`flex flex-col items-center gap-0.5 relative
-            ${current === tab.id ? 'text-blue-500' : 'text-gray-400'}`}
-        >
-          <span className="text-xl">{tab.icon}</span>
-          <span className="text-[10px]">{tab.label}</span>
-          {tab.badge && (
-            <span className="absolute -top-1 right-0 bg-red-500 text-white
-              text-[9px] rounded-full min-w-[16px] h-4 flex items-center
-              justify-center px-1">
-              {tab.badge}
-            </span>
-          )}
-        </button>
-      ))}
-    </div>
-  );
-};
-```
-
-### Desktop: Sidebar Navigation
-
-```jsx
-const SidebarNav = ({ collapsed, onToggle, current, onChange }) => {
-  const items = [
-    { id: 'home', label: 'Home', icon: '🏠' },
-    { id: 'projects', label: 'Projects', icon: '📁' },
-    { id: 'messages', label: 'Messages', icon: '💬', badge: 3 },
-    { id: 'analytics', label: 'Analytics', icon: '📊' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
-  ];
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '8px 0' }}>
-      {/* Collapse toggle */}
-      <button
-        onClick={onToggle}
-        style={{
-          width: '100%', padding: '8px 16px', border: 'none',
-          background: 'transparent', cursor: 'pointer',
-          textAlign: collapsed ? 'center' : 'right',
-          fontSize: '14px', color: '#888'
-        }}
-      >
-        {collapsed ? '→' : '←'}
-      </button>
-
-      {/* Nav items */}
-      {items.map(item => (
-        <button
-          key={item.id}
-          onClick={() => onChange(item.id)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '12px',
-            padding: collapsed ? '10px 0' : '10px 16px',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            border: 'none', cursor: 'pointer', width: '100%',
-            background: current === item.id ? '#e8f0fe' : 'transparent',
-            color: current === item.id ? '#1a73e8' : '#333',
-            borderRadius: '6px', margin: '2px 8px',
-            position: 'relative', fontSize: '14px',
-            transition: 'background 0.15s ease'
-          }}
-          onMouseEnter={e => {
-            if (current !== item.id) e.currentTarget.style.background = '#eee';
-          }}
-          onMouseLeave={e => {
-            if (current !== item.id) e.currentTarget.style.background = 'transparent';
-          }}
-        >
-          <span style={{ fontSize: '18px', flexShrink: 0 }}>{item.icon}</span>
-          {!collapsed && <span>{item.label}</span>}
-          {item.badge && !collapsed && (
-            <span style={{
-              marginLeft: 'auto', background: '#e53935', color: '#fff',
-              fontSize: '11px', borderRadius: '10px', padding: '1px 6px',
-              minWidth: '18px', textAlign: 'center'
-            }}>
-              {item.badge}
-            </span>
-          )}
-          {item.badge && collapsed && (
-            <span style={{
-              position: 'absolute', top: '6px', right: '10px',
-              width: '8px', height: '8px', borderRadius: '50%',
-              background: '#e53935'
-            }} />
-          )}
-        </button>
-      ))}
-    </div>
-  );
-};
-```
-
-### Navigation Bar
-
-```jsx
-const NavBar = ({ title, onBack, rightAction }) => (
-  <div className="flex items-center h-11 px-4 bg-white border-b border-gray-100">
-    {onBack && (
-      <button onClick={onBack} className="text-xl mr-3">←</button>
-    )}
-    <h1 className="flex-1 text-base font-medium truncate">{title}</h1>
-    {rightAction}
-  </div>
-);
-```
-
-### Pull-to-Refresh
-
-```jsx
-const PullToRefresh = ({ children, onRefresh }) => {
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await onRefresh?.();
-    setTimeout(() => setRefreshing(false), 1000);
-  };
-
-  return (
-    <div>
-      {refreshing && (
-        <div className="flex justify-center py-3">
-          <div className="animate-spin w-5 h-5 border-2 border-blue-500
-            border-t-transparent rounded-full" />
-        </div>
-      )}
-      {children}
-    </div>
-  );
-};
-```
-
-### Toast
-
-```jsx
-const [toast, setToast] = useState(null);
-
-const showToast = (message, type = 'info') => {
-  setToast({ message, type });
-  setTimeout(() => setToast(null), 2000);
-};
-
-// Render
-{toast && (
-  <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-    bg-black/70 text-white px-6 py-3 rounded-lg text-sm z-50
-    animate-fade-in">
-    {toast.type === 'success' && '✓ '}
-    {toast.type === 'error' && '✗ '}
-    {toast.message}
-  </div>
-)}
-```
-
-## Desktop Interaction Patterns
-
-### Hover States
-
-All interactive elements must have visible hover feedback:
-
-```jsx
-// Generic hover wrapper
-const Hoverable = ({ children, hoverStyle, style, ...props }) => {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <div
-      style={{ ...style, ...(hovered ? hoverStyle : {}), transition: 'all 0.15s ease' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-};
-
-// Example: list row hover
-<Hoverable
-  style={{ padding: '8px 16px', cursor: 'pointer', borderRadius: '6px' }}
-  hoverStyle={{ background: '#f5f5f5' }}
-  onClick={() => navigate('detail')}
->
-  <span>Project Documents</span>
-</Hoverable>
-```
-
-### Right-Click Context Menu
-
-```jsx
-const ContextMenu = ({ x, y, items, onClose }) => {
-  useEffect(() => {
-    const handler = () => onClose();
-    window.addEventListener('click', handler);
-    return () => window.removeEventListener('click', handler);
-  }, [onClose]);
-
-  return (
-    <div style={{
-      position: 'fixed', left: x, top: y, zIndex: 10000,
-      background: '#fff', borderRadius: '8px',
-      boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
-      border: '1px solid #e5e5e5',
-      padding: '4px 0', minWidth: '180px'
-    }}>
-      {items.map((item, i) =>
-        item.separator ? (
-          <div key={i} style={{ height: '1px', background: '#e5e5e5', margin: '4px 0' }} />
-        ) : (
-          <button
-            key={i}
-            onClick={() => { item.action(); onClose(); }}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              width: '100%', padding: '6px 16px', border: 'none',
-              background: 'transparent', cursor: 'pointer',
-              fontSize: '13px', color: item.danger ? '#e53935' : '#333',
-              textAlign: 'left'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = '#f0f0f0'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-          >
-            <span>{item.label}</span>
-            {item.shortcut && (
-              <span style={{ fontSize: '11px', color: '#aaa', marginLeft: '24px' }}>
-                {item.shortcut}
-              </span>
-            )}
-          </button>
-        )
-      )}
-    </div>
-  );
-};
-
-// Usage
-const [contextMenu, setContextMenu] = useState(null);
-
-const handleContextMenu = (e) => {
-  e.preventDefault();
-  setContextMenu({
-    x: e.clientX, y: e.clientY,
-    items: [
-      { label: 'Open', shortcut: '⏎', action: () => navigate('detail') },
-      { label: 'Open in New Window', shortcut: '⌘⏎', action: () => {} },
-      { separator: true },
-      { label: 'Copy', shortcut: '⌘C', action: () => {} },
-      { label: 'Move to...', action: () => {} },
-      { separator: true },
-      { label: 'Delete', shortcut: '⌫', danger: true, action: () => {} },
-    ]
-  });
-};
-```
-
-### Keyboard Shortcut Hints
-
-Display shortcut hints on buttons and menu items:
-
-```jsx
-const ShortcutButton = ({ label, shortcut, onClick, ...props }) => (
-  <button
-    onClick={onClick}
-    style={{
-      display: 'inline-flex', alignItems: 'center', gap: '8px',
-      padding: '6px 12px', border: '1px solid #d1d1d1',
-      borderRadius: '6px', background: '#fff', cursor: 'pointer',
-      fontSize: '13px', color: '#333'
-    }}
-    title={`${label} (${shortcut})`}
-    {...props}
-  >
-    <span>{label}</span>
-    <kbd style={{
-      fontSize: '11px', color: '#888', background: '#f5f5f5',
-      padding: '1px 5px', borderRadius: '3px',
-      border: '1px solid #ddd'
-    }}>
-      {shortcut}
-    </kbd>
-  </button>
-);
-
-// Register keyboard shortcuts
-useEffect(() => {
-  const handler = (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-      e.preventDefault();
-      openCommandPalette();
-    }
-    if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
-      e.preventDefault();
-      createNewItem();
-    }
-  };
-  window.addEventListener('keydown', handler);
-  return () => window.removeEventListener('keydown', handler);
-}, []);
-```
-
-### Tab Focus Navigation
-
-```jsx
-// Visible focus ring for keyboard navigation
-const focusRingStyle = `
-  *:focus-visible {
-    outline: 2px solid #1a73e8;
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-  *:focus:not(:focus-visible) {
-    outline: none;
-  }
-`;
-
-// Inject as <style> in the prototype
-<style>{focusRingStyle}</style>
-
-// Ensure all interactive elements are focusable with proper tabIndex
-// Use tabIndex={0} on custom interactive elements
-// Use tabIndex={-1} to remove from tab order but allow programmatic focus
-```
-
-### Resizable Split Panes
-
-```jsx
-const ResizablePanes = ({ left, right, defaultSplit = 0.6, minLeft = 200, minRight = 200 }) => {
-  const containerRef = useRef(null);
-  const [split, setSplit] = useState(defaultSplit);
-  const [dragging, setDragging] = useState(false);
-
-  const handleMouseDown = () => setDragging(true);
-
-  useEffect(() => {
-    if (!dragging) return;
-    const handleMouseMove = (e) => {
-      const rect = containerRef.current.getBoundingClientRect();
-      const ratio = (e.clientX - rect.left) / rect.width;
-      const minLeftRatio = minLeft / rect.width;
-      const minRightRatio = 1 - (minRight / rect.width);
-      setSplit(Math.max(minLeftRatio, Math.min(minRightRatio, ratio)));
-    };
-    const handleMouseUp = () => setDragging(false);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [dragging, minLeft, minRight]);
-
-  return (
-    <div ref={containerRef} style={{ display: 'flex', height: '100%', position: 'relative' }}>
-      <div style={{ width: `${split * 100}%`, overflow: 'auto' }}>{left}</div>
-      <div
-        onMouseDown={handleMouseDown}
-        style={{
-          width: '6px', cursor: 'col-resize', background: dragging ? '#1a73e8' : '#e5e5e5',
-          transition: dragging ? 'none' : 'background 0.15s',
-          flexShrink: 0
-        }}
-      />
-      <div style={{ flex: 1, overflow: 'auto' }}>{right}</div>
-    </div>
-  );
-};
-```
-
-### Tooltip with Delay
-
-```jsx
-const Tooltip = ({ children, text, delay = 500 }) => {
-  const [visible, setVisible] = useState(false);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const timerRef = useRef(null);
-
-  const handleMouseEnter = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setPos({ x: rect.left + rect.width / 2, y: rect.top - 8 });
-    timerRef.current = setTimeout(() => setVisible(true), delay);
-  };
-
-  const handleMouseLeave = () => {
-    clearTimeout(timerRef.current);
-    setVisible(false);
-  };
-
-  return (
-    <>
-      <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-        {children}
-      </div>
-      {visible && (
-        <div style={{
-          position: 'fixed', left: pos.x, top: pos.y,
-          transform: 'translate(-50%, -100%)',
-          background: '#333', color: '#fff',
-          padding: '4px 10px', borderRadius: '4px',
-          fontSize: '12px', whiteSpace: 'nowrap',
-          pointerEvents: 'none', zIndex: 10000
-        }}>
-          {text}
-        </div>
-      )}
-    </>
-  );
-};
-```
-
-## Realistic Mock Data
-
-Use mock data that matches the output language. For Chinese products:
-
-```jsx
-const mockUsers = [
-  { name: '张明', avatar: '👨‍💼', role: '产品经理' },
-  { name: '李芳', avatar: '👩‍💻', role: '前端工程师' },
-  { name: '王伟', avatar: '👨‍🔬', role: '数据分析师' },
-];
-
-const mockMessages = [
-  { from: '张明', content: '下午的评审会议改到3点了', time: '10:32', unread: true },
-  { from: '产品讨论群', content: '李芳: 新版原型已经更新了', time: '09:45', unread: false },
-];
-```
-
-For English products:
-
-```jsx
-const mockUsers = [
-  { name: 'John', avatar: '👨‍💼', role: 'Product Manager' },
-  { name: 'Sarah', avatar: '👩‍💻', role: 'Frontend Engineer' },
-  { name: 'Mike', avatar: '👨‍🔬', role: 'Data Analyst' },
-];
-
-const mockMessages = [
-  { from: 'John', content: 'The review meeting has been moved to 3pm', time: '10:32', unread: true },
-  { from: 'Product Team', content: 'Sarah: The new prototype has been updated', time: '09:45', unread: false },
-];
-```
-
-## Implementation Strategy
-
-### Step 1 — Read Platform Configuration
-
-```js
-// Read from progress.json
-const { platform } = require('./doc/ixd/progress.json');
-// Values: "mobile" (default) | "desktop" | "both"
-```
-
-### Step 2 — Generate Framework
-
-**Mobile (`platform: "mobile"`)**:
-```jsx
-export default function App() {
-  const [page, setPage] = useState('home');
-  // ... state management
-
-  const renderPage = () => {
-    switch(page) {
-      case 'home': return <HomePage />;
-      case 'detail': return <DetailPage />;
-      case 'form': return <FormPage />;
-      default: return <HomePage />;
-    }
-  };
-
-  return (
-    <PhoneFrame>
-      <StatusBar />
-      <div className="flex-1 overflow-y-auto">
-        {renderPage()}
-      </div>
-      <TabBar current={page} onChange={setPage} />
-    </PhoneFrame>
-  );
-}
-```
-
-**Desktop (`platform: "desktop"`)**:
-```jsx
-export default function App() {
-  const [page, setPage] = useState('home');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  // ... state management
-
-  return (
-    <DesktopFrame title="App Name" platform="macos">
-      <SidebarNav
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        current={page}
-        onChange={setPage}
-      />
-      <div className="flex-1 overflow-y-auto">
-        {renderPage()}
-      </div>
-    </DesktopFrame>
-  );
-}
-```
-
-### Step 3 — Fill Pages
-
-Implement each page with real content, states, and interactions.
-
-### Step 4 — Polish
-
-Add animations, loading states, error states, edge cases.
-
-### Cross-Platform (`platform: "both"`)
-
-For projects targeting both mobile and desktop, generate **two separate files**:
-
-1. **Generate shared Design Token CSS variables** (used by both files):
-
+After initialization, the project includes:
+- ✅ React + TypeScript (via Vite)
+- ✅ Tailwind CSS 3.4.1 with shadcn/ui theming system
+- ✅ Path aliases (`@/`) configured
+- ✅ 40+ shadcn/ui components pre-installed
+- ✅ All Radix UI dependencies included
+- ✅ Parcel configured for bundling (via .parcelrc)
+- ✅ Node 18+ compatibility (auto-detects and pins Vite version)
+
+**Pre-installed shadcn/ui Components** (40+ total):
+- accordion, alert, aspect-ratio, avatar, badge, breadcrumb
+- button, calendar, card, carousel, checkbox, collapsible
+- command, context-menu, dialog, drawer, dropdown-menu
+- form, hover-card, input, label, menubar, navigation-menu
+- popover, progress, radio-group, resizable, scroll-area
+- select, separator, sheet, skeleton, slider, sonner
+- switch, table, tabs, textarea, toast, toggle, toggle-group, tooltip
+
+### Step 2: Implement Design Tokens
+
+Define Phase 6 Design Tokens in `src/index.css` as CSS variables and Tailwind theme:
+
+**Color System** (example):
 ```css
 :root {
-  /* Colors */
-  --color-primary: #1a73e8;
-  --color-primary-hover: #1557b0;
-  --color-bg: #ffffff;
-  --color-surface: #f7f7f7;
-  --color-border: #e5e5e5;
-  --color-text-primary: #333333;
-  --color-text-secondary: #888888;
-  --color-danger: #e53935;
+  --primary: <<primary-color>>;
+  --primary-foreground: <<primary-text-color>>;
+  --secondary: <<secondary-color>>;
+  --accent: <<accent-color>>;
+  --background: <<background-color>>;
+  --foreground: <<text-color>>;
+  --muted: <<muted-background>>;
+  --muted-foreground: <<muted-text>>;
+  --card: <<card-background>>;
+  --border: <<border-color>>;
+  --radius: <<border-radius-base>>;
+  /* Functional colors */
+  --success: <<success-color>>;
+  --warning: <<warning-color>>;
+  --destructive: <<error-color>>;
+}
 
-  /* Typography */
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --text-xs: 11px;
-  --text-sm: 13px;
-  --text-base: 15px;
-  --text-lg: 17px;
-  --text-xl: 22px;
-
-  /* Spacing */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-
-  /* Shape */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,0.16);
+.dark {
+  /* Dark mode variable overrides */
+  --background: <<dark-background>>;
+  --foreground: <<dark-text>>;
+  /* ... */
 }
 ```
 
-2. **Generate mobile prototype** (`phase7-prototype-mobile.html`): Phone frame, tab bar, touch interactions
-
-3. **Generate desktop prototype** (`phase7-prototype-desktop.html`): Window frame, sidebar, hover/keyboard interactions
-
-4. **Fill pages for both**: Implement all pages in both files, ensuring content parity but platform-appropriate layouts
-
-5. **Independent QA**: Test each prototype independently against its platform's quality checklist
-
-## Resume Logic (Breakpoint Recovery)
-
-When resuming Phase 7 after a break, follow this process:
-
-### Step 1: Read Progress State
-
+**Tailwind Theme Extension** (tailwind.config.js):
 ```js
-// Read from progress.json
-const phase7Status = progress.phases['7'];
-const completedPages = phase7Status.pagesCompleted || [];
-const pagesTotal = phase7Status.pagesTotal || 0;
-const platform = progress.platform || 'mobile'; // "mobile" | "desktop" | "both"
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: 'hsl(var(--primary))',
+        secondary: 'hsl(var(--secondary))',
+        // ...
+      },
+      fontSize: {
+        'display': ['<<Display-size>>', { lineHeight: '<<line-height>>' }],
+        'h1': ['<<H1-size>>', { lineHeight: '<<line-height>>', fontWeight: '600' }],
+        // ...
+      },
+      spacing: {
+        'safe-bottom': 'env(safe-area-inset-bottom)', // Mobile safe area
+      }
+    }
+  }
+}
 ```
 
-### Step 2: Calculate Remaining Pages
+### Step 3: Implement Page Components
 
-```js
-// Read Phase 2 page inventory
-const expectedPages = readPageInventory('doc/ixd/phase2-architecture.md');
-// Returns: [{ id: 'P01', name: 'Home', type: 'Hub' }, ...]
+Organize components in `src/` directory.
 
-// Calculate remaining
-const remainingPages = expectedPages.filter(p => !completedPages.includes(p.id));
-```
-
-### Step 3: Resume Decision
+**Mobile-Only Structure** (`platform: "mobile"` - default):
 
 ```
-IF remainingPages.length > 0:
-  OUTPUT: "## Phase 7 Resume
-
-  **Platform**: <<mobile/desktop/both>>
-  **Completed**: <<M>>/<<total>> pages
-  **Remaining**: <<K>> pages to implement
-
-  | Page ID | Page Name | Page Type |
-  |---------|-----------|-----------|
-  | <<P04>> | <<Product Detail>> | Detail |
-  | ... | ... | ... |
-
-  Resuming from **<<first remaining page>>**."
-
-  → Process remaining pages in batches (3-5 for single platform, 2-3×2 for cross-platform)
-  → Update pagesCompleted after each batch
-
-ELSE (remainingPages.length === 0):
-  → Run Completeness Check (Step 4)
+src/
+├── components/
+│   ├── ui/              # shadcn/ui components (pre-installed)
+│   ├── layout/
+│   │   ├── MobileLayout.tsx    # Tab Bar + Top nav
+│   │   └── PrototypeShell.tsx  # iPhone frame wrapper
+│   └── shared/          # Shared business components
+├── pages/               # Page components
+│   ├── Home.tsx
+│   ├── ProductList.tsx
+│   └── ...
+├── hooks/               # Custom Hooks
+├── lib/                 # Utility functions + mock data
+├── App.tsx              # Main app (routing configuration)
+├── main.tsx             # Entry point
+└── index.css            # Global styles + Design Tokens
 ```
 
-### Step 4: Completeness Check (when all pages marked complete)
+**Desktop-Only Structure** (`platform: "desktop"`):
 
-Even when `pagesCompleted.length === pagesTotal`, verify actual implementation:
-
-```js
-// For single platform
-const actualPages = extractPagesFromPrototype('phase7-prototype.html');
-
-// For cross-platform
-const mobilePages = extractPagesFromPrototype('phase7-prototype-mobile.html');
-const desktopPages = extractPagesFromPrototype('phase7-prototype-desktop.html');
-
-// Compare with Phase 2 inventory
-const missingPages = expectedPages.filter(p => !actualPages.includes(p.id));
+```
+src/
+├── components/
+│   ├── ui/              # shadcn/ui components (pre-installed)
+│   ├── layout/
+│   │   ├── DesktopLayout.tsx   # Sidebar + Toolbar + Title bar
+│   │   └── PrototypeShell.tsx  # Window frame wrapper
+│   └── shared/          # Shared business components
+├── pages/               # Page components
+│   ├── Home.tsx
+│   ├── ProductList.tsx
+│   └── ...
+├── hooks/               # Custom Hooks
+├── lib/                 # Utility functions + mock data
+├── App.tsx              # Main app (routing configuration)
+├── main.tsx             # Entry point
+└── index.css            # Global styles + Design Tokens
 ```
 
-**Result Handling**:
+**Cross-Platform Structure** (`platform: "both"`):
+
 ```
-IF missingPages.length === 0:
-  OUTPUT: "✅ Completeness check passed, all <<N>> pages implemented. Proceeding to Phase 8."
-  → Set phase 7 status to "done"
-  → Proceed to Phase 8
-
-ELSE:
-  OUTPUT: "⚠️ Found <<N>> missing pages: <<page name list>>
-
-  Will supplement these page implementations first."
-  → Generate missing pages
-  → Re-run completeness check
-  → Then proceed to Phase 8
+src/
+├── components/
+│   ├── ui/              # shadcn/ui components (pre-installed)
+│   ├── layout/          # Layout components
+│   │   ├── MobileLayout.tsx    # Mobile: Tab Bar + Top nav
+│   │   ├── DesktopLayout.tsx   # Desktop: Sidebar + Toolbar
+│   │   └── PrototypeShell.tsx  # Device frame wrapper (supports both platforms)
+│   └── shared/          # Shared business components (same logic, different layouts)
+├── pages/
+│   ├── mobile/          # Mobile-specific page implementations
+│   │   ├── Home.tsx
+│   │   ├── ProductList.tsx
+│   │   └── ...
+│   ├── desktop/         # Desktop-specific page implementations
+│   │   ├── Home.tsx
+│   │   ├── ProductList.tsx
+│   │   └── ...
+│   └── shared/          # Shared page fragments/components (optional)
+├── hooks/               # Custom Hooks
+├── lib/                 # Utility functions + mock data
+│   └── mockData.ts      # Shared mock data
+├── App.mobile.tsx       # Mobile entry point
+├── App.desktop.tsx      # Desktop entry point
+└── index.css            # Global styles + Design Tokens (shared)
 ```
 
----
+**Cross-Platform Key Points**:
+- Design Tokens in `index.css` are shared (single source of truth)
+- Mock data in `lib/` is shared
+- Layout components differ: `MobileLayout` vs `DesktopLayout`
+- Page components can share business logic but differ in layout/interaction
+- Use `App.mobile.tsx` and `App.desktop.tsx` as separate entry points
+
+### Step 4: Bundle to Single HTML
+
+#### Single-Platform Bundling
+
+Run the bundling script from the project root:
+
+```bash
+# Run from the project root directory
+bash <skill-dir>/scripts/bundle-artifact.sh
+```
+
+Output: `bundle.html`
+
+**Naming convention**:
+- Mobile-only: rename to `prototype.html` or `prototype-mobile.html`
+- Desktop-only: rename to `prototype.html` or `prototype-desktop.html`
+
+#### Cross-Platform Bundling
+
+For `platform: "both"`, create two HTML entry files and bundle separately:
+
+**1. Create entry HTML files**:
+
+`index.mobile.html`:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title><Product Name> - Mobile Prototype</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.mobile.tsx"></script>
+</body>
+</html>
+```
+
+`index.desktop.html`:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><Product Name> - Desktop Prototype</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.desktop.tsx"></script>
+</body>
+</html>
+```
+
+**2. Create entry TSX files**:
+
+`src/main.mobile.tsx`:
+```tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.mobile';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```
+
+`src/main.desktop.tsx`:
+```tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.desktop';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```
+
+**3. Bundle each entry**:
+
+```bash
+# Bundle mobile version
+pnpm exec parcel build index.mobile.html --dist-dir dist/mobile --no-source-maps
+pnpm exec html-inline dist/mobile/index.mobile.html > prototype-mobile.html
+
+# Bundle desktop version
+pnpm exec parcel build index.desktop.html --dist-dir dist/desktop --no-source-maps
+pnpm exec html-inline dist/desktop/index.desktop.html > prototype-desktop.html
+```
+
+Output: `prototype-mobile.html` + `prototype-desktop.html`
+
+## PrototypeShell Component (Entry Page)
+
+All prototypes must include a **unified entry display page** wrapped by PrototypeShell, similar to Modao's "prototype demo" feature.
+
+### Required Elements
+
+1. **Project Name**
+   - Display at top center or top-left
+   - Use Phase 6 brand color or Display/H1 font size
+   - Optional subtitle: version number, update date
+
+2. **Light/Dark Mode Toggle**
+   - Position: top-right corner or navbar
+   - Style: icon button (☀️/🌙) or Toggle Switch
+   - Toggle applies `.dark` class globally
+   - Default follows system preference (`prefers-color-scheme`)
+
+3. **Device Frame Simulator**
+   Display corresponding device frame based on target platform:
+
+   **Mobile Prototype (iPhone Frame)**:
+   ```
+   ┌─────────────────────────┐
+   │       ◀  □  ▶          │ ← Status bar (time, signal, battery)
+   ├─────────────────────────┤
+   │                         │
+   │                         │
+   │     Prototype Content   │ ← 390×844px (iPhone 14 standard)
+   │     (actual page)       │
+   │                         │
+   │                         │
+   ├─────────────────────────┤
+   │  ━━━━━━━━━━━━━━━━━━━━   │ ← Home Indicator
+   └─────────────────────────┘
+   ```
+   - Frame style: 40px border-radius, black/white border (follows theme)
+   - Size: 390×844px (iPhone 14) or 430×932px (iPhone 14 Pro Max)
+   - Status bar: time, signal, WiFi, battery icons (use SVG)
+   - Home Indicator: 134×5px rounded bar at bottom
+
+   **Desktop Prototype (Window Frame)**:
+   ```
+   ┌──────────────────────────────────────────────────┐
+   │ ○ ○ ○  Window Title (Product Name)    ─ □ ✕   │ ← Title bar + window controls
+   ├──────────────────────────────────────────────────┤
+   │                                                  │
+   │                                                  │
+   │              Prototype Content                   │ ← 1280×800px or custom
+   │              (actual page)                       │
+   │                                                  │
+   │                                                  │
+   └──────────────────────────────────────────────────┘
+   ```
+   - Frame style: 8px border-radius, window shadow (box-shadow)
+   - Title bar height: 32px (macOS) or 28px (Windows 11)
+   - Window control buttons:
+     - macOS: red/yellow/green dots (close/minimize/maximize)
+     - Windows: minimize/maximize/close icons
+
+4. **Page Navigator**
+   - Position: bottom or side of entry page
+   - Function: quick jump to any page
+   - Style: page thumbnail grid or page name list
+   - Current page highlighted
+
+5. **Interaction Guide Panel (optional)**
+   - Entry: "?" icon top-left or "Interactions" button
+   - Content: list of interaction behaviors for current page (from Phase 4)
+   - Style: use shadcn/ui `Sheet` or `Dialog` component
+
+### PrototypeShell Component Code
+
+```tsx
+// src/components/layout/PrototypeShell.tsx
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+
+interface PrototypeShellProps {
+  productName: string;
+  platform: 'mobile' | 'desktop';
+  children: React.ReactNode;
+  interactions?: string[]; // Interaction guide list
+}
+
+export function PrototypeShell({ productName, platform, children, interactions }: PrototypeShellProps) {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Follow system preference
+  useEffect(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(prefersDark ? 'dark' : 'light');
+  }, []);
+
+  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
+
+  return (
+    <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 p-8 ${theme}`}>
+      {/* Top control bar */}
+      <header className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {productName}
+        </h1>
+        <div className="flex items-center gap-4">
+          {/* Interaction guide */}
+          {interactions && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm">Interactions</Button>
+              </SheetTrigger>
+              <SheetContent>
+                <h2 className="text-lg font-semibold mb-4">Interaction Guide</h2>
+                <ul className="space-y-2">
+                  {interactions.map((item, i) => (
+                    <li key={i} className="text-sm text-muted-foreground">• {item}</li>
+                  ))}
+                </ul>
+              </SheetContent>
+            </Sheet>
+          )}
+          {/* Theme toggle */}
+          <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            {theme === 'light' ? '🌙' : '☀️'}
+          </Button>
+        </div>
+      </header>
+
+      {/* Device frame */}
+      <div className="flex justify-center">
+        {platform === 'mobile' ? (
+          // iPhone frame
+          <div className="relative bg-black dark:bg-gray-800 rounded-[40px] p-3 shadow-2xl"
+               style={{ width: '416px', height: '890px' }}>
+            {/* Status bar */}
+            <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-center text-white text-sm z-10">
+              <span>9:41</span>
+              {/* Signal, WiFi, battery icons */}
+            </div>
+            {/* Screen area */}
+            <div className="bg-white dark:bg-gray-900 rounded-[32px] h-full overflow-hidden">
+              {children}
+            </div>
+            {/* Home Indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/80 rounded-full" />
+          </div>
+        ) : (
+          // Desktop window frame
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden"
+               style={{ width: '1280px', height: '800px' }}>
+            {/* Title bar */}
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 flex items-center px-3 gap-2">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+              </div>
+              <span className="text-xs text-gray-600 dark:text-gray-300 ml-2">{productName}</span>
+            </div>
+            {/* Content area */}
+            <div className="h-[calc(100%-32px)] overflow-auto bg-gray-50 dark:bg-gray-900">
+              {children}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+### Usage in App.tsx
+
+```tsx
+import { PrototypeShell } from '@/components/layout/PrototypeShell';
+
+function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+
+  return (
+    <PrototypeShell
+      productName="<<Product Name>>"
+      platform="<<mobile/desktop>>"
+      interactions={[
+        "Click product card to view details",
+        "Swipe left to delete cart item",
+        "Pull down to refresh home data",
+      ]}
+    >
+      {currentPage === 'home' && <Home />}
+      {currentPage === 'detail' && <ProductDetail />}
+      {/* ... */}
+    </PrototypeShell>
+  );
+}
+```
+
+## Platform-Specific Implementation
+
+### Mobile Prototype
+
+- **Viewport**: Set in `index.html`: `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`
+- **Layout Components**:
+  - Use shadcn/ui `Tabs` component for bottom Tab navigation
+  - Custom top navbar (back button + title + action button)
+- **Page Transitions**: Use CSS `transform: translateX()` or Framer Motion for slide animations
+- **Touch Interactions**:
+  - Pull-to-refresh: custom Hook or `@tanstack/react-query` `useQuery`
+  - Swipe-to-delete: custom gesture handling or `framer-motion` `drag` property
+- **Recommended shadcn/ui Components**: `Button`, `Card`, `Input`, `Sheet` (bottom panel), `Dialog`, `Toast`, `Tabs`
+
+### Desktop Prototype
+
+- **Viewport**: `max-width: 1280px` centered to simulate desktop window
+- **Layout Components**:
+  - Sidebar: use `Sheet` or custom collapsible panel
+  - Top toolbar: use `Menubar` or custom Toolbar component
+  - Window title bar: simulate close/minimize/maximize button styles
+- **Page Transitions**: fade animation (opacity transition)
+- **Multi-panel Layout**: use CSS Grid or Flexbox with draggable dividers
+- **Keyboard Navigation**:
+  - Tab focus: ensure all interactive elements have correct `tabIndex`
+  - Shortcuts: use custom Hook to listen for `keydown` events
+- **Mouse Interactions**:
+  - Hover states: Tailwind `hover:` prefix
+  - Right-click menu: shadcn/ui `ContextMenu` component
+  - Tooltip: shadcn/ui `Tooltip` component
+  - Drag: `framer-motion` `drag` or native drag API
+- **Recommended shadcn/ui Components**: `Button`, `Card`, `Input`, `Sheet`, `Dialog`, `Toast`, `Tabs`, `Menubar`, `ContextMenu`, `Tooltip`, `Separator`
+
+## Common UI Patterns with shadcn/ui
+
+### Page Navigation
+
+**Mobile**:
+```tsx
+// Use Hash routing or state switching
+const [currentPage, setCurrentPage] = useState('home');
+
+// Tab Bar using shadcn/ui Tabs
+<Tabs defaultValue="home" className="fixed bottom-0 ...">
+  <TabsList>
+    <TabsTrigger value="home" onClick={() => setCurrentPage('home')}>
+      <HomeIcon /> Home
+    </TabsTrigger>
+    {/* ... */}
+  </TabsList>
+</Tabs>
+```
+
+**Desktop**:
+```tsx
+// Sidebar navigation + routing state
+const navigate = (page: string) => setCurrentPage(page);
+
+// Keyboard shortcut support
+useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.altKey && e.key === 'ArrowLeft') navigate('back');
+    if (e.altKey && e.key === 'ArrowRight') navigate('forward');
+  };
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, []);
+```
+
+### Form Interactions
+
+- Use shadcn/ui components: `Input`, `Select`, `Checkbox`, `Switch`, `RadioGroup`, `Slider`
+- Form validation: use `react-hook-form` + `zod` (if installed) or custom state validation
+- Disabled state linkage: control `Button` `disabled` prop based on form state
+
+### State Simulation
+
+```tsx
+// Loading state simulation
+const [isLoading, setIsLoading] = useState(false);
+const loadData = async () => {
+  setIsLoading(true);
+  await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate 1.5s loading
+  setIsLoading(false);
+};
+
+// Toast notification
+import { toast } from '@/components/ui/use-toast';
+toast({ title: 'Success', description: 'Data saved' });
+```
+
+### Dark Mode
+
+```tsx
+// Use next-themes or simple state toggle
+const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+// Apply class to root element
+<div className={theme}>
+  {/* App content */}
+</div>
+
+// Toggle button
+<Button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+  {theme === 'light' ? '🌙' : '☀️'}
+</Button>
+```
 
 ## Batch Output Strategy
 
 ### Single-Platform Batch Output (`platform: "mobile"` or `"desktop"`)
 
-When generating pages for a single platform, follow this strategy:
-
-1. **Read page inventory** from `doc/ixd/phase2-architecture.md` — get the complete list of pages
+1. **Read page inventory** from `doc/ixd/phase2-architecture.md`
 2. **Prioritize by importance**: dashboard/home → core lists → detail pages → forms → settings → secondary pages
 3. **Output in batches of 3-5 pages** per turn to avoid token limits
-4. **Track progress**: After each batch, record which pages are completed in `progress.json`
+4. **Track progress**: record completed pages in `progress.json` after each batch
 
 **Batch order example**:
 ```
@@ -981,135 +650,176 @@ Batch 4: Onboarding pages + Empty states + Error pages + Other auxiliary pages
 
 ### Cross-Platform Batch Output (`platform: "both"`)
 
-When `platform: "both"`, follow this strategy for outputting pages:
+When `platform: "both"`, implement both platforms in a single project:
 
-1. **Start with the page that has the biggest layout difference** between mobile and desktop (e.g., a dashboard or multi-panel workspace) — this establishes the pattern for how content maps across platforms
-2. **Output the same page for both platforms simultaneously** (mobile first, then desktop) before moving to the next page — this ensures content parity and catches design inconsistencies early
-3. **Shared components** (cards, badges, avatars) should use the same Design Token variables — only the layout container and interaction patterns differ
-4. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
-5. **Output in batches of 2-3 pages × 2 platforms = 4-6 files per turn**
+1. **Implement shared resources first**: Design Tokens (`index.css`), mock data (`lib/mockData.ts`), shared components
+2. **Implement layout components**: `MobileLayout.tsx` and `DesktopLayout.tsx` with platform-specific navigation
+3. **Implement page pairs**: For each page, create both `pages/mobile/X.tsx` and `pages/desktop/X.tsx`
+4. **Batch by page, not by platform**: Complete the mobile + desktop versions of a page together before moving to the next
+5. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
+6. **Output in batches of 2-3 page pairs per turn**
 
-## Page Completeness Check
+## Resume Logic (Breakpoint Recovery)
 
-After all pages are generated, perform a **completeness check** against the Phase 2 page inventory:
+When resuming Phase 7 after a break, follow this process:
 
-### Step 1: Read Page Inventory
+### Step 1: Read Progress State
 
 ```js
-// Read from phase2-architecture.md
-// Extract the page list table to get all expected pages
-const expectedPages = [
-  { id: 'P01', name: 'Home', type: 'Hub' },
-  { id: 'P02', name: 'Product List', type: 'List' },
-  { id: 'P03', name: 'Product Detail', type: 'Detail' },
-  // ... all pages from Phase 2
-];
+// Read from progress.json
+const phase7Status = progress.phases['7'];
+const completedSteps = phase7Status.completedSteps || [];
+const currentStep = phase7Status.currentStep || 'init';
+const completedPages = phase7Status.pagesCompleted || [];
+const platform = progress.platform || 'mobile'; // "mobile" | "desktop" | "both"
 ```
 
-### Step 2: Check Implemented Pages
+### Step 2: Determine Resume Point
 
-Scan the prototype code to identify which pages have been implemented:
+| currentStep | Description | Resume Action |
+|-------------|-------------|---------------|
+| `init` | Project not initialized | Start from Step 1: Initialize project |
+| `tokens` | Design tokens not implemented | Resume from Step 2: Implement Design Tokens |
+| `layout` | Layout framework not ready | Resume from Step 2.5: Implement layout components |
+| `pages` | Pages being filled | Continue filling from first incomplete page |
+| `bundle` | All pages done, not bundled | Proceed to Step 4: Bundle |
+| `done` | Phase complete | Run completeness check, proceed to Phase 8 |
 
-```js
-// For single platform
-const implementedPages = []; // Extract from switch/case or route definitions
-
-// For cross-platform, check both files
-const mobilePages = [];   // from phase7-prototype-mobile.html
-const desktopPages = [];  // from phase7-prototype-desktop.html
-```
-
-### Step 3: Identify Missing Pages
+### Step 3: Page Resume Logic
 
 ```js
-const missingPages = expectedPages.filter(p => !implementedPages.includes(p.id));
+// If currentStep === 'pages'
+const expectedPages = readPageInventory('doc/ixd/phase2-architecture.md');
+const remainingPages = expectedPages.filter(p => !completedPages.includes(p.id));
 
-if (missingPages.length > 0) {
-  console.log(`⚠️ Missing ${missingPages.length} pages:`, missingPages);
-  // Proceed to Step 4
-} else {
-  console.log('✅ All pages implemented');
+if (remainingPages.length > 0) {
+  // Output resume message
+  console.log(`## Phase 7 Resume
+
+**Platform**: ${platform}
+**Completed**: ${completedPages.length}/${expectedPages.length} pages
+**Remaining**: ${remainingPages.length} pages to implement
+
+| Page ID | Page Name | Page Type |
+|---------|-----------|-----------|
+${remainingPages.map(p => `| ${p.id} | ${p.name} | ${p.type} |`).join('\n')}
+
+Resuming from **${remainingPages[0].name}**.`);
+
+  // Process remaining pages in batches
+  // Update pagesCompleted after each batch
 }
 ```
 
-### Step 4: Generate Missing Pages
+### Step 4: Completeness Check
 
-For each missing page:
-1. Read the corresponding page spec from `doc/ixd/phase4-page-specs/<page-id>.md`
-2. Implement the page in the prototype(s)
-3. Add the page to the routing switch/case
-4. Ensure navigation links point to the new page
+When all pages are marked complete, verify actual implementation:
 
-### Step 5: Update Progress
+```js
+// For single platform
+const actualPages = extractPagesFromPrototype('src/pages/');
+
+// For cross-platform, check both
+const mobilePages = extractPagesFromPrototype('src/pages/');
+
+// Compare with Phase 2 inventory
+const missingPages = expectedPages.filter(p => !actualPages.includes(p.id));
+
+if (missingPages.length === 0) {
+  // All pages implemented
+  console.log('✅ Completeness check passed. Proceeding to bundle.');
+  // Update progress: currentStep = 'bundle'
+} else {
+  console.log(`⚠️ Found ${missingPages.length} missing pages`);
+  // Generate missing pages, then re-run check
+}
+```
+
+### Progress Update Format
 
 ```json
-// Update progress.json
 {
-  "7": {
-    "status": "done",
-    "file": "phase7-prototype.html",
-    "summary": "Completed <<N>>/<<total>> pages; mobile prototype",
-    "pagesCompleted": ["P01", "P02", "P03", "..."],
-    "pagesTotal": 15
+  "phases": {
+    "7": {
+      "status": "in_progress",
+      "currentStep": "pages",
+      "completedSteps": ["init", "tokens", "layout"],
+      "pagesCompleted": ["P01", "P02", "P03"],
+      "pagesTotal": 15,
+      "platform": "mobile",
+      "projectPath": "<product-name>-prototype",
+      "lastUpdated": "2026-03-13T10:30:00Z"
+    }
   }
 }
 ```
 
-### Completeness Report Template
+## Output Files
 
-After the check, output a brief report:
+### Single-Platform Prototype (default)
 
-```
-## Phase 7 Page Completeness Check
+Bundled as **single HTML file**:
+- Project: `<product-name>-prototype/`
+- Output: `bundle.html` (rename to `prototype.html` or `prototype-mobile.html`/`prototype-desktop.html`)
 
-**Platform**: Mobile / Desktop / Both
-**Phase 2 Total Pages**: <<N>>
-**Implemented Pages**: <<M>>
+### Cross-Platform Prototype
 
-| Status | Page ID | Page Name | Page Type |
-|--------|---------|-----------|-----------|
-| ✅ | P01 | Home | Hub |
-| ✅ | P02 | List | List |
-| ⚠️ | P05 | Settings | Settings | ← Needs supplement
-| ... | ... | ... | ... |
+**Single project, dual output files**:
+- Project: `<product-name>-prototype/` (contains both mobile and desktop implementations)
+- Outputs:
+  - `prototype-mobile.html` — Mobile prototype (390×844px phone frame)
+  - `prototype-desktop.html` — Desktop prototype (1280×800px window frame)
 
-**Missing Pages**: <<N-M>>
-<<If none missing, write "None, all pages implemented">>
+**Advantages of single-project approach**:
+- Shared Design Tokens ensure visual consistency
+- Shared mock data reduces duplication
+- Shared business components maximize code reuse
+- Single `pnpm install` for all dependencies
 
-<<If missing>>
-### Supplement Plan
-Will supplement missing pages in this order:
-1. <<Page Name>> (<<Page ID>>)
-2. <<Page Name>> (<<Page ID>>)
-...
-```
+Each output file implements platform-native interaction paradigms without responsive breakpoint mixing.
+
+## Design Style Guide (Avoid AI Feel)
+
+To avoid producing overly "AI-looking" designs:
+- ❌ Avoid over-centered layouts
+- ❌ Avoid large purple gradients
+- ❌ Avoid uniform border-radius (use different radii based on element hierarchy)
+- ❌ Avoid default Inter font (choose appropriate font based on Phase 6 font system)
+- ✅ Use brand colors and design language defined in Phase 6
+- ✅ Maintain clear visual hierarchy (title > body > auxiliary text)
+- ✅ Appropriate use of whitespace and breathing room
 
 ## Quality Checklist
 
 ### Mobile
 
 - [ ] Phone frame with realistic status bar (390×844)
+- [ ] PrototypeShell wrapper with project name and theme toggle
 - [ ] All pages from the spec are implemented
-- [ ] Tab navigation works correctly
+- [ ] Tab navigation works correctly (shadcn/ui Tabs)
 - [ ] Page transitions have animation
 - [ ] At least default + loading states are shown
-- [ ] Mock data is realistic (Chinese names, content)
+- [ ] Mock data is realistic
 - [ ] Touch targets are ≥ 44px
 - [ ] Scrolling works naturally in content areas
 - [ ] Back navigation works consistently
+- [ ] Dark mode toggle works
 - [ ] No broken interactions or dead-end states
 
 ### Desktop
 
-- [ ] Window frame with title bar and traffic lights / window controls (1280×800)
+- [ ] Window frame with title bar and traffic lights/window controls (1280×800)
+- [ ] PrototypeShell wrapper with project name and theme toggle
 - [ ] Sidebar navigation works and collapses correctly (240px ↔ 56px)
-- [ ] Sidebar collapsed state shows icons only with no label overflow
+- [ ] Sidebar collapsed state shows icons only without label overflow
 - [ ] Keyboard navigation works (Tab focus ring visible on all interactive elements)
 - [ ] Keyboard shortcuts are registered and hint labels shown
-- [ ] Right-click context menu appears on relevant items
-- [ ] Hover states on all interactive elements (buttons, rows, links, cards)
+- [ ] Right-click context menu appears on relevant items (shadcn/ui ContextMenu)
+- [ ] Hover states on all interactive elements (Tailwind hover:)
+- [ ] Tooltips with appropriate delay (shadcn/ui Tooltip)
 - [ ] Window resize does not break layout
 - [ ] Title bar area is styled correctly (draggable feel, no selectable text)
 - [ ] Information density is appropriate (more items visible than mobile)
 - [ ] All pages from the spec are implemented
+- [ ] Dark mode toggle works
 - [ ] No broken interactions or dead-end states
