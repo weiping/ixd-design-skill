@@ -225,7 +225,7 @@ Before developing any pages, verify the device frame components are properly set
    grep -o "width: 1280px" phase7-prototype.html  # Desktop
    ```
 
-### Step 4: Implement Page Components (Wrap in Device Frame)
+### Step 4: use TDD Implement Page Components (Wrap in Device Frame)
 
 > **CRITICAL**: Each page component MUST be wrapped in the device frame (PhoneFrame/WindowFrame) to ensure proper device simulation.
 
