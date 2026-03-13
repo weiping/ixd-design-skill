@@ -15,9 +15,12 @@ metadata: {"openclaw": {"emoji": "🎨"}}
 
 An 8-phase workflow producing professional interaction + visual design deliverables with flexible quick-start resumption.
 
+> **v2.8**: Phase 7 batch workflow — generate multiple pages at once, then use heuristic walkthrough for verification after each batch.
+
+>
 > **v1.2**: Phase 8 requires full content from all phases (not summaries); Phase 4 pages include full interaction specs (excluding walkthrough); final review uses Quality Checklist-based multi-perspective review only.
 >
-> **v1.1**: Phase 7 TDD workflow added — test-first interaction development, batch heuristic walkthrough (Tool 2), and Phase 2 completeness check with merged review report.
+> **v1.1**: Phase 7 batch heuristic walkthrough (Tool 2) and Phase 2 completeness check with merged review report.
 >
 > **v1.0**: 8-phase workflow; natural language triggers; 22 page types (including 4 desktop-specific); Phase 4 with 10 sections (交互走查 + 微交互说明); cross-platform dual prototypes (mobile + desktop); Phase 8 document structure with full desktop coverage; 快捷键映射总表 appendix; Socratic discovery (Phase 1); dependency-aware phase resumption; final review gate with 3-round fix cycle.
 
@@ -763,33 +766,31 @@ The `platform` field in `progress.json` determines output:
      → IF missing: supplement, then proceed to Phase 8
 ```
 
-**Generation Steps (TDD Workflow)**:
+**Generation Steps (Batch + Walkthrough)**:
 
-> **TDD Methodology**: Phase 7 follows Test-Driven Development — write interaction tests first based on Phase 4 specs, then implement to pass tests.
+> **v2.8 Update**: Generate multiple pages at once, then use heuristic walkthrough for verification after each batch.
 
-For single-platform (`platform: "mobile"` or `"desktop"`):
+**Workflow Summary**:
+1. **Batch Generate**: Generate 3-5 pages at once
+2. **Bundle**: Run `bundle-artifact.sh`
+3. **Verify Frames in Bundle**
+4. **Walkthrough Review**: Run heuristic checklist
+5. **Fix Issues**: Address any issues found
+6. **User Confirmation**: Pause for confirmation
+7. **Completeness check** against Phase 2 page inventory
+
+For single-platform:
 1. **Resume check**: Skip already completed pages
-2. Generate framework (routing + navigation + frame) if not exists
-3. **TDD Step 1 - Write Tests**: For each page in the batch, write interaction tests based on Phase 4 specs:
-   - Read `doc/ixd/phase4-page-specs/page-X.md` for each page
-   - Extract interaction requirements (gestures, transitions, animations, states)
-   - Write Playwright/React Testing Library tests for each interaction
-4. **TDD Step 2 - Implement (RED)**: Run tests — they should FAIL initially
-5. **TDD Step 3 - Implement (GREEN)**: Implement page components to pass all tests
-6. **TDD Step 4 - Polish (IMPROVE)**: Refactor animations, states, edge cases
-7. **Batch Review**: Run interaction walkthrough against Phase 4 and Tool 2 checklist
+2. **Batch Generate**: Generate 3-5 pages at once
+3. **Bundle**: Run `bundle-artifact.sh`
+4. **Verify Frames in Bundle**
+5. **Walkthrough Review**: Run heuristic checklist
+6. **Fix Issues**: Address any issues found
+7. **User Confirmation**: Pause for confirmation
 8. **Completeness check** against Phase 2 page inventory
-9. **Only after all checks pass**: proceed to next batch or Phase 8
 
 For cross-platform (`platform: "both"`):
-1. **Resume check**: Skip already completed pages (check both platforms)
-2. Generate shared Design Token CSS variables if not exists
-3. Generate/extend mobile prototype (`phase7-prototype-mobile.html`)
-4. Generate/extend desktop prototype (`phase7-prototype-desktop.html`)
-5. **TDD Workflow** per batch (steps 3-7 above, applied to both platforms)
-6. Independent QA per platform
-7. **Completeness check** against Phase 2 page inventory (verify both platforms)
-8. **Only after all checks pass**: proceed to next batch or Phase 8
+Same approach — generate both mobile + desktop pages simultaneously.
 
 **Batch Output Strategy**:
 - Read page inventory from `doc/ixd/phase2-architecture.md`
@@ -798,7 +799,9 @@ For cross-platform (`platform: "both"`):
   1. Run `bundle-artifact.sh` to produce the latest prototype HTML file(s)
   2. Save/overwrite the output to `doc/ixd/phase7-prototype*.html`
   3. Update `progress.json`: increment `pagesCompleted`, record `lastBatch`
-  4. **TDD Test Run**: Execute interaction tests for the batch
+  4. **Verify Device Frames in Bundle**: Check each page uses PhoneFrame/WindowFrame
+     - `grep -o "PhoneFrame" phase7-prototype.html | wc -l` >= page count
+     - If NOT: Fix pages to use device frames, re-bundle
   5. **Batch Interaction Walkthrough**: Run Tool 2 checklist against batch pages
      - Read Phase 4 specs for each page in batch
      - Verify against 47-item heuristic checklist
@@ -839,7 +842,7 @@ After generating a batch of pages, perform the following review:
 
    **Batch**: Pages X, Y, Z
    **Date**: YYYY-MM-DD
-   **Reviewer**: AI (TDD Walkthrough)
+   **Reviewer**: AI (Walkthrough)
 
    ### Walkthrough Score
 

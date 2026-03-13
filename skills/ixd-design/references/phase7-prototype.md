@@ -4,6 +4,8 @@
 
 Generate a clickable, high-fidelity prototype using the built-in scripts. Output is a single HTML file that can be opened directly in a browser — this is AI's unique advantage over traditional tools like Modao.
 
+> **v2.8 Update**: Batch workflow generates multiple pages at once, then uses heuristic walkthrough for verification after each batch.
+>
 > **v2.5 Update**: Redesigned with separated shell and device simulation — shell provides only project name, theme toggle, and display area without device frames. Device simulation (phone/desktop) is now implemented within interactive pages.
 
 ## Tech Stack
@@ -155,14 +157,109 @@ module.exports = {
 }
 ```
 
-### Step 3: Implement Page Components
+### Step 2.5: Verify Device Frame Components
 
-Organize components in `src/` directory.
+Before developing any pages, verify the device frame components are properly set up:
+
+1. **Run Initialization** (if not done):
+   ```bash
+   bash <skill-dir>/scripts/init-artifact.sh <project-name>-prototype
+   cd <project-name>-prototype
+   ```
+
+2. **Verify Component Files Exist**:
+   ```
+   src/components/layout/
+   ├── PrototypeShell.tsx  ✅ Must exist
+   ├── PhoneFrame.tsx      ✅ Must exist (mobile)
+   ├── WindowFrame.tsx     ✅ Must exist (desktop)
+   └── index.ts            ✅ Export all components
+   ```
+
+3. **Verify Bundle Includes Frames**:
+   ```bash
+   grep -o "PrototypeShell" dist/bundle.html  # Must be present
+   grep -o "PhoneFrame" dist/bundle.html     # Must be present (mobile)
+   grep -o "WindowFrame" dist/bundle.html    # Must be present (desktop)
+   ```
+
+### Step 3: Implement Page Components (Wrap in Device Frame)
+
+> **CRITICAL**: Each page component MUST be wrapped in the device frame (PhoneFrame/WindowFrame) to ensure proper device simulation.
+
+**Page Implementation Pattern**:
+
+```tsx
+// src/pages/Home.tsx (Mobile)
+import { PhoneFrame } from '@/components/layout/PhoneFrame';
+
+export function Home() {
+  return (
+    <PhoneFrame theme="light" tabs={[...]}>
+      <div className="p-4">
+        <h1>Welcome Home</h1>
+      </div>
+    </PhoneFrame>
+  );
+}
+```
+
+```tsx
+// src/pages/Home.tsx (Mobile)
+import { PhoneFrame } from '@/components/layout/PhoneFrame';
+
+export function Home() {
+  return (
+    <PhoneFrame
+      theme="light"
+      tabs={[
+        { id: 'home', label: 'Home', icon: <HomeIcon /> },
+        { id: 'profile', label: 'Profile', icon: <UserIcon /> },
+      ]}
+      activeTab="home"
+      onTabChange={(tab) => console.log(tab)}
+    >
+      {/* Page content goes INSIDE PhoneFrame */}
+      <div className="p-4">
+        <h1>Welcome Home</h1>
+        {/* ... page content ... */}
+      </div>
+    </PhoneFrame>
+  );
+}
+```
+
+```tsx
+// src/pages/Home.tsx (Desktop)
+import { WindowFrame } from '@/components/layout/WindowFrame';
+
+export function Home() {
+  return (
+    <WindowFrame
+      theme="light"
+      title="Dashboard"
+      width={1280}
+      height={800}
+    >
+      {/* Page content goes INSIDE WindowFrame */}
+      <div className="p-6">
+        <h1>Dashboard</h1>
+        {/* ... page content ... */}
+      </div>
+    </WindowFrame>
+  );
+}
+```
 
 **Reference Phase 4 for each page**:
 - **Interaction Specs**: Each page must implement the gestures, transitions, and behaviors defined in `phase4-page-interaction.md`
 - **Component States**: Use component states (default, hover, pressed, disabled, loading) as defined in `phase5-components.md`
 - **Visual Styling**: Apply colors, typography, and spacing from `phase6-visual.md`
+
+**Common Mistakes to Avoid**:
+- ❌ NOT using PhoneFrame/WindowFrame — device simulation won't work
+- ❌ Putting content outside PhoneFrame/WindowFrame — won't scroll properly
+- ❌ Forgetting to wrap each page — only first page has frame
 
 **Mobile-Only Structure** (`platform: "mobile"` - default):
 
@@ -902,85 +999,34 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
 }
 ```
 
-## TDD Workflow for Phase 7
-
-> **v2.6 Update**: Added TDD methodology — test-first interaction development with batch heuristic walkthrough.
-
-Phase 7 follows Test-Driven Development principles, adapted for prototype development:
-
-### TDD Workflow Steps
-
-1. **Read Phase 4 Specs First**
-   - Before implementing any page, read `doc/ixd/phase4-page-specs/page-X.md`
-   - Extract interaction requirements: gestures, transitions, animations, states
-
-2. **Write Interaction Tests (RED)**
-   - Write Playwright or React Testing Library tests for each interaction
-   - Tests should verify: tap feedback, gestures, transitions, page states
-   - Run tests — they should FAIL initially (no implementation yet)
-
-3. **Implement to Pass Tests (GREEN)**
-   - Implement page components to satisfy all test requirements
-   - Focus on Phase 4 interactions: touch/click, swipe, pull-to-refresh, transitions
-
-4. **Polish and Refactor (IMPROVE)**
-   - Add animations, edge cases, visual polish
-   - Ensure Phase 5 component states and Phase 6 visual tokens applied
-
-5. **Batch Interaction Walkthrough**
-   - After each batch, run Tool 2 heuristic checklist (47 items)
-   - Generate batch review report
-   - Fix any issues found
-
-### Test Structure Example
-
-```tsx
-// src/__tests__/interactions.spec.ts
-import { test, expect } from '@playwright/test';
-
-test.describe('Page Interactions', () => {
-  test('home page has correct gestures', async ({ page }) => {
-    await page.goto('/');
-    // Verify swipe gesture works
-    await page.evaluate(() => {
-      const el = document.querySelector('.phone-content');
-      el?.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 }));
-    });
-    // Verify tap feedback
-    const card = page.locator('.product-card').first();
-    await card.click();
-    await expect(page).toHaveURL(/product-detail/);
-  });
-
-  test('page transitions are animated', async ({ page }) => {
-    await page.goto('/');
-    await page.click('[data-testid="nav-home"]');
-    const container = page.locator('.page-container');
-    await expect(container).toHaveClass(/slide-in/);
-  });
-});
-```
-
 ## Batch Output Strategy
 
-### TDD-Enhanced Batch Output
+### Batch Workflow (Walkthrough-Based)
 
-Each batch follows this workflow:
+**Use when**: Many pages pending, want to generate 3-5 pages in one turn
 
-1. **TDD: Write Tests First** (RED)
+**Process**:
+
+1. **Generate Pages** (Batch)
    - Read Phase 4 specs for pages in this batch
-   - Write interaction tests for each page
+   - **CRITICAL**: Each page MUST wrap content in PhoneFrame (mobile) or WindowFrame (desktop)
 
-2. **TDD: Implement** (GREEN)
-   - Implement page components
-   - Run tests until passing
+2. **Bundle and Verify**
+   - Run `bundle-artifact.sh` to produce prototype HTML
+   - **VERIFY**: Check HTML includes device frames:
+     ```bash
+     grep -o "PhoneFrame" phase7-prototype.html | head -5  # At least 5 pages
+     grep -o "WindowFrame" phase7-prototype.html | head -5  # At least 5 pages (desktop)
+     grep -o "PrototypeShell" phase7-prototype.html | head -1  # At least 1
+     ```
+   - **If frame count < page count**: Pages are not using device frames. Fix before continuing.
 
-3. **TDD: Polish** (IMPROVE)
-   - Refactor animations, states, edge cases
-
-4. **Batch Interaction Walkthrough**
+3. **Batch Interaction Walkthrough**
    - Run Tool 2 heuristic checklist against batch pages
    - Generate batch review report
+
+4. **Fix Issues** (if any)
+   - Address issues found in walkthrough
 
 5. **Pause for User Confirmation**
 
@@ -1044,10 +1090,9 @@ After each batch, generate a review report:
 **Batch**: Pages X, Y, Z
 **Platform**: mobile | desktop | both
 **Date**: YYYY-MM-DD
-**Reviewer**: AI (TDD Walkthrough)
+**Reviewer**: AI (Walkthrough)
 
 ### Test Results
-- TDD Tests: <<PASS/FAIL>> (X/Y tests passed)
 - Tool 2 Heuristic: <<PASS/FAIL>> (X/47 items passed)
 
 ### Walkthrough Score
@@ -1315,9 +1360,8 @@ Each page in the batch must pass the following checks:
 
 For each batch of pages generated, perform the following verification **for every page**:
 
-1. **Run TDD Tests**: Execute interaction tests for the batch
-2. **Run Tool 2 Heuristic**: Check against 47-item checklist
-3. **Per-Page Check**:
+1. **Run Tool 2 Heuristic**: Check against 47-item checklist
+2. **Per-Page Check**:
    ```markdown
    ## Phase 7 Batch N Per-Page Verification Report
 
@@ -1326,14 +1370,13 @@ For each batch of pages generated, perform the following verification **for ever
 
    ### Per-Page Check
 
-   | Page ID | Page Name | TDD Tests | Tool 2 | Phase 4 Compliance |
-   |---------|-----------|-----------|--------|-------------------|
-   | P01 | Home | ✅ Pass | 95% | ✅ |
-   | P02 | List | ✅ Pass | 88% | ✅ |
-   | P03 | Detail | ❌ Fail | 75% | ⚠️ Missing gestures |
+   | Page ID | Page Name | Tool 2 | Phase 4 Compliance |
+   |---------|-----------|--------|-------------------|
+   | P01 | Home | 95% | ✅ |
+   | P02 | List | 88% | ✅ |
+   | P03 | Detail | 75% | ⚠️ Missing gestures |
 
    ### Issues Found
-   - Page P03: TDD tests failed - swipe gesture not implemented
    - Page P03: Tool 2 score below 80%
 
    ### Verdict
