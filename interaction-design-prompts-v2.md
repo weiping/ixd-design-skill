@@ -15,7 +15,7 @@
 | v2.2 | 2026-03 | 阶段七重构：统一为平台参数驱动模式，默认输出移动端原型，桌面端需显式指定，双端原型作为独立选项；移除「单平台」与「跨平台」区分，简化提示词结构 |
 | v2.3 | 2026-03 | 阶段七重构：集成 React 18 + TypeScript + Tailwind CSS + shadcn/ui 技术栈，输出可在浏览器直接打开的单文件 HTML；新增技术栈表格、开发流程、shadcn/ui 组件推荐、代码示例、AI 设计风格指南 |
 | v2.4 | 2026-03 | 阶段七更新：新增「原型展示入口页面」章节，包含 iPhone 框架模拟器（状态栏、Home Indicator）、桌面端窗口框架（标题栏、窗口控制按钮）、项目名称展示、浅色/深色模式切换、页面导航器、PrototypeShell 组件示例 |
-| v2.5 | 2026-03 | 阶段七更新：跨平台双端原型改为**单项目双入口**模式，共享 Design Token 和业务组件，打包输出两个 HTML 文件 |
+| v2.5 | 2026-03 | 阶段七重构：外壳组件(PrototypeShell)精简为仅包含项目名+主题切换+展示区域，设备模拟(手机/桌面框)移至页面组件内部；新增PhoneFrame和WindowFrame组件；外壳不随滚动移动；鼠标滚动模拟滑动；严格遵循阶段四交互、阶段五控件、阶段六视觉要求 |
 
 ---
 
@@ -1089,11 +1089,13 @@ const [theme, setTheme] = useState<'light' | 'dark'>('light');
 </Button>
 ```
 
-## 原型展示入口页面
+## 原型展示入口页面（简化外壳）
 
-所有原型必须包含一个**统一的入口展示页面**，对标墨刀的"原型演示"功能，包含以下元素：
+所有原型必须包含一个**统一的入口展示页面**（PrototypeShell），对标墨刀的"原型演示"功能。
 
-### 入口页面必备元素
+**v2.5 重要更新**：设备模拟（手机框/桌面窗口）从外壳移至各页面组件内部。外壳仅提供项目名称、主题切换和展示区域，不包含设备框架。
+
+### 外壳必备元素
 
 1. **项目名称**
    - 显示在页面顶部中央或左上角
@@ -1106,61 +1108,23 @@ const [theme, setTheme] = useState<'light' | 'dark'>('light');
    - 切换时全局应用 `.dark` class
    - 默认跟随系统偏好（`prefers-color-scheme`）
 
-3. **设备框架模拟器**
-   根据目标平台显示对应的设备框架：
-
-   **移动端原型（iPhone 框架）**：
-   ```
-   ┌─────────────────────────┐
-   │       ◀  □  ▶          │ ← 状态栏（时间、信号、电量）
-   ├─────────────────────────┤
-   │                         │
-   │                         │
-   │     原型内容区域        │ ← 390×844px（iPhone 14 标准）
-   │     （实际页面渲染）    │
-   │                         │
-   │                         │
-   ├─────────────────────────┤
-   │  ━━━━━━━━━━━━━━━━━━━━   │ ← Home Indicator
-   └─────────────────────────┘
-   ```
-   - 外框样式：圆角 40px、黑色/白色边框（跟随模式）
-   - 尺寸：390×844px（iPhone 14 系列）或 430×932px（iPhone 14 Pro Max）
-   - 状态栏模拟：时间、信号、WiFi、电量图标（可用 SVG 绘制）
-   - Home Indicator：底部 134×5px 圆角条
-
-   **桌面端原型（窗口框架）**：
-   ```
-   ┌──────────────────────────────────────────────────┐
-   │ ○ ○ ○  窗口标题（产品名）              ─ □ ✕   │ ← 标题栏 + 窗口控制按钮
-   ├──────────────────────────────────────────────────┤
-   │                                                  │
-   │                                                  │
-   │              原型内容区域                        │ ← 1280×800px 或自定义
-   │              （实际页面渲染）                    │
-   │                                                  │
-   │                                                  │
-   └──────────────────────────────────────────────────┘
-   ```
-   - 外框样式：圆角 8px、窗口阴影（box-shadow）
-   - 标题栏高度：32px（macOS）或 28px（Windows 11）
-   - 窗口控制按钮：
-     - macOS：红/黄/绿三个圆点（关闭/最小化/最大化）
-     - Windows：最小化/最大化/关闭图标
-   - 内容区域：居中显示，支持滚动
+3. **展示区域**
+   - 包含交互页面内容
+   - **外壳不随鼠标滚动移动** — 滚动事件由页面内部的设备框架捕获
+   - 每个页面组件使用 PhoneFrame（移动端）或 WindowFrame（桌面端）包装
 
 4. **页面导航器**
-   - 位置：入口页面底部或侧边
+   - 位置：入口页面侧边（桌面端）或底部
    - 功能：快速跳转到任意页面
-   - 样式：页面缩略图网格 或 页面名称列表
+   - 样式：圆点指示器
    - 当前页高亮显示
 
 5. **交互说明浮窗（可选）**
-   - 入口：左上角"？"图标或"交互说明"按钮
+   - 入口：右上角"？"图标或"交互说明"按钮
    - 内容：当前页面的交互行为列表（从阶段四提取）
    - 样式：使用 shadcn/ui 的 `Sheet` 或 `Dialog` 组件
 
-### 入口页面代码示例
+### 外壳代码示例
 
 ```tsx
 // PrototypeShell.tsx - 原型展示外壳组件
@@ -1186,7 +1150,6 @@ interface PrototypeShellProps {
 
 export function PrototypeShell({
   productName,
-  platform,
   children,
   pages = [],
   currentPage = '',
@@ -1203,10 +1166,18 @@ export function PrototypeShell({
 
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
+  // 阻止外壳滚动 - 滚动事件由子组件处理
+  const handleWheel = (e: React.WheelEvent) => {
+    // 不阻止默认行为 - 让子组件处理滚动
+  };
+
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-50'} p-6 ${theme}`}>
-      {/* 顶部控制栏 - 精致美学设计 */}
-      <header className="flex items-center justify-between mb-6 max-w-5xl mx-auto">
+    <div
+      className={`min-h-screen ${theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-50'} ${theme}`}
+      onWheel={handleWheel}
+    >
+      {/* 顶部控制栏 - 固定不滚动 */}
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm bg-background/80">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-semibold tracking-tight text-foreground">
             {productName}
@@ -1214,7 +1185,7 @@ export function PrototypeShell({
           <span className="text-xs text-muted-foreground px-2 py-0.5 bg-muted rounded-full">v1.0</span>
         </div>
         <div className="flex items-center gap-2">
-          {/* 交互说明 */}
+          {/* 交互说明 - 从阶段四提取 */}
           {interactions && (
             <Sheet>
               <SheetTrigger asChild>
@@ -1224,7 +1195,7 @@ export function PrototypeShell({
                 </Button>
               </SheetTrigger>
               <SheetContent>
-                <h2 className="text-lg font-semibold mb-4">交互说明</h2>
+                <h2 className="text-lg font-semibold mb-4">交互说明（阶段四）</h2>
                 <ul className="space-y-2">
                   {interactions.map((item, i) => (
                     <li key={i} className="text-sm text-muted-foreground">• {item}</li>
@@ -1244,86 +1215,22 @@ export function PrototypeShell({
         </div>
       </header>
 
-      {/* 设备框架 */}
-      <div className="flex justify-center">
-        {platform === 'mobile' ? (
-          // iPhone 框架 - 精致边框设计
-          <div className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-neutral-900 ring-neutral-200'}`}
-               style={{ width: '390px', height: '844px' }}>
-            {/* 状态栏 - 真实 iPhone 风格 */}
-            <div className="absolute top-0 left-0 right-0 h-11 flex items-center justify-between px-6 text-white z-10">
-              <span className="text-sm font-medium">{new Date().toLocaleTimeString('zh-CN', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
-              <div className="flex items-center gap-1.5">
-                {/* 信号格 */}
-                <div className="flex items-end gap-[2px] h-3">
-                  <div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white/40 rounded-full"/>
-                </div>
-                {/* WiFi */}
-                <svg className="w-4 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-                {/* 电池 */}
-                <svg className="w-5 h-2.5" viewBox="0 0 24 12" fill="currentColor"><rect x="1" y="4" width="18" height="8" rx="2" stroke="currentColor" strokeWidth="1" fill="none"/><rect x="3" y="5.5" width="14" height="5" rx="1.5"/><rect x="20" y="4.5" width="2" height="3" rx="0.5"/></svg>
-              </div>
-            </div>
-            {/* 屏幕区域 */}
-            <div className={`rounded-[40px] h-full overflow-hidden flex flex-col ${theme === 'dark' ? 'bg-neutral-900' : 'bg-white'}`}>
-              {/* 内容区域 */}
-              <div className="flex-1 overflow-auto scrollbar-hide pt-11 pb-16">
-                {children}
-              </div>
-              {/* 页面导航器 - 底部 Tab 栏 */}
-              {pages.length > 0 && (
-                <div className={`absolute bottom-0 left-0 right-0 h-16 ${theme === 'dark' ? 'bg-neutral-900 border-t border-neutral-800' : 'bg-white border-t border-neutral-100'} flex items-center justify-around px-4`}>
-                  {pages.map((page) => (
-                    <button
-                      key={page.id}
-                      onClick={() => onPageChange?.(page.id)}
-                      className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
-                        currentPage === page.id
-                          ? (theme === 'dark' ? 'text-white' : 'text-black')
-                          : (theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400')
-                      }`}
-                    >
-                      {page.icon || <div className="w-5 h-5 rounded-sm bg-current opacity-20" />}
-                      <span className="text-[10px] font-medium">{page.name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* 灵动岛 */}
-            <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
-            {/* Home Indicator */}
-            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
-          </div>
-        ) : (
-          // 桌面窗口框架 - 精致设计
-          <div className={`rounded-xl shadow-2xl overflow-hidden ${theme === 'dark' ? 'bg-neutral-800' : 'bg-white'} ring-1 ${theme === 'dark' ? 'ring-neutral-700' : 'ring-neutral-200'}`}
-               style={{ width: '1280px', height: '800px' }}>
-            {/* 标题栏 - macOS 风格 */}
-            <div className={`h-10 flex items-center px-4 gap-3 ${theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'}`}>
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors" />
-                <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors" />
-              </div>
-              <span className={`text-sm ${theme === 'dark' ? 'text-neutral-400' : 'text-neutral-500'}`}>{productName}</span>
-            </div>
-            {/* 内容区域 */}
-            <div className={`h-[calc(100%-40px)] overflow-auto ${theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'}`}>
-              {children}
-            </div>
-          </div>
-        )}
-      </div>
+      {/* 展示区域 - 包含设备框架和页面内容 */}
+      {/* 外壳不滚动 - 滚动事件由 PhoneFrame/WindowFrame 捕获 */}
+      <main className="pt-20 pb-8 px-4 min-h-screen">
+        <div className="max-w-6xl mx-auto">
+          {children}
+        </div>
+      </main>
 
-      {/* 页面导航器 - 桌面端侧边指示器 */}
-      {platform === 'desktop' && pages.length > 0 && (
-        <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+      {/* 页面导航器 - 侧边圆点指示器 */}
+      {pages.length > 0 && (
+        <nav className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-40">
           {pages.map((page) => (
             <button
               key={page.id}
               onClick={() => onPageChange?.(page.id)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`w-3 h-3 rounded-full transition-all ${
                 currentPage === page.id
                   ? 'bg-primary scale-125'
                   : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
@@ -1331,8 +1238,206 @@ export function PrototypeShell({
               title={page.name}
             />
           ))}
-        </div>
+        </nav>
       )}
+    </div>
+  );
+}
+```
+
+### PhoneFrame 组件（移动端设备模拟）
+
+**v2.5 新增**：设备框架作为独立组件，在每个页面内部使用。实现无滚动条显示、鼠标滚轮模拟滑动。
+
+```tsx
+// src/components/layout/PhoneFrame.tsx - 移动端手机框架组件
+import { useRef, useEffect, useState } from 'react';
+
+interface PhoneFrameProps {
+  children: React.ReactNode;
+  theme?: 'light' | 'dark';
+  showTabBar?: boolean;
+  tabs?: { id: string; label: string; icon?: React.ReactNode }[];
+  activeTab?: string;
+  onTabChange?: (tabId: string) => void;
+}
+
+export function PhoneFrame({
+  children,
+  theme = 'light',
+  showTabBar = true,
+  tabs = [],
+  activeTab = '',
+  onTabChange
+}: PhoneFrameProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 鼠标滚轮转换为滑动/滚动
+  useEffect(() => {
+    const content = scrollRef.current;
+    if (!content) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // 阻止默认滚动行为
+      e.preventDefault();
+      // 将垂直滚动映射到内容区
+      content.scrollTop += e.deltaY;
+    };
+
+    content.addEventListener('wheel', handleWheel, { passive: false });
+    return () => content.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  return (
+    <div className="flex justify-center">
+      {/* iPhone 14 框架 - 390×844 */}
+      <div
+        className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${
+          theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-neutral-900 ring-neutral-200'
+        }`}
+        style={{ width: '390px', height: '844px' }}
+      >
+        {/* 状态栏 */}
+        <div className="absolute top-0 left-0 right-0 h-11 flex items-center justify-between px-6 text-white z-10">
+          <span className="text-sm font-medium">
+            {new Date().toLocaleTimeString('zh-CN', { hour: 'numeric', minute: '2-digit', hour12: true })}
+          </span>
+          <div className="flex items-center gap-1.5">
+            {/* 信号格 */}
+            <div className="flex items-end gap-[2px] h-3">
+              <div className="w-0.5 bg-white rounded-full" />
+              <div className="w-0.5 bg-white rounded-full" />
+              <div className="w-0.5 bg-white rounded-full" />
+              <div className="w-0.5 bg-white/40 rounded-full" />
+            </div>
+            {/* WiFi */}
+            <svg className="w-4 h-3" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
+            </svg>
+            {/* 电池 */}
+            <svg className="w-5 h-2.5" viewBox="0 0 24 12" fill="currentColor">
+              <rect x="1" y="4" width="18" height="8" rx="2" stroke="currentColor" strokeWidth="1" fill="none" />
+              <rect x="3" y="5.5" width="14" height="5" rx="1.5" />
+              <rect x="20" y="4.5" width="2" height="3" rx="0.5" />
+            </svg>
+          </div>
+        </div>
+
+        {/* 屏幕区域 */}
+        <div className={`rounded-[40px] h-full overflow-hidden flex flex-col ${
+          theme === 'dark' ? 'bg-neutral-900' : 'bg-white'
+        }`}>
+          {/* 内容区 - 无滚动条，滚轮模拟滑动 */}
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide pt-11 pb-16 touch-pan-y"
+            style={{ scrollBehavior: 'smooth' }}
+          >
+            {children}
+          </div>
+
+          {/* Tab 栏 - 在手机框架内部 */}
+          {showTabBar && tabs.length > 0 && (
+            <div className={`absolute bottom-0 left-0 right-0 h-16 ${
+              theme === 'dark' ? 'bg-neutral-900 border-t border-neutral-800' : 'bg-white border-t border-neutral-100'
+            } flex items-center justify-around px-4`}>
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange?.(tab.id)}
+                  className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+                    activeTab === tab.id
+                      ? theme === 'dark' ? 'text-white' : 'text-black'
+                      : theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'
+                  }`}
+                >
+                  {tab.icon || <div className="w-5 h-5 rounded-sm bg-current opacity-20" />}
+                  <span className="text-[10px] font-medium">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 灵动岛 */}
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
+
+        {/* Home Indicator */}
+        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
+      </div>
+    </div>
+  );
+}
+```
+
+### WindowFrame 组件（桌面端设备模拟）
+
+```tsx
+// src/components/layout/WindowFrame.tsx - 桌面端窗口框架组件
+import { useRef, useEffect } from 'react';
+
+interface WindowFrameProps {
+  children: React.ReactNode;
+  theme?: 'light' | 'dark';
+  title?: string;
+  width?: number;
+  height?: number;
+}
+
+export function WindowFrame({
+  children,
+  theme = 'light',
+  title = 'Application',
+  width = 1280,
+  height = 800
+}: WindowFrameProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 鼠标滚轮滚动内容
+  useEffect(() => {
+    const content = scrollRef.current;
+    if (!content) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      content.scrollTop += e.deltaY;
+    };
+
+    content.addEventListener('wheel', handleWheel, { passive: false });
+    return () => content.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  return (
+    <div className="flex justify-center">
+      {/* 桌面窗口框架 */}
+      <div className={`rounded-xl shadow-2xl overflow-hidden ring-1 ${
+        theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-white ring-neutral-200'
+      }`}
+      style={{ width: `${width}px`, height: `${height}px` }}>
+        {/* 标题栏 - macOS 风格 */}
+        <div className={`h-10 flex items-center px-4 gap-3 ${
+          theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'
+        }`}>
+          {/* 窗口控制按钮 */}
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors cursor-pointer" />
+          </div>
+          {/* 标题 */}
+          <span className={`text-sm ${theme === 'dark' ? 'text-neutral-400' : 'text-neutral-500'}`}>
+            {title}
+          </span>
+        </div>
+
+        {/* 内容区域 - 可滚动 */}
+        <div ref={scrollRef} className={`h-[calc(100%-40px)] overflow-auto ${
+          theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'
+        }`}>
+          {children}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1340,39 +1445,77 @@ export function PrototypeShell({
 
 ### 入口页面使用方式
 
-在 `App.tsx` 中包裹所有页面：
+在 `App.tsx` 中包裹所有页面，每个页面使用 PhoneFrame 或 WindowFrame 包装：
 
 ```tsx
 import { PrototypeShell } from '@/components/layout/PrototypeShell';
-import { Home, ProductDetail, Cart, Profile } from '@/pages';
+import { PhoneFrame } from '@/components/layout/PhoneFrame';
+import { Home, ProductDetail, Cart, Profile } from '@/pages/mobile';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const pages = [
     { id: 'home', name: '首页' },
+    { id: 'detail', name: '详情' },
     { id: 'cart', name: '购物车' },
     { id: 'profile', name: '我的' },
   ];
 
+  // 移动端 Tab 导航
+  const tabs = [
+    { id: 'home', label: '首页', icon: <HomeIcon /> },
+    { id: 'discover', label: '发现', icon: <DiscoverIcon /> },
+    { id: 'cart', label: '购物车', icon: <CartIcon /> },
+    { id: 'profile', label: '我的', icon: <ProfileIcon /> },
+  ];
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return (
+          <PhoneFrame theme={theme} tabs={tabs} activeTab="home" onTabChange={setCurrentPage}>
+            <Home />
+          </PhoneFrame>
+        );
+      case 'detail':
+        return (
+          <PhoneFrame theme={theme}>
+            <ProductDetail />
+          </PhoneFrame>
+        );
+      case 'cart':
+        return (
+          <PhoneFrame theme={theme} tabs={tabs} activeTab="cart" onTabChange={setCurrentPage}>
+            <Cart />
+          </PhoneFrame>
+        );
+      case 'profile':
+        return (
+          <PhoneFrame theme={theme} tabs={tabs} activeTab="profile" onTabChange={setCurrentPage}>
+            <Profile />
+          </PhoneFrame>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <PrototypeShell
       productName="<<产品名称>>"
-      platform="<<mobile/desktop>>"
       pages={pages}
       currentPage={currentPage}
       onPageChange={setCurrentPage}
       interactions={[
+        // 从阶段四交互规范提取
         "点击商品卡片跳转详情页",
         "左滑删除购物车商品",
         "下拉刷新首页数据",
       ]}
     >
-      {currentPage === 'home' && <Home />}
-      {currentPage === 'detail' && <ProductDetail />}
-      {currentPage === 'cart' && <Cart />}
-      {currentPage === 'profile' && <Profile />}
-      {/* ... */}
+      {renderPage()}
     </PrototypeShell>
   );
 }
@@ -1380,27 +1523,26 @@ function App() {
 
 ### 字体与美学设计指南
 
-为了实现独特、非通用的外观：
+为了实现独特、非通用的外观，请遵循**阶段六视觉规范**：
 
 **字体**（从阶段六选择）：
 ```css
-/* 示例：编辑风格 */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+/* 示例：从阶段六 Typography System 选择 */
+@import url('https://fonts.googleapis.com/css2?family=<<标题字体>>:wght@400;600;700&family=<<正文字体>>:wght@300;400;500&display=swap');
 
 :root {
-  --font-display: 'Noto Serif SC', serif;
-  --font-body: 'Noto Sans SC', sans-serif;
+  --font-display: '<<标题字体>>', serif;
+  --font-body: '<<正文字体>>', sans-serif;
 }
 ```
 
 **背景**：
-- 使用细腻的渐变、噪点纹理或纸质背景
+- 使用阶段六定义的色彩系统
 - 避免纯白 (#ffffff) 或纯黑 (#000000)
-- 考虑暖白: `#FAFAF8` 或冷灰: `#F5F5F7`
 
-**动画**：
+**动画**（从阶段四交互规范）：
 ```css
-/* 页面切换平滑过渡 */
+/* 页面切换 - 从阶段四 interaction specs */
 .page-enter {
   opacity: 0;
   transform: translateX(20px);
@@ -1411,31 +1553,10 @@ function App() {
   transition: opacity 300ms ease-out, transform 300ms ease-out;
 }
 
-/* 细腻的悬停效果 */
-.card-hover {
-  transition: transform 200ms ease, box-shadow 200ms ease;
-}
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-}
-```
-
-  return (
-    <PrototypeShell
-      productName="<<产品名>>"
-      platform="<<mobile/desktop>>"
-      interactions={[
-        "点击商品卡片跳转详情页",
-        "左滑删除购物车商品",
-        "下拉刷新首页数据",
-      ]}
-    >
-      {currentPage === 'home' && <Home />}
-      {currentPage === 'detail' && <ProductDetail />}
-      {/* ... */}
-    </PrototypeShell>
-  );
+/* 按键反馈 - 从阶段五 component states */
+.tap-active {
+  transform: scale(0.98);
+  transition: transform 100ms ease;
 }
 ```
 
@@ -1448,19 +1569,20 @@ function App() {
 
 ### 单端原型（默认）
 打包输出为 **单个 bundle.html 文件**：
-- 移动端：`bundle.html`（或 `prototype-mobile.html`）
-- 桌面端：`bundle.html`（或 `prototype-desktop.html`）
+- 移动端：`bundle.html`（或 `prototype-mobile.html`）- 页面内含 PhoneFrame 手机框
+- 桌面端：`bundle.html`（或 `prototype-desktop.html`）- 页面内含 WindowFrame 窗口框
 
 ### 双端原型
 **同一项目，双入口打包**：
 - 项目：`<<产品名>>-prototype/`（包含移动端和桌面端两套实现）
 - 输出：
-  - `prototype-mobile.html` — 移动端原型（390×844px 手机框架）
-  - `prototype-desktop.html` — 桌面端原型（1280×800px 窗口框架）
+  - `prototype-mobile.html` — 移动端原型（页面内含 PhoneFrame 手机框）
+  - `prototype-desktop.html` — 桌面端原型（页面内含 WindowFrame 窗口框）
 
 **单项目优势**：
-- 共享 Design Token，确保视觉一致性
+- 共享 Design Token（阶段六），确保视觉一致性
 - 共享 mock 数据，减少重复
+- 共享业务组件，最大化代码复用
 - 共享业务组件，最大化代码复用
 - 只需一次 `pnpm install`
 

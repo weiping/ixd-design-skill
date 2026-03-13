@@ -4,9 +4,7 @@
 
 Generate a clickable, high-fidelity prototype using the built-in scripts. Output is a single HTML file that can be opened directly in a browser — this is AI's unique advantage over traditional tools like Modao.
 
-> **v2.3 Update**: Integrated React 18 + TypeScript + Tailwind CSS + shadcn/ui tech stack with built-in initialization and bundling scripts.
->
-> **v2.4 Update**: Added PrototypeShell component for unified prototype display entry page with device frame simulator, theme toggle, and page navigator.
+> **v2.5 Update**: Redesigned with separated shell and device simulation — shell provides only project name, theme toggle, and display area without device frames. Device simulation (phone/desktop) is now implemented within interactive pages.
 
 ## Tech Stack
 
@@ -43,17 +41,13 @@ The following scripts are provided in the `scripts/` directory:
 
 The `platform` field in `progress.json` determines the output:
 
-| platform | Project Structure | Output File(s) | Viewport |
-|----------|-------------------|----------------|----------|
-| `"mobile"` (default) | Single project | `prototype.html` | 390×844px phone frame |
-| `"desktop"` | Single project | `prototype.html` | 1280×800px window frame |
+| platform | Project Structure | Output File(s) | Device Simulation |
+|----------|-------------------|----------------|------------------|
+| `"mobile"` (default) | Single project | `prototype.html` | Phone frame inside page content |
+| `"desktop"` | Single project | `prototype.html` | Window frame inside page content |
 | `"both"` | Single project, dual entry | `prototype-mobile.html` + `prototype-desktop.html` | Both viewports |
 
-**Cross-Platform Strategy**: For `platform: "both"`, use a single project with platform-specific page components and dual bundle outputs. This ensures:
-- Single source of truth for Design Tokens
-- Shared business components and mock data
-- Automatic visual consistency across platforms
-- Easier maintenance
+**Key Change in v2.5**: Device simulation (phone/desktop frame) is no longer in the shell — it's implemented within each page component. The shell only provides the project name, theme toggle, and scrollable display area.
 
 **Default behavior**: If `platform` is not set, assume `"mobile"`.
 
@@ -92,6 +86,12 @@ After initialization, the project includes:
 - switch, table, tabs, textarea, toast, toggle, toggle-group, tooltip
 
 ### Step 2: Implement Design Tokens
+
+**IMPORTANT**: Before implementing, read the following documents to ensure the prototype strictly follows established specifications:
+
+1. **Phase 4 (Interaction Specs)**: `doc/ixd/phase4-page-interaction.md` — Contains per-page interaction requirements, gestures, animations, and user flow specifications
+2. **Phase 5 (Component Library)**: `doc/ixd/phase5-components.md` — Contains component specifications, states, and design tokens
+3. **Phase 6 (Visual Design)**: `doc/ixd/phase6-visual.md` — Contains color system, typography, spacing, and visual styling
 
 Define Phase 6 Design Tokens in `src/index.css` as CSS variables and Tailwind theme:
 
@@ -159,6 +159,11 @@ module.exports = {
 
 Organize components in `src/` directory.
 
+**Reference Phase 4 for each page**:
+- **Interaction Specs**: Each page must implement the gestures, transitions, and behaviors defined in `phase4-page-interaction.md`
+- **Component States**: Use component states (default, hover, pressed, disabled, loading) as defined in `phase5-components.md`
+- **Visual Styling**: Apply colors, typography, and spacing from `phase6-visual.md`
+
 **Mobile-Only Structure** (`platform: "mobile"` - default):
 
 ```
@@ -166,18 +171,20 @@ src/
 ├── components/
 │   ├── ui/              # shadcn/ui components (pre-installed)
 │   ├── layout/
-│   │   ├── MobileLayout.tsx    # Tab Bar + Top nav
-│   │   └── PrototypeShell.tsx  # iPhone frame wrapper
+│   │   ├── MobileLayout.tsx    # Tab Bar + Top nav (inside phone frame)
+│   │   └── PrototypeShell.tsx # Simplified shell (project name + theme)
+│   │   └── PhoneFrame.tsx     # Device frame for mobile pages
 │   └── shared/          # Shared business components
-├── pages/               # Page components
+├── pages/               # Page components (each wraps in PhoneFrame)
 │   ├── Home.tsx
 │   ├── ProductList.tsx
 │   └── ...
-├── hooks/               # Custom Hooks
-├── lib/                 # Utility functions + mock data
-├── App.tsx              # Main app (routing configuration)
-├── main.tsx             # Entry point
-└── index.css            # Global styles + Design Tokens
+├── hooks/              # Custom Hooks
+│   └── useSwipeScroll.ts   # Mouse wheel to swipe simulation
+├── lib/                # Utility functions + mock data
+├── App.tsx             # Main app (routing configuration)
+├── main.tsx            # Entry point
+└── index.css           # Global styles + Design Tokens (Phase 6)
 ```
 
 **Desktop-Only Structure** (`platform: "desktop"`):
@@ -187,18 +194,19 @@ src/
 ├── components/
 │   ├── ui/              # shadcn/ui components (pre-installed)
 │   ├── layout/
-│   │   ├── DesktopLayout.tsx   # Sidebar + Toolbar + Title bar
-│   │   └── PrototypeShell.tsx  # Window frame wrapper
+│   │   ├── DesktopLayout.tsx   # Sidebar + Toolbar (inside window frame)
+│   │   ├── PrototypeShell.tsx # Simplified shell (project name + theme)
+│   │   └── WindowFrame.tsx    # Desktop window frame for pages
 │   └── shared/          # Shared business components
-├── pages/               # Page components
+├── pages/               # Page components (each wraps in WindowFrame)
 │   ├── Home.tsx
 │   ├── ProductList.tsx
 │   └── ...
-├── hooks/               # Custom Hooks
-├── lib/                 # Utility functions + mock data
-├── App.tsx              # Main app (routing configuration)
-├── main.tsx             # Entry point
-└── index.css            # Global styles + Design Tokens
+├── hooks/              # Custom Hooks
+├── lib/                # Utility functions + mock data
+├── App.tsx             # Main app (routing configuration)
+├── main.tsx            # Entry point
+└── index.css           # Global styles + Design Tokens (Phase 6)
 ```
 
 **Cross-Platform Structure** (`platform: "both"`):
@@ -209,9 +217,11 @@ src/
 │   ├── ui/              # shadcn/ui components (pre-installed)
 │   ├── layout/          # Layout components
 │   │   ├── MobileLayout.tsx    # Mobile: Tab Bar + Top nav
-│   │   ├── DesktopLayout.tsx   # Desktop: Sidebar + Toolbar
-│   │   └── PrototypeShell.tsx  # Device frame wrapper (supports both platforms)
-│   └── shared/          # Shared business components (same logic, different layouts)
+│   │   ├── DesktopLayout.tsx  # Desktop: Sidebar + Toolbar
+│   │   ├── PrototypeShell.tsx # Shell (project name + theme)
+│   │   ├── PhoneFrame.tsx     # Mobile device frame
+│   │   └── WindowFrame.tsx   # Desktop device frame
+│   └── shared/          # Shared business components
 ├── pages/
 │   ├── mobile/          # Mobile-specific page implementations
 │   │   ├── Home.tsx
@@ -225,17 +235,10 @@ src/
 ├── hooks/               # Custom Hooks
 ├── lib/                 # Utility functions + mock data
 │   └── mockData.ts      # Shared mock data
-├── App.mobile.tsx       # Mobile entry point
+├── App.mobile.tsx      # Mobile entry point
 ├── App.desktop.tsx      # Desktop entry point
 └── index.css            # Global styles + Design Tokens (shared)
 ```
-
-**Cross-Platform Key Points**:
-- Design Tokens in `index.css` are shared (single source of truth)
-- Mock data in `lib/` is shared
-- Layout components differ: `MobileLayout` vs `DesktopLayout`
-- Page components can share business logic but differ in layout/interaction
-- Use `App.mobile.tsx` and `App.desktop.tsx` as separate entry points
 
 ### Step 4: Bundle to Single HTML
 
@@ -336,11 +339,11 @@ pnpm exec html-inline dist/desktop/index.desktop.html > prototype-desktop.html
 
 Output: `prototype-mobile.html` + `prototype-desktop.html`
 
-## PrototypeShell Component (Entry Page)
+## PrototypeShell Component (Simplified Shell)
 
-All prototypes must include a **unified entry display page** wrapped by PrototypeShell, similar to Modao's "prototype demo" feature.
+The shell provides a simplified display environment without device frames. **Device simulation is now moved to each page component**.
 
-### Required Elements
+### Shell Required Elements
 
 1. **Project Name**
    - Display at top center or top-left
@@ -353,67 +356,18 @@ All prototypes must include a **unified entry display page** wrapped by Prototyp
    - Toggle applies `.dark` class globally
    - Default follows system preference (`prefers-color-scheme`)
 
-3. **Device Frame Simulator**
-   Display corresponding device frame based on target platform:
+3. **Display Area**
+   - Contains the interactive page with device simulation
+   - **Captures scroll events** — outer shell does NOT scroll
+   - Each page component wraps content in device frame (PhoneFrame/WindowFrame)
 
-   **Mobile Prototype (iPhone Frame)**:
-   ```
-   ┌─────────────────────────┐
-   │       ◀  □  ▶          │ ← Status bar (time, signal, battery)
-   ├─────────────────────────┤
-   │                         │
-   │                         │
-   │     Prototype Content   │ ← 390×844px (iPhone 14 standard)
-   │     (actual page)       │
-   │                         │
-   │                         │
-   ├─────────────────────────┤
-   │  ━━━━━━━━━━━━━━━━━━━━   │ ← Home Indicator
-   └─────────────────────────┘
-   ```
-   - Frame style: 40px border-radius, black/white border (follows theme)
-   - Size: 390×844px (iPhone 14) or 430×932px (iPhone 14 Pro Max)
-   - Status bar: time, signal, WiFi, battery icons (use SVG)
-   - Home Indicator: 134×5px rounded bar at bottom
-
-   **Desktop Prototype (Window Frame)**:
-   ```
-   ┌──────────────────────────────────────────────────┐
-   │ ○ ○ ○  Window Title (Product Name)    ─ □ ✕   │ ← Title bar + window controls
-   ├──────────────────────────────────────────────────┤
-   │                                                  │
-   │                                                  │
-   │              Prototype Content                   │ ← 1280×800px or custom
-   │              (actual page)                       │
-   │                                                  │
-   │                                                  │
-   └──────────────────────────────────────────────────┘
-   ```
-   - Frame style: 8px border-radius, window shadow (box-shadow)
-   - Title bar height: 32px (macOS) or 28px (Windows 11)
-   - Window control buttons:
-     - macOS: red/yellow/green dots (close/minimize/maximize)
-     - Windows: minimize/maximize/close icons
-
-4. **Page Navigator**
-   - Position: bottom or side of entry page
-   - Function: quick jump to any page
-   - Style: page thumbnail grid or page name list
-   - Current page highlighted
-
-5. **Interaction Guide Panel (optional)**
-   - Entry: "?" icon top-left or "Interactions" button
-   - Content: list of interaction behaviors for current page (from Phase 4)
-   - Style: use shadcn/ui `Sheet` or `Dialog` component
-
-### PrototypeShell Component Code
+### Shell Component Code
 
 ```tsx
 // src/components/layout/PrototypeShell.tsx
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface PageItem {
   id: string;
@@ -423,17 +377,15 @@ interface PageItem {
 
 interface PrototypeShellProps {
   productName: string;
-  platform: 'mobile' | 'desktop';
   children: React.ReactNode;
   pages?: PageItem[]; // Page navigator items
   currentPage?: string; // Current active page
   onPageChange?: (pageId: string) => void;
-  interactions?: string[]; // Interaction guide list
+  interactions?: string[]; // Interaction guide list from Phase 4
 }
 
 export function PrototypeShell({
   productName,
-  platform,
   children,
   pages = [],
   currentPage = '',
@@ -450,10 +402,18 @@ export function PrototypeShell({
 
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
+  // Prevent shell from scrolling - capture scroll in child components
+  const handleWheel = (e: React.WheelEvent) => {
+    // Don't prevent default - let children handle scroll
+  };
+
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-50'} p-6 ${theme}`}>
+    <div
+      className={`min-h-screen ${theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-50'} ${theme}`}
+      onWheel={handleWheel}
+    >
       {/* Top control bar - refined aesthetic */}
-      <header className="flex items-center justify-between mb-6 max-w-5xl mx-auto">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm bg-background/80">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-semibold tracking-tight text-foreground">
             {productName}
@@ -461,7 +421,7 @@ export function PrototypeShell({
           <span className="text-xs text-muted-foreground px-2 py-0.5 bg-muted rounded-full">v1.0</span>
         </div>
         <div className="flex items-center gap-2">
-          {/* Interaction guide */}
+          {/* Interaction guide - from Phase 4 */}
           {interactions && (
             <Sheet>
               <SheetTrigger asChild>
@@ -471,7 +431,7 @@ export function PrototypeShell({
                 </Button>
               </SheetTrigger>
               <SheetContent>
-                <h2 className="text-lg font-semibold mb-4">Interactions</h2>
+                <h2 className="text-lg font-semibold mb-4">Interactions (Phase 4)</h2>
                 <ul className="space-y-2">
                   {interactions.map((item, i) => (
                     <li key={i} className="text-sm text-muted-foreground">• {item}</li>
@@ -491,86 +451,22 @@ export function PrototypeShell({
         </div>
       </header>
 
-      {/* Device frame */}
-      <div className="flex justify-center">
-        {platform === 'mobile' ? (
-          // iPhone frame - refined with subtle border
-          <div className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-neutral-900 ring-neutral-200'}`}
-               style={{ width: '390px', height: '844px' }}>
-            {/* Status bar - realistic iPhone style */}
-            <div className="absolute top-0 left-0 right-0 h-11 flex items-center justify-between px-6 text-white z-10">
-              <span className="text-sm font-medium">{new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
-              <div className="flex items-center gap-1.5">
-                {/* Signal bars */}
-                <div className="flex items-end gap-[2px] h-3">
-                  <div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white/40 rounded-full"/>
-                </div>
-                {/* WiFi */}
-                <svg className="w-4 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-                {/* Battery */}
-                <svg className="w-5 h-2.5" viewBox="0 0 24 12" fill="currentColor"><rect x="1" y="4" width="18" height="8" rx="2" stroke="currentColor" strokeWidth="1" fill="none"/><rect x="3" y="5.5" width="14" height="5" rx="1.5"/><rect x="20" y="4.5" width="2" height="3" rx="0.5"/></svg>
-              </div>
-            </div>
-            {/* Screen area */}
-            <div className={`rounded-[40px] h-full overflow-hidden flex flex-col ${theme === 'dark' ? 'bg-neutral-900' : 'bg-white'}`}>
-              {/* Content area */}
-              <div className="flex-1 overflow-auto scrollbar-hide pt-11 pb-16">
-                {children}
-              </div>
-              {/* Page Navigator - Bottom Tab Bar */}
-              {pages.length > 0 && (
-                <div className={`absolute bottom-0 left-0 right-0 h-16 ${theme === 'dark' ? 'bg-neutral-900 border-t border-neutral-800' : 'bg-white border-t border-neutral-100'} flex items-center justify-around px-4`}>
-                  {pages.map((page) => (
-                    <button
-                      key={page.id}
-                      onClick={() => onPageChange?.(page.id)}
-                      className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
-                        currentPage === page.id
-                          ? (theme === 'dark' ? 'text-white' : 'text-black')
-                          : (theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400')
-                      }`}
-                    >
-                      {page.icon || <div className="w-5 h-5 rounded-sm bg-current opacity-20" />}
-                      <span className="text-[10px] font-medium">{page.name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Dynamic Island */}
-            <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
-            {/* Home Indicator */}
-            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
-          </div>
-        ) : (
-          // Desktop window frame - refined
-          <div className={`rounded-xl shadow-2xl overflow-hidden ${theme === 'dark' ? 'bg-neutral-800' : 'bg-white'} ring-1 ${theme === 'dark' ? 'ring-neutral-700' : 'ring-neutral-200'}`}
-               style={{ width: '1280px', height: '800px' }}>
-            {/* Title bar - macOS style */}
-            <div className={`h-10 flex items-center px-4 gap-3 ${theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'}`}>
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors" />
-                <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors" />
-              </div>
-              <span className={`text-sm ${theme === 'dark' ? 'text-neutral-400' : 'text-neutral-500'}`}>{productName}</span>
-            </div>
-            {/* Content area */}
-            <div className={`h-[calc(100%-40px)] overflow-auto ${theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'}`}>
-              {children}
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Display Area - contains device frame with page content */}
+      {/* This area captures scroll events - shell header stays fixed */}
+      <main className="pt-20 pb-8 px-4 min-h-screen">
+        <div className="max-w-6xl mx-auto">
+          {children}
+        </div>
+      </main>
 
-      {/* Page Navigator - Desktop sidebar (optional) */}
-      {platform === 'desktop' && pages.length > 0 && (
-        <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+      {/* Page Navigator - side dots for desktop, bottom for mobile */}
+      {pages.length > 0 && (
+        <nav className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-40">
           {pages.map((page) => (
             <button
               key={page.id}
               onClick={() => onPageChange?.(page.id)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`w-3 h-3 rounded-full transition-all ${
                 currentPage === page.id
                   ? 'bg-primary scale-125'
                   : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
@@ -578,74 +474,417 @@ export function PrototypeShell({
               title={page.name}
             />
           ))}
-        </div>
+        </nav>
       )}
     </div>
   );
 }
 ```
 
-### Usage in App.tsx
+## PhoneFrame Component (Mobile Device Simulation)
+
+**NEW in v2.5**: Device frame is now implemented as a separate component within each page, not in the shell. This allows proper scroll capture and swipe simulation.
+
+### Key Features:
+- Realistic iPhone frame (Dynamic Island, status bar, home indicator)
+- **No visible scrollbar** — uses `scrollbar-hide` utility
+- **Mouse wheel converts to swipe** — captures wheel events and translates to scroll
+- Bottom Tab Bar for navigation
 
 ```tsx
+// src/components/layout/PhoneFrame.tsx
+import { useRef, useEffect, useState } from 'react';
+
+interface PhoneFrameProps {
+  children: React.ReactNode;
+  theme?: 'light' | 'dark';
+  showTabBar?: boolean;
+  tabs?: { id: string; label: string; icon?: React.ReactNode }[];
+  activeTab?: string;
+  onTabChange?: (tabId: string) => void;
+}
+
+export function PhoneFrame({
+  children,
+  theme = 'light',
+  showTabBar = true,
+  tabs = [],
+  activeTab = '',
+  onTabChange
+}: PhoneFrameProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  // Convert mouse wheel to swipe/scroll
+  useEffect(() => {
+    const content = scrollRef.current;
+    if (!content) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Prevent default to stop page scroll
+      e.preventDefault();
+      // Translate vertical scroll to the content
+      content.scrollTop += e.deltaY;
+    };
+
+    content.addEventListener('wheel', handleWheel, { passive: false });
+    return () => content.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  return (
+    <div className="flex justify-center">
+      {/* iPhone 14 Frame - 390×844 */}
+      <div
+        className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${
+          theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-neutral-900 ring-neutral-200'
+        }`}
+        style={{ width: '390px', height: '844px' }}
+      >
+        {/* Status Bar */}
+        <div className="absolute top-0 left-0 right-0 h-11 flex items-center justify-between px-6 text-white z-10">
+          <span className="text-sm font-medium">
+            {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+          </span>
+          <div className="flex items-center gap-1.5">
+            {/* Signal bars */}
+            <div className="flex items-end gap-[2px] h-3">
+              <div className="w-0.5 bg-white rounded-full" />
+              <div className="w-0.5 bg-white rounded-full" />
+              <div className="w-0.5 bg-white rounded-full" />
+              <div className="w-0.5 bg-white/40 rounded-full" />
+            </div>
+            {/* WiFi icon */}
+            <svg className="w-4 h-3" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
+            </svg>
+            {/* Battery icon */}
+            <svg className="w-5 h-2.5" viewBox="0 0 24 12" fill="currentColor">
+              <rect x="1" y="4" width="18" height="8" rx="2" stroke="currentColor" strokeWidth="1" fill="none" />
+              <rect x="3" y="5.5" width="14" height="5" rx="1.5" />
+              <rect x="20" y="4.5" width="2" height="3" rx="0.5" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Screen Area */}
+        <div
+          ref={contentRef}
+          className={`rounded-[40px] h-full overflow-hidden flex flex-col ${
+            theme === 'dark' ? 'bg-neutral-900' : 'bg-white'
+          }`}
+        >
+          {/* Content - NO scrollbar, wheel converts to swipe */}
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide pt-11 pb-16 touch-pan-y"
+            style={{ scrollBehavior: 'smooth' }}
+          >
+            {children}
+          </div>
+
+          {/* Tab Bar - inside phone frame */}
+          {showTabBar && tabs.length > 0 && (
+            <div
+              className={`absolute bottom-0 left-0 right-0 h-16 ${
+                theme === 'dark' ? 'bg-neutral-900 border-t border-neutral-800' : 'bg-white border-t border-neutral-100'
+              } flex items-center justify-around px-4`}
+            >
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange?.(tab.id)}
+                  className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+                    activeTab === tab.id
+                      ? theme === 'dark' ? 'text-white' : 'text-black'
+                      : theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'
+                  }`}
+                >
+                  {tab.icon || <div className="w-5 h-5 rounded-sm bg-current opacity-20" />}
+                  <span className="text-[10px] font-medium">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Dynamic Island */}
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
+
+        {/* Home Indicator */}
+        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
+      </div>
+    </div>
+  );
+}
+```
+
+## WindowFrame Component (Desktop Device Simulation)
+
+Desktop window frame is also moved into page components.
+
+```tsx
+// src/components/layout/WindowFrame.tsx
+import { useRef, useEffect, useState } from 'react';
+
+interface WindowFrameProps {
+  children: React.ReactNode;
+  theme?: 'light' | 'dark';
+  title?: string;
+  width?: number;
+  height?: number;
+}
+
+export function WindowFrame({
+  children,
+  theme = 'light',
+  title = 'Application',
+  width = 1280,
+  height = 800
+}: WindowFrameProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Mouse wheel for content scrolling
+  useEffect(() => {
+    const content = scrollRef.current;
+    if (!content) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      content.scrollTop += e.deltaY;
+    };
+
+    content.addEventListener('wheel', handleWheel, { passive: false });
+    return () => content.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  return (
+    <div className="flex justify-center">
+      {/* Desktop Window Frame */}
+      <div
+        className={`rounded-xl shadow-2xl overflow-hidden ring-1 ${
+          theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-white ring-neutral-200'
+        }`}
+        style={{ width: `${width}px`, height: `${height}px` }}
+      >
+        {/* Title Bar - macOS style */}
+        <div
+          className={`h-10 flex items-center px-4 gap-3 ${
+            theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'
+          }`}
+        >
+          {/* Window Controls */}
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors cursor-pointer" />
+          </div>
+          {/* Title */}
+          <span className={`text-sm ${theme === 'dark' ? 'text-neutral-400' : 'text-neutral-500'}`}>
+            {title}
+          </span>
+        </div>
+
+        {/* Content Area - scrollable */}
+        <div
+          ref={scrollRef}
+          className={`h-[calc(100%-40px)] overflow-auto ${
+            theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'
+          }`}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+## Implementation Reference: Phase 4-6 Integration
+
+### Phase 4 (Interaction Specs) Requirements
+
+Each page component MUST implement interactions defined in `phase4-page-interaction.md`:
+
+| Interaction Type | Implementation |
+|-----------------|----------------|
+| Tap/Click | React onClick handlers |
+| Swipe | Wheel event + scroll translation (mobile) |
+| Pull-to-refresh | Custom hook with scroll position detection |
+| Page transitions | CSS transform or Framer Motion |
+| Gestures | useSwipeScroll hook for touch simulation |
+
+**Example** — Implementing a page from Phase 4:
+
+```tsx
+// src/pages/mobile/Home.tsx
+import { PhoneFrame } from '@/components/layout/PhoneFrame';
+import { useState } from 'react';
+
+export function Home() {
+  const [activeTab, setActiveTab] = useState('home');
+
+  // Phase 4 interaction: pull-to-refresh
+  const handleRefresh = () => {
+    // Implement refresh logic
+  };
+
+  // Phase 4 interaction: swipe between sections
+  const tabs = [
+    { id: 'home', label: 'Home', icon: <HomeIcon /> },
+    { id: 'discover', label: 'Discover', icon: <DiscoverIcon /> },
+    { id: 'cart', label: 'Cart', icon: <CartIcon /> },
+    { id: 'profile', label: 'Profile', icon: <ProfileIcon /> },
+  ];
+
+  return (
+    <PhoneFrame
+      theme={theme}
+      showTabBar={true}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      {/* Page content - implements Phase 4 layout from interaction specs */}
+      <div className="p-4">
+        {/* Content from Phase 4 Layout Structure */}
+      </div>
+    </PhoneFrame>
+  );
+}
+```
+
+### Phase 5 (Component Library) Requirements
+
+Use components with correct states from `phase5-components.md`:
+
+```tsx
+// Using shadcn/ui components with Phase 5 states
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+
+// Button states from Phase 5
+<Button
+  variant="default"    // Primary - from Phase 5 token
+  size="lg"            // Touch target ≥44px
+  disabled={isDisabled} // Disabled state
+  loading={isLoading}  // Loading state
+>
+  {label}
+</Button>
+```
+
+### Phase 6 (Visual Design) Requirements
+
+Apply design tokens from `phase6-visual.md`:
+
+```tsx
+// Using Phase 6 colors, typography, spacing
+<div className="
+  bg-background          /* Phase 6 background token */
+  text-foreground       /* Phase 6 text token */
+  p-4                  /* Phase 6 spacing */
+  rounded-lg           /* Phase 6 border-radius */
+">
+  <h1 className="text-h1 font-semibold">
+    {/* Phase 6 typography scale */}
+  </h1>
+</div>
+```
+
+## Usage Example in App.tsx
+
+```tsx
+// src/App.mobile.tsx
+import { useState } from 'react';
 import { PrototypeShell } from '@/components/layout/PrototypeShell';
-import { Home, ProductDetail, Cart, Profile } from '@/pages';
+import { PhoneFrame } from '@/components/layout/PhoneFrame';
+import { Home, ProductDetail, Cart, Profile } from '@/pages/mobile';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const pages = [
     { id: 'home', name: 'Home' },
+    { id: 'detail', name: 'Detail' },
     { id: 'cart', name: 'Cart' },
     { id: 'profile', name: 'Profile' },
   ];
 
+  // Tab navigation for mobile
+  const tabs = [
+    { id: 'home', label: 'Home', icon: <HomeIcon /> },
+    { id: 'cart', label: 'Cart', icon: <CartIcon /> },
+    { id: 'profile', label: 'Profile', icon: <ProfileIcon /> },
+  ];
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return <PhoneFrame theme={theme} tabs={tabs} activeTab="home" onTabChange={setCurrentPage}>
+          <Home />
+        </PhoneFrame>;
+      case 'detail':
+        return <PhoneFrame theme={theme}>
+          <ProductDetail />
+        </PhoneFrame>;
+      case 'cart':
+        return <PhoneFrame theme={theme} tabs={tabs} activeTab="cart" onTabChange={setCurrentPage}>
+          <Cart />
+        </PhoneFrame>;
+      case 'profile':
+        return <PhoneFrame theme={theme} tabs={tabs} activeTab="profile" onTabChange={setCurrentPage}>
+          <Profile />
+        </PhoneFrame>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <PrototypeShell
       productName="<<Product Name>>"
-      platform="<<mobile/desktop>>"
       pages={pages}
       currentPage={currentPage}
       onPageChange={setCurrentPage}
       interactions={[
-        "Click product card to view details",
-        "Swipe left to delete cart item",
+        // From Phase 4 interaction specs
+        "Tap product card to view details",
+        "Swipe left on cart item to delete",
         "Pull down to refresh home data",
       ]}
     >
-      {currentPage === 'home' && <Home />}
-      {currentPage === 'detail' && <ProductDetail />}
-      {currentPage === 'cart' && <Cart />}
-      {currentPage === 'profile' && <Profile />}
-      {/* ... */}
+      {renderPage()}
     </PrototypeShell>
   );
 }
 ```
 
-### Typography & Aesthetic Guidelines
+## Typography & Aesthetic Guidelines
 
-To achieve a distinctive, non-generic look:
+Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
 
-**Fonts** (Choose from Phase 6):
+**Fonts** (from Phase 6):
 ```css
-/* Example: Editorial style */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500&display=swap');
+/* Example from Phase 6 Typography System */
+@import url('https://fonts.googleapis.com/css2?family=<<Display Font>>:wght@400;600;700&family=<<Body Font>>:wght@300;400;500&display=swap');
 
 :root {
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'Source Sans 3', sans-serif;
+  --font-display: '<<Display Font>>', serif;
+  --font-body: '<<Body Font>>', sans-serif;
 }
 ```
 
 **Backgrounds**:
 - Use subtle gradients, noise textures, or paper-like backgrounds
 - Avoid pure white (#ffffff) or pure black (#000000)
-- Consider warm off-white: `#FAFAF8` or cool gray: `#F5F5F7`
+- Apply Phase 6 color tokens consistently
 
-**Animations**:
+**Animations** (from Phase 4):
 ```css
-/* Smooth page transitions */
+/* Page transitions from Phase 4 interaction specs */
 .page-enter {
   opacity: 0;
   transform: translateX(20px);
@@ -656,122 +895,11 @@ To achieve a distinctive, non-generic look:
   transition: opacity 300ms ease-out, transform 300ms ease-out;
 }
 
-/* Subtle hover effects */
-.card-hover {
-  transition: transform 200ms ease, box-shadow 200ms ease;
+/* Touch feedback from Phase 5 component states */
+.tap-active {
+  transform: scale(0.98);
+  transition: transform 100ms ease;
 }
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-}
-```
-
-## Platform-Specific Implementation
-
-### Mobile Prototype
-
-- **Viewport**: Set in `index.html`: `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`
-- **Layout Components**:
-  - Use shadcn/ui `Tabs` component for bottom Tab navigation
-  - Custom top navbar (back button + title + action button)
-- **Page Transitions**: Use CSS `transform: translateX()` or Framer Motion for slide animations
-- **Touch Interactions**:
-  - Pull-to-refresh: custom Hook or `@tanstack/react-query` `useQuery`
-  - Swipe-to-delete: custom gesture handling or `framer-motion` `drag` property
-- **Recommended shadcn/ui Components**: `Button`, `Card`, `Input`, `Sheet` (bottom panel), `Dialog`, `Toast`, `Tabs`
-
-### Desktop Prototype
-
-- **Viewport**: `max-width: 1280px` centered to simulate desktop window
-- **Layout Components**:
-  - Sidebar: use `Sheet` or custom collapsible panel
-  - Top toolbar: use `Menubar` or custom Toolbar component
-  - Window title bar: simulate close/minimize/maximize button styles
-- **Page Transitions**: fade animation (opacity transition)
-- **Multi-panel Layout**: use CSS Grid or Flexbox with draggable dividers
-- **Keyboard Navigation**:
-  - Tab focus: ensure all interactive elements have correct `tabIndex`
-  - Shortcuts: use custom Hook to listen for `keydown` events
-- **Mouse Interactions**:
-  - Hover states: Tailwind `hover:` prefix
-  - Right-click menu: shadcn/ui `ContextMenu` component
-  - Tooltip: shadcn/ui `Tooltip` component
-  - Drag: `framer-motion` `drag` or native drag API
-- **Recommended shadcn/ui Components**: `Button`, `Card`, `Input`, `Sheet`, `Dialog`, `Toast`, `Tabs`, `Menubar`, `ContextMenu`, `Tooltip`, `Separator`
-
-## Common UI Patterns with shadcn/ui
-
-### Page Navigation
-
-**Mobile**:
-```tsx
-// Use Hash routing or state switching
-const [currentPage, setCurrentPage] = useState('home');
-
-// Tab Bar using shadcn/ui Tabs
-<Tabs defaultValue="home" className="fixed bottom-0 ...">
-  <TabsList>
-    <TabsTrigger value="home" onClick={() => setCurrentPage('home')}>
-      <HomeIcon /> Home
-    </TabsTrigger>
-    {/* ... */}
-  </TabsList>
-</Tabs>
-```
-
-**Desktop**:
-```tsx
-// Sidebar navigation + routing state
-const navigate = (page: string) => setCurrentPage(page);
-
-// Keyboard shortcut support
-useEffect(() => {
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.altKey && e.key === 'ArrowLeft') navigate('back');
-    if (e.altKey && e.key === 'ArrowRight') navigate('forward');
-  };
-  window.addEventListener('keydown', handleKeyDown);
-  return () => window.removeEventListener('keydown', handleKeyDown);
-}, []);
-```
-
-### Form Interactions
-
-- Use shadcn/ui components: `Input`, `Select`, `Checkbox`, `Switch`, `RadioGroup`, `Slider`
-- Form validation: use `react-hook-form` + `zod` (if installed) or custom state validation
-- Disabled state linkage: control `Button` `disabled` prop based on form state
-
-### State Simulation
-
-```tsx
-// Loading state simulation
-const [isLoading, setIsLoading] = useState(false);
-const loadData = async () => {
-  setIsLoading(true);
-  await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate 1.5s loading
-  setIsLoading(false);
-};
-
-// Toast notification
-import { toast } from '@/components/ui/use-toast';
-toast({ title: 'Success', description: 'Data saved' });
-```
-
-### Dark Mode
-
-```tsx
-// Use next-themes or simple state toggle
-const [theme, setTheme] = useState<'light' | 'dark'>('light');
-
-// Apply class to root element
-<div className={theme}>
-  {/* App content */}
-</div>
-
-// Toggle button
-<Button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-  {theme === 'light' ? '🌙' : '☀️'}
-</Button>
 ```
 
 ## Batch Output Strategy
@@ -779,9 +907,10 @@ const [theme, setTheme] = useState<'light' | 'dark'>('light');
 ### Single-Platform Batch Output (`platform: "mobile"` or `"desktop"`)
 
 1. **Read page inventory** from `doc/ixd/phase2-architecture.md`
-2. **Prioritize by importance**: dashboard/home → core lists → detail pages → forms → settings → secondary pages
-3. **Output in batches of 3-5 pages** per turn to avoid token limits
-4. **After each batch**:
+2. **Read interaction specs** from `doc/ixd/phase4-page-interaction.md` for each page
+3. **Prioritize by importance**: dashboard/home → core lists → detail pages → forms → settings → secondary pages
+4. **Output in batches of 3-5 pages** per turn to avoid token limits
+5. **After each batch**:
    - Run `bundle-artifact.sh` to produce updated prototype HTML
    - Save/overwrite `doc/ixd/phase7-prototype.html` (or platform-specific filename)
    - Update `progress.json`: record completed page IDs and `lastBatch`
@@ -803,13 +932,14 @@ Batch 4: Onboarding pages + Empty states + Error pages + Other auxiliary pages
 
 When `platform: "both"`, implement both platforms in a single project:
 
-1. **Implement shared resources first**: Design Tokens (`index.css`), mock data (`lib/mockData.ts`), shared components
-2. **Implement layout components**: `MobileLayout.tsx` and `DesktopLayout.tsx` with platform-specific navigation
-3. **Implement page pairs**: For each page, create both `pages/mobile/X.tsx` and `pages/desktop/X.tsx`
-4. **Batch by page, not by platform**: Complete the mobile + desktop versions of a page together before moving to the next
-5. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
-6. **Output in batches of 2-3 page pairs per turn**
-7. **After each batch**:
+1. **Read Phase 4, 5, 6 requirements first** for each page
+2. **Implement shared resources first**: Design Tokens (`index.css`), mock data (`lib/mockData.ts`), shared components
+3. **Implement layout components**: `MobileLayout.tsx` and `DesktopLayout.tsx` with platform-specific navigation
+4. **Implement page pairs**: For each page, create both `pages/mobile/X.tsx` and `pages/desktop/X.tsx`
+5. **Batch by page, not by platform**: Complete the mobile + desktop versions of a page together before moving to the next
+6. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
+7. **Output in batches of 2-3 page pairs per turn**
+8. **After each batch**:
    - Bundle both platforms: run `bundle-artifact.sh` for mobile + desktop entries
    - Save/overwrite `doc/ixd/phase7-prototype-mobile.html` and `phase7-prototype-desktop.html`
    - Update `progress.json` with completed page IDs for both platforms
@@ -840,8 +970,8 @@ const platform = progress.platform || 'mobile'; // "mobile" | "desktop" | "both"
 | currentStep | Description | Resume Action |
 |-------------|-------------|---------------|
 | `init` | Project not initialized | Start from Step 1: Initialize project |
-| `tokens` | Design tokens not implemented | Resume from Step 2: Implement Design Tokens |
-| `layout` | Layout framework not ready | Resume from Step 2.5: Implement layout components |
+| `tokens` | Design tokens not implemented | Resume from Step 2: Implement Design Tokens (from Phase 6) |
+| `layout` | Layout framework not ready | Resume from Step 3: Implement PhoneFrame/WindowFrame |
 | `pages` | Pages being filled | Continue filling from first incomplete page |
 | `bundle` | All pages done, not bundled | Proceed to Step 4: Bundle |
 | `done` | Phase complete | Run completeness check, proceed to Phase 8 |
@@ -865,7 +995,8 @@ if (remainingPages.length > 0) {
 |---------|-----------|-----------|
 ${remainingPages.map(p => `| ${p.id} | ${p.name} | ${p.type} |`).join('\n')}
 
-Resuming from **${remainingPages[0].name}**.`);
+Resuming from **${remainingPages[0].name}**.
+Remember to apply Phase 4 interaction specs, Phase 5 component states, and Phase 6 visual tokens.`);
 
   // Process remaining pages in batches
   // Update pagesCompleted after each batch
@@ -881,7 +1012,8 @@ When all pages are marked complete, verify actual implementation:
 const actualPages = extractPagesFromPrototype('src/pages/');
 
 // For cross-platform, check both
-const mobilePages = extractPagesFromPrototype('src/pages/');
+const mobilePages = extractPagesFromPrototype('src/pages/mobile/');
+const desktopPages = extractPagesFromPrototype('src/pages/desktop/');
 
 // Compare with Phase 2 inventory
 const missingPages = expectedPages.filter(p => !actualPages.includes(p.id));
@@ -928,11 +1060,11 @@ Bundled as **single HTML file**:
 **Single project, dual output files**:
 - Project: `<product-name>-prototype/` (contains both mobile and desktop implementations)
 - Outputs:
-  - `prototype-mobile.html` — Mobile prototype (390×844px phone frame)
-  - `prototype-desktop.html` — Desktop prototype (1280×800px window frame)
+  - `prototype-mobile.html` — Mobile prototype (phone frame inside display area)
+  - `prototype-desktop.html` — Desktop prototype (window frame inside display area)
 
 **Advantages of single-project approach**:
-- Shared Design Tokens ensure visual consistency
+- Shared Design Tokens ensure visual consistency (Phase 6)
 - Shared mock data reduces duplication
 - Shared business components maximize code reuse
 - Single `pnpm install` for all dependencies
@@ -941,7 +1073,7 @@ Each output file implements platform-native interaction paradigms without respon
 
 ## Design Style Guide (Avoid AI Feel)
 
-To avoid producing overly "AI-looking" designs:
+Follow Phase 6 visual requirements. To avoid producing overly "AI-looking" designs:
 - ❌ Avoid over-centered layouts
 - ❌ Avoid large purple gradients
 - ❌ Avoid uniform border-radius (use different radii based on element hierarchy)
@@ -954,33 +1086,40 @@ To avoid producing overly "AI-looking" designs:
 
 ### Mobile
 
-- [ ] Phone frame with realistic status bar (390×844)
-- [ ] PrototypeShell wrapper with project name and theme toggle
-- [ ] All pages from the spec are implemented
-- [ ] Tab navigation works correctly (shadcn/ui Tabs)
+- [ ] PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
+- [ ] PhoneFrame component wraps each mobile page with realistic iPhone frame
+- [ ] Status bar with time, signal, WiFi, battery (SVG icons)
+- [ ] Dynamic Island and Home Indicator present
+- [ ] **No scrollbar visible** — uses `scrollbar-hide` utility
+- [ ] **Mouse wheel converts to swipe** — scroll events captured in PhoneFrame
+- [ ] Tab Bar inside phone frame (not in shell)
+- [ ] All pages from Phase 2 architecture implemented
+- [ ] Phase 4 interactions implemented (gestures, transitions)
+- [ ] Phase 5 component states used correctly
+- [ ] Phase 6 design tokens applied consistently
 - [ ] Page transitions have animation
-- [ ] At least default + loading states are shown
 - [ ] Mock data is realistic
 - [ ] Touch targets are ≥ 44px
-- [ ] Scrolling works naturally in content areas
 - [ ] Back navigation works consistently
 - [ ] Dark mode toggle works
 - [ ] No broken interactions or dead-end states
 
 ### Desktop
 
-- [ ] Window frame with title bar and traffic lights/window controls (1280×800)
-- [ ] PrototypeShell wrapper with project name and theme toggle
+- [ ] PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
+- [ ] WindowFrame component wraps each desktop page with macOS/Windows style window
+- [ ] Title bar with window controls (red/yellow/green dots for macOS)
+- [ ] Window frame with proper shadow and border
+- [ ] Content area scrollable
+- [ ] All pages from Phase 2 architecture implemented
+- [ ] Phase 4 interactions implemented (keyboard shortcuts, hover states)
+- [ ] Phase 5 component states used correctly
+- [ ] Phase 6 design tokens applied consistently
 - [ ] Sidebar navigation works and collapses correctly (240px ↔ 56px)
-- [ ] Sidebar collapsed state shows icons only without label overflow
 - [ ] Keyboard navigation works (Tab focus ring visible on all interactive elements)
-- [ ] Keyboard shortcuts are registered and hint labels shown
+- [ ] Keyboard shortcuts registered and hint labels shown
 - [ ] Right-click context menu appears on relevant items (shadcn/ui ContextMenu)
-- [ ] Hover states on all interactive elements (Tailwind hover:)
+- [ ] Hover states on all interactive elements
 - [ ] Tooltips with appropriate delay (shadcn/ui Tooltip)
-- [ ] Window resize does not break layout
-- [ ] Title bar area is styled correctly (draggable feel, no selectable text)
-- [ ] Information density is appropriate (more items visible than mobile)
-- [ ] All pages from the spec are implemented
 - [ ] Dark mode toggle works
 - [ ] No broken interactions or dead-end states
