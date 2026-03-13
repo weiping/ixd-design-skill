@@ -4,10 +4,6 @@
 
 Generate a clickable, high-fidelity prototype using the built-in scripts. Output is a single HTML file that can be opened directly in a browser — this is AI's unique advantage over traditional tools like Modao.
 
-> **v2.8 Update**: Batch workflow generates multiple pages at once, then uses heuristic walkthrough for verification after each batch.
->
-> **v2.5 Update**: Redesigned with separated shell and device simulation — shell provides only project name, theme toggle, and display area without device frames. Device simulation (phone/desktop) is now implemented within interactive pages.
-
 ## Tech Stack
 
 This phase uses the following technology stack:
@@ -157,14 +153,14 @@ module.exports = {
 }
 ```
 
-### Step 2.5: Verify Device Frame Components
+### Step 3: Verify Device Frame Components
 
 Before developing any pages, verify the device frame components are properly set up:
 
 1. **Run Initialization** (if not done):
    ```bash
    bash <skill-dir>/scripts/init-artifact.sh <project-name>-prototype
-   cd <project-name>-prototype
+   cd <product-name>-prototype
    ```
 
 2. **Verify Component Files Exist**:
@@ -176,14 +172,60 @@ Before developing any pages, verify the device frame components are properly set
    └── index.ts            ✅ Export all components
    ```
 
-3. **Verify Bundle Includes Frames**:
+3. **Configure PrototypeShell for Your Platform**:
+   > **IMPORTANT**: Match display area size with device frame for consistent appearance
+
+   ```tsx
+   // Mobile prototype - use 'mobile' displayMode (390px width)
+   <PrototypeShell
+     productName="My App"
+     displayMode="mobile"
+     cornerStyle="rounded"
+   >
+     <PhoneFrame>...</PhoneFrame>
+   </PrototypeShell>
+
+   // Desktop prototype - use 'desktop' displayMode (1280px width)
+   <PrototypeShell
+     productName="My App"
+     displayMode="desktop"
+     cornerStyle="rounded"
+   >
+     <WindowFrame>...</WindowFrame>
+   </PrototypeShell>
+
+   // Custom width - use contentWidth prop
+   <PrototypeShell
+     productName="My App"
+     contentWidth={800}
+     cornerStyle="square"
+   >
+     {/* custom content */}
+   </PrototypeShell>
+   ```
+
+   **Props**:
+   | Prop | Type | Description |
+   |------|------|-------------|
+   | `displayMode` | `'mobile' \| 'desktop' \| 'auto'` | Sets content width to match device (390px/1280px) |
+   | `contentWidth` | `number` | Custom width in pixels, overrides displayMode |
+   | `cornerStyle` | `'rounded' \| 'square'` | Corner radius style - should match device frame |
+
+4. **Verify Bundle Includes Frames**:
    ```bash
    grep -o "PrototypeShell" dist/bundle.html  # Must be present
    grep -o "PhoneFrame" dist/bundle.html     # Must be present (mobile)
    grep -o "WindowFrame" dist/bundle.html    # Must be present (desktop)
    ```
 
-### Step 3: Implement Page Components (Wrap in Device Frame)
+5. **Verify Display Area Size** (Optional):
+   ```bash
+   # Check content width matches device frame
+   grep -o "width: 390px" phase7-prototype.html   # Mobile
+   grep -o "width: 1280px" phase7-prototype.html  # Desktop
+   ```
+
+### Step 4: Implement Page Components (Wrap in Device Frame)
 
 > **CRITICAL**: Each page component MUST be wrapped in the device frame (PhoneFrame/WindowFrame) to ensure proper device simulation.
 
@@ -337,7 +379,7 @@ src/
 └── index.css            # Global styles + Design Tokens (shared)
 ```
 
-### Step 4: Bundle to Single HTML
+### Step 5: Bundle to Single HTML
 
 #### Single-Platform Bundling
 

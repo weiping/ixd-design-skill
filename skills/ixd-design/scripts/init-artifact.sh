@@ -327,6 +327,12 @@ interface PrototypeShellProps {
   currentPage?: string;
   onPageChange?: (pageId: string) => void;
   interactions?: string[];
+  /** Display mode: 'mobile' shows phone frame, 'desktop' shows window frame, 'auto' matches content width */
+  displayMode?: 'mobile' | 'desktop' | 'auto';
+  /** Custom content width - overrides displayMode */
+  contentWidth?: number;
+  /** Corner radius style: 'rounded' (rounded) or 'square' (sharp corners) - matches device frame */
+  cornerStyle?: 'rounded' | 'square';
 }
 
 export function PrototypeShell({
@@ -335,7 +341,10 @@ export function PrototypeShell({
   pages = [],
   currentPage = '',
   onPageChange,
-  interactions
+  interactions,
+  displayMode = 'auto',
+  contentWidth,
+  cornerStyle = 'rounded'
 }: PrototypeShellProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
@@ -346,9 +355,25 @@ export function PrototypeShell({
 
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
+  // Calculate content width based on displayMode
+  const getContentWidth = () => {
+    if (contentWidth) return contentWidth;
+    switch (displayMode) {
+      case 'mobile':
+        return 390; // iPhone width + frame padding
+      case 'desktop':
+        return 1280; // Desktop width
+      default:
+        return undefined; // auto width
+    }
+  };
+
+  const contentWidthValue = getContentWidth();
+  const cornerClass = cornerStyle === 'rounded' ? 'rounded-2xl' : 'rounded-none';
+
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-50'} ${theme}`}>
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm bg-background/80">
+      <header className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm bg-background/80 ${cornerClass}`}>
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-semibold tracking-tight text-foreground">
             {productName}
@@ -385,7 +410,10 @@ export function PrototypeShell({
       </header>
 
       <main className="pt-20 pb-8 px-4 min-h-screen">
-        <div className="max-w-6xl mx-auto">
+        <div
+          className={`mx-auto transition-all duration-300 ${cornerClass}`}
+          style={contentWidthValue ? { width: `${contentWidthValue}px` } : {}}
+        >
           {children}
         </div>
       </main>
