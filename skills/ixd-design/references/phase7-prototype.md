@@ -413,15 +413,33 @@ All prototypes must include a **unified entry display page** wrapped by Prototyp
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+interface PageItem {
+  id: string;
+  name: string;
+  icon?: React.ReactNode;
+}
 
 interface PrototypeShellProps {
   productName: string;
   platform: 'mobile' | 'desktop';
   children: React.ReactNode;
+  pages?: PageItem[]; // Page navigator items
+  currentPage?: string; // Current active page
+  onPageChange?: (pageId: string) => void;
   interactions?: string[]; // Interaction guide list
 }
 
-export function PrototypeShell({ productName, platform, children, interactions }: PrototypeShellProps) {
+export function PrototypeShell({
+  productName,
+  platform,
+  children,
+  pages = [],
+  currentPage = '',
+  onPageChange,
+  interactions
+}: PrototypeShellProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   // Follow system preference
@@ -433,21 +451,27 @@ export function PrototypeShell({ productName, platform, children, interactions }
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
   return (
-    <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 p-8 ${theme}`}>
-      {/* Top control bar */}
-      <header className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {productName}
-        </h1>
-        <div className="flex items-center gap-4">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-50'} p-6 ${theme}`}>
+      {/* Top control bar - refined aesthetic */}
+      <header className="flex items-center justify-between mb-6 max-w-5xl mx-auto">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            {productName}
+          </h1>
+          <span className="text-xs text-muted-foreground px-2 py-0.5 bg-muted rounded-full">v1.0</span>
+        </div>
+        <div className="flex items-center gap-2">
           {/* Interaction guide */}
           {interactions && (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm">Interactions</Button>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  Guide
+                </Button>
               </SheetTrigger>
               <SheetContent>
-                <h2 className="text-lg font-semibold mb-4">Interaction Guide</h2>
+                <h2 className="text-lg font-semibold mb-4">Interactions</h2>
                 <ul className="space-y-2">
                   {interactions.map((item, i) => (
                     <li key={i} className="text-sm text-muted-foreground">• {item}</li>
@@ -456,9 +480,13 @@ export function PrototypeShell({ productName, platform, children, interactions }
               </SheetContent>
             </Sheet>
           )}
-          {/* Theme toggle */}
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {theme === 'light' ? '🌙' : '☀️'}
+          {/* Theme toggle - icon button */}
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
+            {theme === 'light' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            )}
           </Button>
         </div>
       </header>
@@ -466,48 +494,92 @@ export function PrototypeShell({ productName, platform, children, interactions }
       {/* Device frame */}
       <div className="flex justify-center">
         {platform === 'mobile' ? (
-          // iPhone frame
-          <div className="relative bg-black dark:bg-gray-800 rounded-[40px] p-3 shadow-2xl overflow-hidden"
-               style={{ width: '416px', height: '890px' }}>
-            {/* Status bar */}
-            <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-between px-6 text-white text-sm z-10">
-              <span>9:41</span>
-              <div className="flex items-center gap-1">
-                {/* Signal, WiFi, battery icons */}
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          // iPhone frame - refined with subtle border
+          <div className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-neutral-900 ring-neutral-200'}`}
+               style={{ width: '390px', height: '844px' }}>
+            {/* Status bar - realistic iPhone style */}
+            <div className="absolute top-0 left-0 right-0 h-11 flex items-center justify-between px-6 text-white z-10">
+              <span className="text-sm font-medium">{new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+              <div className="flex items-center gap-1.5">
+                {/* Signal bars */}
+                <div className="flex items-end gap-[2px] h-3">
+                  <div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white/40 rounded-full"/>
+                </div>
+                {/* WiFi */}
+                <svg className="w-4 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                {/* Battery */}
+                <svg className="w-5 h-2.5" viewBox="0 0 24 12" fill="currentColor"><rect x="1" y="4" width="18" height="8" rx="2" stroke="currentColor" strokeWidth="1" fill="none"/><rect x="3" y="5.5" width="14" height="5" rx="1.5"/><rect x="20" y="4.5" width="2" height="3" rx="0.5"/></svg>
               </div>
             </div>
-            {/* Screen area - with proper top padding for status bar */}
-            <div className="bg-white dark:bg-gray-900 rounded-[32px] h-full overflow-hidden flex flex-col">
-              {/* Content area - scrollable without visible scrollbars */}
-              <div className="flex-1 overflow-auto scrollbar-hide pt-12 pb-4">
+            {/* Screen area */}
+            <div className={`rounded-[40px] h-full overflow-hidden flex flex-col ${theme === 'dark' ? 'bg-neutral-900' : 'bg-white'}`}>
+              {/* Content area */}
+              <div className="flex-1 overflow-auto scrollbar-hide pt-11 pb-16">
                 {children}
               </div>
+              {/* Page Navigator - Bottom Tab Bar */}
+              {pages.length > 0 && (
+                <div className={`absolute bottom-0 left-0 right-0 h-16 ${theme === 'dark' ? 'bg-neutral-900 border-t border-neutral-800' : 'bg-white border-t border-neutral-100'} flex items-center justify-around px-4`}>
+                  {pages.map((page) => (
+                    <button
+                      key={page.id}
+                      onClick={() => onPageChange?.(page.id)}
+                      className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+                        currentPage === page.id
+                          ? (theme === 'dark' ? 'text-white' : 'text-black')
+                          : (theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400')
+                      }`}
+                    >
+                      {page.icon || <div className="w-5 h-5 rounded-sm bg-current opacity-20" />}
+                      <span className="text-[10px] font-medium">{page.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+            {/* Dynamic Island */}
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
             {/* Home Indicator */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/80 rounded-full" />
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
           </div>
         ) : (
-          // Desktop window frame
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden"
+          // Desktop window frame - refined
+          <div className={`rounded-xl shadow-2xl overflow-hidden ${theme === 'dark' ? 'bg-neutral-800' : 'bg-white'} ring-1 ${theme === 'dark' ? 'ring-neutral-700' : 'ring-neutral-200'}`}
                style={{ width: '1280px', height: '800px' }}>
-            {/* Title bar */}
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 flex items-center px-3 gap-2">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <div className="w-3 h-3 rounded-full bg-green-500" />
+            {/* Title bar - macOS style */}
+            <div className={`h-10 flex items-center px-4 gap-3 ${theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'}`}>
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors" />
+                <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors" />
               </div>
-              <span className="text-xs text-gray-600 dark:text-gray-300 ml-2">{productName}</span>
+              <span className={`text-sm ${theme === 'dark' ? 'text-neutral-400' : 'text-neutral-500'}`}>{productName}</span>
             </div>
             {/* Content area */}
-            <div className="h-[calc(100%-32px)] overflow-auto bg-gray-50 dark:bg-gray-900">
+            <div className={`h-[calc(100%-40px)] overflow-auto ${theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'}`}>
               {children}
             </div>
           </div>
         )}
       </div>
+
+      {/* Page Navigator - Desktop sidebar (optional) */}
+      {platform === 'desktop' && pages.length > 0 && (
+        <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+          {pages.map((page) => (
+            <button
+              key={page.id}
+              onClick={() => onPageChange?.(page.id)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentPage === page.id
+                  ? 'bg-primary scale-125'
+                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              }`}
+              title={page.name}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -517,14 +589,24 @@ export function PrototypeShell({ productName, platform, children, interactions }
 
 ```tsx
 import { PrototypeShell } from '@/components/layout/PrototypeShell';
+import { Home, ProductDetail, Cart, Profile } from '@/pages';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+
+  const pages = [
+    { id: 'home', name: 'Home' },
+    { id: 'cart', name: 'Cart' },
+    { id: 'profile', name: 'Profile' },
+  ];
 
   return (
     <PrototypeShell
       productName="<<Product Name>>"
       platform="<<mobile/desktop>>"
+      pages={pages}
+      currentPage={currentPage}
+      onPageChange={setCurrentPage}
       interactions={[
         "Click product card to view details",
         "Swipe left to delete cart item",
@@ -533,9 +615,54 @@ function App() {
     >
       {currentPage === 'home' && <Home />}
       {currentPage === 'detail' && <ProductDetail />}
+      {currentPage === 'cart' && <Cart />}
+      {currentPage === 'profile' && <Profile />}
       {/* ... */}
     </PrototypeShell>
   );
+}
+```
+
+### Typography & Aesthetic Guidelines
+
+To achieve a distinctive, non-generic look:
+
+**Fonts** (Choose from Phase 6):
+```css
+/* Example: Editorial style */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500&display=swap');
+
+:root {
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Source Sans 3', sans-serif;
+}
+```
+
+**Backgrounds**:
+- Use subtle gradients, noise textures, or paper-like backgrounds
+- Avoid pure white (#ffffff) or pure black (#000000)
+- Consider warm off-white: `#FAFAF8` or cool gray: `#F5F5F7`
+
+**Animations**:
+```css
+/* Smooth page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+/* Subtle hover effects */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
 }
 ```
 

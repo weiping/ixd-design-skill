@@ -1168,14 +1168,31 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
+interface PageItem {
+  id: string;
+  name: string;
+  icon?: React.ReactNode;
+}
+
 interface PrototypeShellProps {
   productName: string;
   platform: 'mobile' | 'desktop';
   children: React.ReactNode;
+  pages?: PageItem[]; // 页面导航项
+  currentPage?: string; // 当前激活页面
+  onPageChange?: (pageId: string) => void;
   interactions?: string[]; // 交互说明列表
 }
 
-export function PrototypeShell({ productName, platform, children, interactions }: PrototypeShellProps) {
+export function PrototypeShell({
+  productName,
+  platform,
+  children,
+  pages = [],
+  currentPage = '',
+  onPageChange,
+  interactions
+}: PrototypeShellProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   // 跟随系统偏好
@@ -1187,18 +1204,24 @@ export function PrototypeShell({ productName, platform, children, interactions }
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
   return (
-    <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 p-8 ${theme}`}>
-      {/* 顶部控制栏 */}
-      <header className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {productName}
-        </h1>
-        <div className="flex items-center gap-4">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-50'} p-6 ${theme}`}>
+      {/* 顶部控制栏 - 精致美学设计 */}
+      <header className="flex items-center justify-between mb-6 max-w-5xl mx-auto">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            {productName}
+          </h1>
+          <span className="text-xs text-muted-foreground px-2 py-0.5 bg-muted rounded-full">v1.0</span>
+        </div>
+        <div className="flex items-center gap-2">
           {/* 交互说明 */}
           {interactions && (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm">交互说明</Button>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  交互指南
+                </Button>
               </SheetTrigger>
               <SheetContent>
                 <h2 className="text-lg font-semibold mb-4">交互说明</h2>
@@ -1211,8 +1234,12 @@ export function PrototypeShell({ productName, platform, children, interactions }
             </Sheet>
           )}
           {/* 主题切换 */}
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {theme === 'light' ? '🌙' : '☀️'}
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
+            {theme === 'light' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            )}
           </Button>
         </div>
       </header>
@@ -1220,48 +1247,92 @@ export function PrototypeShell({ productName, platform, children, interactions }
       {/* 设备框架 */}
       <div className="flex justify-center">
         {platform === 'mobile' ? (
-          // iPhone 框架
-          <div className="relative bg-black dark:bg-gray-800 rounded-[40px] p-3 shadow-2xl overflow-hidden"
-               style={{ width: '416px', height: '890px' }}>
-            {/* 状态栏 */}
-            <div className="absolute top-0 left-0 right-0 h-12 flex items-center justify-between px-6 text-white text-sm z-10">
-              <span>9:41</span>
-              <div className="flex items-center gap-1">
-                {/* 信号、WiFi、电量图标 */}
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          // iPhone 框架 - 精致边框设计
+          <div className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-neutral-900 ring-neutral-200'}`}
+               style={{ width: '390px', height: '844px' }}>
+            {/* 状态栏 - 真实 iPhone 风格 */}
+            <div className="absolute top-0 left-0 right-0 h-11 flex items-center justify-between px-6 text-white z-10">
+              <span className="text-sm font-medium">{new Date().toLocaleTimeString('zh-CN', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+              <div className="flex items-center gap-1.5">
+                {/* 信号格 */}
+                <div className="flex items-end gap-[2px] h-3">
+                  <div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white rounded-full"/><div className="w-0.5 bg-white/40 rounded-full"/>
+                </div>
+                {/* WiFi */}
+                <svg className="w-4 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                {/* 电池 */}
+                <svg className="w-5 h-2.5" viewBox="0 0 24 12" fill="currentColor"><rect x="1" y="4" width="18" height="8" rx="2" stroke="currentColor" strokeWidth="1" fill="none"/><rect x="3" y="5.5" width="14" height="5" rx="1.5"/><rect x="20" y="4.5" width="2" height="3" rx="0.5"/></svg>
               </div>
             </div>
-            {/* 屏幕区域 - 为状态栏留出顶部空间 */}
-            <div className="bg-white dark:bg-gray-900 rounded-[32px] h-full overflow-hidden flex flex-col">
-              {/* 内容区域 - 可滚动且隐藏滚动条 */}
-              <div className="flex-1 overflow-auto scrollbar-hide pt-12 pb-4">
+            {/* 屏幕区域 */}
+            <div className={`rounded-[40px] h-full overflow-hidden flex flex-col ${theme === 'dark' ? 'bg-neutral-900' : 'bg-white'}`}>
+              {/* 内容区域 */}
+              <div className="flex-1 overflow-auto scrollbar-hide pt-11 pb-16">
                 {children}
               </div>
+              {/* 页面导航器 - 底部 Tab 栏 */}
+              {pages.length > 0 && (
+                <div className={`absolute bottom-0 left-0 right-0 h-16 ${theme === 'dark' ? 'bg-neutral-900 border-t border-neutral-800' : 'bg-white border-t border-neutral-100'} flex items-center justify-around px-4`}>
+                  {pages.map((page) => (
+                    <button
+                      key={page.id}
+                      onClick={() => onPageChange?.(page.id)}
+                      className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+                        currentPage === page.id
+                          ? (theme === 'dark' ? 'text-white' : 'text-black')
+                          : (theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400')
+                      }`}
+                    >
+                      {page.icon || <div className="w-5 h-5 rounded-sm bg-current opacity-20" />}
+                      <span className="text-[10px] font-medium">{page.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+            {/* 灵动岛 */}
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
             {/* Home Indicator */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/80 rounded-full" />
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
           </div>
         ) : (
-          // 桌面窗口框架
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden"
+          // 桌面窗口框架 - 精致设计
+          <div className={`rounded-xl shadow-2xl overflow-hidden ${theme === 'dark' ? 'bg-neutral-800' : 'bg-white'} ring-1 ${theme === 'dark' ? 'ring-neutral-700' : 'ring-neutral-200'}`}
                style={{ width: '1280px', height: '800px' }}>
-            {/* 标题栏 */}
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 flex items-center px-3 gap-2">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <div className="w-3 h-3 rounded-full bg-green-500" />
+            {/* 标题栏 - macOS 风格 */}
+            <div className={`h-10 flex items-center px-4 gap-3 ${theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'}`}>
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors" />
+                <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors" />
               </div>
-              <span className="text-xs text-gray-600 dark:text-gray-300 ml-2">{productName}</span>
+              <span className={`text-sm ${theme === 'dark' ? 'text-neutral-400' : 'text-neutral-500'}`}>{productName}</span>
             </div>
             {/* 内容区域 */}
-            <div className="h-[calc(100%-32px)] overflow-auto bg-gray-50 dark:bg-gray-900">
+            <div className={`h-[calc(100%-40px)] overflow-auto ${theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'}`}>
               {children}
             </div>
           </div>
         )}
       </div>
+
+      {/* 页面导航器 - 桌面端侧边指示器 */}
+      {platform === 'desktop' && pages.length > 0 && (
+        <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+          {pages.map((page) => (
+            <button
+              key={page.id}
+              onClick={() => onPageChange?.(page.id)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentPage === page.id
+                  ? 'bg-primary scale-125'
+                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              }`}
+              title={page.name}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1273,9 +1344,82 @@ export function PrototypeShell({ productName, platform, children, interactions }
 
 ```tsx
 import { PrototypeShell } from '@/components/layout/PrototypeShell';
+import { Home, ProductDetail, Cart, Profile } from '@/pages';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+
+  const pages = [
+    { id: 'home', name: '首页' },
+    { id: 'cart', name: '购物车' },
+    { id: 'profile', name: '我的' },
+  ];
+
+  return (
+    <PrototypeShell
+      productName="<<产品名称>>"
+      platform="<<mobile/desktop>>"
+      pages={pages}
+      currentPage={currentPage}
+      onPageChange={setCurrentPage}
+      interactions={[
+        "点击商品卡片跳转详情页",
+        "左滑删除购物车商品",
+        "下拉刷新首页数据",
+      ]}
+    >
+      {currentPage === 'home' && <Home />}
+      {currentPage === 'detail' && <ProductDetail />}
+      {currentPage === 'cart' && <Cart />}
+      {currentPage === 'profile' && <Profile />}
+      {/* ... */}
+    </PrototypeShell>
+  );
+}
+```
+
+### 字体与美学设计指南
+
+为了实现独特、非通用的外观：
+
+**字体**（从阶段六选择）：
+```css
+/* 示例：编辑风格 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+:root {
+  --font-display: 'Noto Serif SC', serif;
+  --font-body: 'Noto Sans SC', sans-serif;
+}
+```
+
+**背景**：
+- 使用细腻的渐变、噪点纹理或纸质背景
+- 避免纯白 (#ffffff) 或纯黑 (#000000)
+- 考虑暖白: `#FAFAF8` 或冷灰: `#F5F5F7`
+
+**动画**：
+```css
+/* 页面切换平滑过渡 */
+.page-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+/* 细腻的悬停效果 */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+```
 
   return (
     <PrototypeShell
