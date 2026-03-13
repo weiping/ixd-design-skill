@@ -15,6 +15,8 @@ metadata: {"openclaw": {"emoji": "🎨"}}
 
 An 8-phase workflow producing professional interaction + visual design deliverables with flexible quick-start resumption.
 
+> **v1.2**: Phase 8 requires full content from all phases (not summaries); Phase 4 pages include full interaction specs (excluding walkthrough); final review uses Quality Checklist-based multi-perspective review only.
+>
 > **v1.1**: Phase 7 TDD workflow added — test-first interaction development, batch heuristic walkthrough (Tool 2), and Phase 2 completeness check with merged review report.
 >
 > **v1.0**: 8-phase workflow; natural language triggers; 22 page types (including 4 desktop-specific); Phase 4 with 10 sections (交互走查 + 微交互说明); cross-platform dual prototypes (mobile + desktop); Phase 8 document structure with full desktop coverage; 快捷键映射总表 appendix; Socratic discovery (Phase 1); dependency-aware phase resumption; final review gate with 3-round fix cycle.
@@ -912,7 +914,19 @@ Read: `references/phase7-prototype.md`
 - **3.4 Desktop-Exclusive Flows** (Install / Auto-update / Window Management / Tray Behavior, if applicable)
 
 **Chapter 4: Page Interaction Specs**
-- Organized by module, each page includes 10 sections: Overview / Layout / Components / Interactions / States / Motion / Data Strategy / Adaptation / **Walkthrough** / **Micro-interactions**
+- **CRITICAL**: This chapter must contain the FULL interaction specifications from Phase 4, NOT summaries
+- Each page includes 9 sections: Overview / Layout / Components / Interactions / States / Motion / Data Strategy / Adaptation / **Micro-interactions**
+- **Exclude Walkthrough section** from Phase 4 pages (walkthrough is done during Phase 4, not needed in final document)
+- Copy full content from `doc/ixd/phase4-page-specs/` for each page:
+  - Section 1: Overview (full content)
+  - Section 2: Layout Structure (full content with grid/placement details)
+  - Section 3: Component List (complete list with all elements)
+  - Section 4: Interaction Specs (all gestures, flows, transitions - full details)
+  - Section 5: Page States (all 7 states - full descriptions)
+  - Section 6: Motion Specs (timing, easing curves - full values)
+  - Section 7: Data Strategy (mock data structure, loading states - full content)
+  - Section 8: Adaptation Rules (responsive, dark mode, accessibility - complete rules)
+  - Section 9: Micro-interactions (all micro-interactions - full descriptions)
 - Cross-platform products: Each page describes both **Mobile Layout** (single-column) and **Desktop Layout** (multi-panel), noting differences
 - Desktop interactions: Hover states / Right-click menus / Keyboard shortcuts / Drag behaviors / Focus navigation
 - Multi-window pages (desktop): Note whether standalone window, inter-window communication
@@ -963,11 +977,22 @@ Read: `references/phase8-delivery.md`
 
 ### Phase 8 — Final Review Gate
 
-**After the Phase 8 document is saved**, a mandatory two-part review must pass before the workflow is considered complete. This is NOT optional.
+**After the Phase 8 document is saved**, a mandatory Quality Checklist-based review must pass before the workflow is considered complete. This is NOT optional.
 
 #### Review Procedure
 
-**Step 1: Interaction Walkthrough** — Run the full 47-item heuristic checklist (Tool 2 from `references/auxiliary-tools.md`) against 3-5 representative pages from the design document. Output the scoring table.
+**Step 1: Quality Checklist Verification** — Run Quality Checklist verification against each phase's output:
+
+- Phase 1 Quality Checklist: Verify context document completeness
+- Phase 2 Quality Checklist: Verify architecture/information architecture
+- Phase 3 Quality Checklist: Verify user flows completeness
+- Phase 4 Quality Checklist: Verify all page specs (per-page verification)
+- Phase 5 Quality Checklist: Verify component specs
+- Phase 6 Quality Checklist: Verify visual design system
+- Phase 7 Quality Checklist: Verify prototype implementation (per-page verification)
+- Phase 8 Quality Checklist: Verify final document structure
+
+Output the verification results for each phase.
 
 **Step 2: Multi-Perspective Review** — Run the 6-perspective review (Tool 4 from `references/auxiliary-tools.md`) against the complete design. Output the priority table.
 
@@ -977,8 +1002,8 @@ Read: `references/phase8-delivery.md`
 
 | Condition | Verdict |
 |---|---|
-| Walkthrough: no priority fix items AND Review: no P0/P1 items | ✅ **PASS** — workflow complete |
-| Walkthrough: has priority fix items OR Review: has P0 or P1 items | ❌ **FAIL** — enter fix cycle |
+| All Phase Quality Checklists: PASS AND Review: no P0/P1 items | ✅ **PASS** — workflow complete |
+| Any Phase Quality Checklist: FAIL OR Review: has P0 or P1 items | ❌ **FAIL** — enter fix cycle |
 
 P2 (suggested) items do NOT block — record them in the report for future iteration.
 

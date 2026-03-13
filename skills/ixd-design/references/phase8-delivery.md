@@ -101,11 +101,25 @@ Chapter 3: User Flows
 Chapter 4: Page Interaction Specifications
   (Organized by module)
 
+  **IMPORTANT**: This chapter must contain the FULL interaction specifications from Phase 4, NOT summaries.
+  Copy complete content from `doc/ixd/phase4-page-specs/` for each page.
+
+  Each page includes 9 sections (exclude Walkthrough):
+  1. Overview - Full product context for this page
+  2. Layout Structure - Complete grid/placement details
+  3. Component List - All elements with positions
+  4. Interaction Specs - All gestures, flows, transitions (full details)
+  5. Page States - All 7 states with full descriptions
+  6. Motion Specs - Timing, easing curves (full values)
+  7. Data Strategy - Mock data structure, loading states
+  8. Adaptation Rules - Responsive, dark mode, accessibility rules
+  9. Micro-interactions - All micro-interaction descriptions
+
   Note: For cross-platform projects, each page should include mobile and desktop layout annotations
 
   4.x <<Module Name>>
     4.x.1 P01 <<Page Name>>
-      → Phase 4: Complete interaction specification
+      → Section 1-9: Full content from Phase 4 (exclude Walkthrough)
       → Desktop interaction additions:
           - Hover state: button/card/list item hover feedback
           - Context menu: elements that support right-click and menu items
@@ -114,7 +128,7 @@ Chapter 4: Page Interaction Specifications
           - Focus order: Tab key focus traversal order
       → Multi-window annotation: whether this page can open as independent window
     4.x.2 P02 <<Page Name>>
-      → ...
+      → Full content from Phase 4...
 
   Page Onboarding and Walkthrough
       → First-time user onboarding flow
@@ -662,10 +676,12 @@ Final document review:
 
 After the quality checklist above passes, a **mandatory review gate** must be executed before the workflow is considered complete. See SKILL.md "Phase 8 — Final Review Gate" for the full procedure.
 
+**Note**: Walkthrough is already completed during Phase 4 and Phase 7 - no need to repeat in final review.
+
 Summary:
-1. Run **Interaction Walkthrough** (Tool 2) against 3-5 representative pages
+1. Run **Quality Checklist Verification** for all 8 phases
 2. Run **Multi-Perspective Review** (Tool 4) against the complete design
 3. Save report to `doc/ixd/phase8-review-round-<N>.md`
-4. **PASS** if: no walkthrough priority fixes AND no P0/P1 review items
+4. **PASS** if: all Phase Quality Checklists pass AND no P0/P1 review items
 5. **FAIL** → fix source files + document → re-review (max 3 rounds)
 6. **BLOCK** after 3 failures → terminate, require human intervention
