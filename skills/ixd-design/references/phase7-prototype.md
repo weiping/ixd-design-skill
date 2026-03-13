@@ -902,7 +902,87 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
 }
 ```
 
+## TDD Workflow for Phase 7
+
+> **v2.6 Update**: Added TDD methodology — test-first interaction development with batch heuristic walkthrough.
+
+Phase 7 follows Test-Driven Development principles, adapted for prototype development:
+
+### TDD Workflow Steps
+
+1. **Read Phase 4 Specs First**
+   - Before implementing any page, read `doc/ixd/phase4-page-specs/page-X.md`
+   - Extract interaction requirements: gestures, transitions, animations, states
+
+2. **Write Interaction Tests (RED)**
+   - Write Playwright or React Testing Library tests for each interaction
+   - Tests should verify: tap feedback, gestures, transitions, page states
+   - Run tests — they should FAIL initially (no implementation yet)
+
+3. **Implement to Pass Tests (GREEN)**
+   - Implement page components to satisfy all test requirements
+   - Focus on Phase 4 interactions: touch/click, swipe, pull-to-refresh, transitions
+
+4. **Polish and Refactor (IMPROVE)**
+   - Add animations, edge cases, visual polish
+   - Ensure Phase 5 component states and Phase 6 visual tokens applied
+
+5. **Batch Interaction Walkthrough**
+   - After each batch, run Tool 2 heuristic checklist (47 items)
+   - Generate batch review report
+   - Fix any issues found
+
+### Test Structure Example
+
+```tsx
+// src/__tests__/interactions.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Page Interactions', () => {
+  test('home page has correct gestures', async ({ page }) => {
+    await page.goto('/');
+    // Verify swipe gesture works
+    await page.evaluate(() => {
+      const el = document.querySelector('.phone-content');
+      el?.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 }));
+    });
+    // Verify tap feedback
+    const card = page.locator('.product-card').first();
+    await card.click();
+    await expect(page).toHaveURL(/product-detail/);
+  });
+
+  test('page transitions are animated', async ({ page }) => {
+    await page.goto('/');
+    await page.click('[data-testid="nav-home"]');
+    const container = page.locator('.page-container');
+    await expect(container).toHaveClass(/slide-in/);
+  });
+});
+```
+
 ## Batch Output Strategy
+
+### TDD-Enhanced Batch Output
+
+Each batch follows this workflow:
+
+1. **TDD: Write Tests First** (RED)
+   - Read Phase 4 specs for pages in this batch
+   - Write interaction tests for each page
+
+2. **TDD: Implement** (GREEN)
+   - Implement page components
+   - Run tests until passing
+
+3. **TDD: Polish** (IMPROVE)
+   - Refactor animations, states, edge cases
+
+4. **Batch Interaction Walkthrough**
+   - Run Tool 2 heuristic checklist against batch pages
+   - Generate batch review report
+
+5. **Pause for User Confirmation**
 
 ### Single-Platform Batch Output (`platform: "mobile"` or `"desktop"`)
 
@@ -914,9 +994,11 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
    - Run `bundle-artifact.sh` to produce updated prototype HTML
    - Save/overwrite `doc/ixd/phase7-prototype.html` (or platform-specific filename)
    - Update `progress.json`: record completed page IDs and `lastBatch`
+   - **Generate Batch Review Report**: `doc/ixd/phase7-batch-N-review.md`
    - **PAUSE** — output a summary then ask the user:
      > "✅ Batch N complete — pages X, Y, Z implemented. Prototype updated: `phase7-prototype.html`
      > Progress: M/total pages done.
+     > Batch Review: `phase7-batch-N-review.md` attached
      > **Continue to next batch?** (yes / stop here)"
    - Wait for user confirmation before proceeding
 
@@ -943,12 +1025,71 @@ When `platform: "both"`, implement both platforms in a single project:
    - Bundle both platforms: run `bundle-artifact.sh` for mobile + desktop entries
    - Save/overwrite `doc/ixd/phase7-prototype-mobile.html` and `phase7-prototype-desktop.html`
    - Update `progress.json` with completed page IDs for both platforms
+   - **Generate Batch Review Report** for both platforms: `doc/ixd/phase7-batch-N-review.md`
    - **PAUSE** — output a summary then ask:
      > "✅ Batch N complete — page pairs X, Y implemented (mobile + desktop).
      > Prototypes updated: `phase7-prototype-mobile.html` + `phase7-prototype-desktop.html`
      > Progress: M/total page pairs done.
+     > Batch Review: `phase7-batch-N-review.md` attached
      > **Continue to next batch?** (yes / stop here)"
    - Wait for user confirmation before proceeding
+
+### Batch Interaction Walkthrough Report
+
+After each batch, generate a review report:
+
+```markdown
+## Batch N Interaction Review Report
+
+**Batch**: Pages X, Y, Z
+**Platform**: mobile | desktop | both
+**Date**: YYYY-MM-DD
+**Reviewer**: AI (TDD Walkthrough)
+
+### Test Results
+- TDD Tests: <<PASS/FAIL>> (X/Y tests passed)
+- Tool 2 Heuristic: <<PASS/FAIL>> (X/47 items passed)
+
+### Walkthrough Score
+
+| Dimension | Pass/Total | Score |
+|-----------|------------|-------|
+| Basic Interactions | /5 | % |
+| Page States | /4 | % |
+| Navigation and Flow | /4 | % |
+| Forms and Input | /4 | % |
+| Data Loading | /4 | % |
+| Content Display | /4 | % |
+| Visual and Brand | /5 | % |
+| Touch and Click | /3 | % |
+| Desktop-Exclusive | /10 | % |
+| Cross-Platform Consistency | /4 | % |
+| **Overall** | **/47** | **%** |
+
+### Issues Found
+1. <<Issue 1 - Severity: P0/P1/P2>>
+2. <<Issue 2 - Severity: P0/P1/P2>>
+
+### Fixes Applied
+- <<Fix 1>>
+- <<Fix 2>>
+
+### Phase 4 Compliance
+- [ ] All interactions from Phase 4 implemented
+- [ ] All transitions match Phase 4 specifications
+- [ ] All component states from Phase 5 applied
+
+### Verdict
+✅ PASS - Continue to next batch
+❌ FAIL - Requires fixes before proceeding
+```
+
+### Merging into Master Report
+
+After each batch review:
+1. Append batch review to `doc/ixd/phase7-review-master.md`
+2. If issues were found and fixed, note the fixes in the master report
+3. If verdict is FAIL, do NOT proceed to next batch until issues are resolved
 
 ## Resume Logic (Breakpoint Recovery)
 
@@ -1027,6 +1168,50 @@ if (missingPages.length === 0) {
   // Generate missing pages, then re-run check
 }
 ```
+
+### Phase 2 Completeness Report
+
+After all batches are complete, generate a completeness report against Phase 2 page inventory:
+
+```markdown
+## Phase 7 Completeness Report
+
+**Date**: YYYY-MM-DD
+**Platform**: mobile | desktop | both
+**Total Pages**: X (from Phase 2)
+**Implemented**: Y
+**Missing**: Z
+
+### Page Inventory Check
+
+| Page ID | Page Name | Status |
+|---------|-----------|--------|
+| P01 | Home | ✅ |
+| P02 | Product List | ✅ |
+| P03 | Product Detail | ⚠️ Missing |
+| ... | ... | ... |
+
+### Missing Pages
+1. **Page Name** - Reason: <<why missing>>
+   - Action: <<implement / skip>>
+
+### Cross-Platform Check (if applicable)
+- Mobile Pages: X/Y implemented
+- Desktop Pages: X/Y implemented
+- Gaps: <<list gaps>>
+
+### Verdict
+✅ COMPLETE - Proceed to Phase 8
+⚠️ INCOMPLETE - Missing pages need implementation
+```
+
+### Merging Final Report
+
+After generating completeness report:
+1. Append completeness report to `doc/ixd/phase7-review-master.md`
+2. Update `progress.json` with final `pagesCompleted` and `pagesTotal`
+3. If verdict is COMPLETE, proceed to Phase 8
+4. If verdict is INCOMPLETE, implement missing pages then re-run completeness check
 
 ### Progress Update Format
 
