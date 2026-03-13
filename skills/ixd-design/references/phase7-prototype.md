@@ -1269,8 +1269,11 @@ Follow Phase 6 visual requirements. To avoid producing overly "AI-looking" desig
 
 ## Quality Checklist
 
-### Mobile
+### Per-Page Verification (Mandatory)
 
+Each page in the batch must pass the following checks:
+
+**Mobile**:
 - [ ] PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
 - [ ] PhoneFrame component wraps each mobile page with realistic iPhone frame
 - [ ] Status bar with time, signal, WiFi, battery (SVG icons)
@@ -1289,8 +1292,7 @@ Follow Phase 6 visual requirements. To avoid producing overly "AI-looking" desig
 - [ ] Dark mode toggle works
 - [ ] No broken interactions or dead-end states
 
-### Desktop
-
+**Desktop**:
 - [ ] PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
 - [ ] WindowFrame component wraps each desktop page with macOS/Windows style window
 - [ ] Title bar with window controls (red/yellow/green dots for macOS)
@@ -1308,3 +1310,39 @@ Follow Phase 6 visual requirements. To avoid producing overly "AI-looking" desig
 - [ ] Tooltips with appropriate delay (shadcn/ui Tooltip)
 - [ ] Dark mode toggle works
 - [ ] No broken interactions or dead-end states
+
+### Per-Page Verification Procedure
+
+For each batch of pages generated, perform the following verification **for every page**:
+
+1. **Run TDD Tests**: Execute interaction tests for the batch
+2. **Run Tool 2 Heuristic**: Check against 47-item checklist
+3. **Per-Page Check**:
+   ```markdown
+   ## Phase 7 Batch N Per-Page Verification Report
+
+   **Batch**: Pages X, Y, Z
+   **Date**: YYYY-MM-DD
+
+   ### Per-Page Check
+
+   | Page ID | Page Name | TDD Tests | Tool 2 | Phase 4 Compliance |
+   |---------|-----------|-----------|--------|-------------------|
+   | P01 | Home | ✅ Pass | 95% | ✅ |
+   | P02 | List | ✅ Pass | 88% | ✅ |
+   | P03 | Detail | ❌ Fail | 75% | ⚠️ Missing gestures |
+
+   ### Issues Found
+   - Page P03: TDD tests failed - swipe gesture not implemented
+   - Page P03: Tool 2 score below 80%
+
+   ### Verdict
+   ✅ All pages pass - Continue to next batch
+   ❌ Some pages need fixes - Fix and re-verify
+   ```
+
+4. **Update Progress**:
+   - Mark pages as verified in `progress.json`
+   - If any page fails: fix issues, re-verify before proceeding
+
+---

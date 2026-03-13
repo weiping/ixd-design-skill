@@ -183,9 +183,62 @@ Example:
 
 ## Quality Checklist
 
+### Basic Verification
+
 Before moving to Phase 2, verify:
 - [ ] Product positioning is clear and specific
 - [ ] All user roles are identified with their primary scenarios
 - [ ] Core features are scoped (not too broad, not too narrow)
 - [ ] Design constraints are documented
 - [ ] Design principles are specific enough to guide decisions
+
+### Output Verification Procedure
+
+After completing Phase 1, perform the following verification:
+
+1. **Read Output File**: `doc/ixd/phase1-context.md`
+
+2. **Check Document Structure**:
+   - [ ] All required sections present (Background, User Roles, Core Features, Constraints, Principles)
+   - [ ] No placeholder text remaining (<<...>> should be replaced)
+   - [ ] Mermaid diagrams render correctly
+
+3. **Verify Completeness**:
+   - [ ] Product type and target platform clearly stated
+   - [ ] At least 2 user roles defined with specific scenarios
+   - [ ] Core features listed with priority (P0/P1/P2)
+   - [ ] Design constraints include technical, business, and timeline limits
+
+4. **Verify Quality**:
+   - [ ] User roles are distinct (no overlap)
+   - [ ] Core features are specific enough to estimate scope
+   - [ ] Design principles can guide decision-making (not generic)
+
+5. **Output Summary**:
+   ```markdown
+   ## Phase 1 Output Verification Report
+
+   **Date**: YYYY-MM-DD
+   **Status**: ✅ PASS / ❌ FAIL
+
+   ### Structure Check
+   - Sections: X/5 complete
+   - Diagrams: X render correctly
+
+   ### Completeness Check
+   - User Roles: X defined
+   - Core Features: X features listed
+   - Constraints: X documented
+
+   ### Issues Found
+   - <<Issue 1>>
+   - <<Issue 2>>
+
+   ### Verdict
+   ✅ Ready for Phase 2
+   ❌ Needs revision
+   ```
+
+6. **Update Progress**:
+   - If PASS: Mark Phase 1 as complete in `progress.json`
+   - If FAIL: Fix issues, re-run verification

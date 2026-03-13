@@ -650,7 +650,9 @@ Items that fail walkthrough must be fixed before output.
 
 ## Quality Checklist
 
-For each page spec:
+### Per-Page Verification (Mandatory)
+
+For each page spec in the batch:
 - [ ] All 10 sections addressed (or explicitly marked N/A)
 - [ ] Every interactive component has documented behavior
 - [ ] Desktop components include hover, keyboard, right-click, and drag behaviors where applicable
@@ -663,6 +665,45 @@ For each page spec:
 - [ ] Section 10 micro-interactions documented (or explicitly marked as none needed)
 - [ ] Cross-references to user flows (Phase 3) are consistent
 - [ ] Developer could implement this page from the spec alone
+
+### Per-Page Verification Procedure
+
+For each batch of pages generated, perform the following verification **for every page**:
+
+1. **Read Page Spec**: `doc/ixd/phase4-page-specs/page-X.md`
+
+2. **Check Each Page**:
+   - [ ] All 10 sections present and complete
+   - [ ] Section 9 (Interaction Walkthrough) score ≥ 80%
+   - [ ] Section 10 (Micro-interactions) documented
+
+3. **Batch Summary**:
+   ```markdown
+   ## Phase 4 Batch N Per-Page Verification Report
+
+   **Batch**: Pages X, Y, Z
+   **Date**: YYYY-MM-DD
+
+   ### Per-Page Check
+
+   | Page ID | Page Name | 10 Sections | Walkthrough | Micro-interactions |
+   |---------|-----------|-------------|-------------|-------------------|
+   | P01 | Home | ✅ | 95% | ✅ |
+   | P02 | List | ✅ | 88% | ✅ |
+   | P03 | Detail | ⚠️ | 75% | ❌ Missing |
+
+   ### Issues Found
+   - Page P03: Missing Section 10 micro-interactions
+   - Page P03: Walkthrough score below 80%
+
+   ### Verdict
+   ✅ All pages pass - Continue to next batch
+   ❌ Some pages need fixes - Fix and re-verify
+   ```
+
+4. **Update Progress**:
+   - Mark pages as verified in `progress.json`
+   - If any page fails: fix issues, re-verify before proceeding
 
 ---
 

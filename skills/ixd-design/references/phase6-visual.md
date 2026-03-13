@@ -511,6 +511,8 @@ Generate an HTML page that visually demonstrates all design tokens:
 
 ## Quality Checklist
 
+### Basic Verification
+
 - [ ] All colors provided in HEX format with Light + Dark values
 - [ ] Type scale covers all 8 levels with specific values
 - [ ] All text/background combos pass WCAG AA (4.5:1)
@@ -520,3 +522,58 @@ Generate an HTML page that visually demonstrates all design tokens:
 - [ ] Motion curves and durations are specified
 - [ ] 3-5 key screens have detailed visual annotations
 - [ ] Visual system is consistent with the brand tone from Phase 1
+
+### Output Verification Procedure
+
+After completing Phase 6, perform the following verification:
+
+1. **Read Output File**: `doc/ixd/phase6-visual.md`
+
+2. **Check Document Structure**:
+   - [ ] All required sections present (Color, Typography, Icon, Motion, etc.)
+   - [ ] No placeholder text remaining
+
+3. **Verify Completeness**:
+   - [ ] Color system covers all categories (brand, functional, neutral)
+   - [ ] Typography scale has 8 levels with specific values
+   - [ ] Icon sizes cover all use cases
+   - [ ] Motion specs include curves and durations
+
+4. **Verify Quality**:
+   - [ ] All color combinations pass WCAG AA (4.5:1)
+   - [ ] Dark mode mapping is complete with no gaps
+   - [ ] Visual system aligns with Phase 1 brand tone
+   - [ ] Key screen annotations are detailed enough for implementation
+
+5. **Output Summary**:
+   ```markdown
+   ## Phase 6 Output Verification Report
+
+   **Date**: YYYY-MM-DD
+   **Status**: ✅ PASS / ❌ FAIL
+
+   ### Structure Check
+   - Sections: X complete
+
+   ### Completeness Check
+   - Color System: ✅ Complete / ❌ Incomplete
+   - Typography: X levels defined
+   - Motion Specs: ✅ Complete / ❌ Incomplete
+
+   ### Quality Check
+   - WCAG AA: ✅ Pass / ❌ Fail
+   - Dark Mode: ✅ Complete / ❌ Gaps found
+   - Brand Alignment: ✅ Consistent / ❌ Off-brand
+
+   ### Issues Found
+   - <<Issue 1>>
+   - <<Issue 2>>
+
+   ### Verdict
+   ✅ Ready for Phase 7
+   ❌ Needs revision
+   ```
+
+6. **Update Progress**:
+   - If PASS: Mark Phase 6 as complete in `progress.json`
+   - If FAIL: Fix issues, re-run verification

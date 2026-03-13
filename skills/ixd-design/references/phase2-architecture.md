@@ -344,6 +344,8 @@ List components shared across multiple pages:
 
 ## Quality Checklist
 
+### Basic Verification
+
 Before moving to Phase 3:
 - [ ] All pages accounted for (no orphan pages)
 - [ ] Page hierarchy ≤ 4 levels
@@ -352,3 +354,56 @@ Before moving to Phase 3:
 - [ ] Cross-module navigation paths identified
 - [ ] Global components are consistent and reusable
 - [ ] Mermaid sitemap renders correctly
+
+### Output Verification Procedure
+
+After completing Phase 2, perform the following verification:
+
+1. **Read Output File**: `doc/ixd/phase2-architecture.md`
+
+2. **Check Document Structure**:
+   - [ ] All required sections present (Page Inventory, Navigation, Sitemap, etc.)
+   - [ ] Mermaid sitemap diagram renders correctly
+   - [ ] Page inventory table is complete
+
+3. **Verify Completeness**:
+   - [ ] All expected pages from the product scope are listed
+   - [ ] Page types cover all 22 types (if cross-platform)
+   - [ ] Navigation structure covers all entry points
+
+4. **Verify Quality**:
+   - [ ] Page hierarchy depth ≤ 4 levels
+   - [ ] Core features accessible in ≤ 3 taps
+   - [ ] Navigation patterns match platform conventions
+
+5. **Output Summary**:
+   ```markdown
+   ## Phase 2 Output Verification Report
+
+   **Date**: YYYY-MM-DD
+   **Status**: ✅ PASS / ❌ FAIL
+
+   ### Structure Check
+   - Sections: X complete
+   - Sitemap: Renders correctly
+
+   ### Completeness Check
+   - Total Pages: X
+   - Page Types Covered: X/22
+
+   ### Quality Check
+   - Hierarchy Depth: X levels (max 4)
+   - Tap Depth: X (max 3 for core features)
+
+   ### Issues Found
+   - <<Issue 1>>
+   - <<Issue 2>>
+
+   ### Verdict
+   ✅ Ready for Phase 3
+   ❌ Needs revision
+   ```
+
+6. **Update Progress**:
+   - If PASS: Mark Phase 2 as complete in `progress.json`
+   - If FAIL: Fix issues, re-run verification

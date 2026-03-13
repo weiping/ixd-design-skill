@@ -210,6 +210,8 @@ Update: Check for updates → Update available prompt →
 
 ## Quality Checklist
 
+### Basic Verification
+
 Before moving to Phase 4:
 - [ ] 3-5 core tasks covered with flowcharts
 - [ ] Happy path is clearly marked for each flow
@@ -218,3 +220,58 @@ Before moving to Phase 4:
 - [ ] Step table includes time estimates
 - [ ] No dead-end nodes (every path reaches an end or loops back)
 - [ ] Mermaid flowcharts render correctly
+
+### Output Verification Procedure
+
+After completing Phase 3, perform the following verification:
+
+1. **Read Output File**: `doc/ixd/phase3-userflows.md`
+
+2. **Check Document Structure**:
+   - [ ] All required sections present (Core Flows, Exception Flows, Flow Diagrams)
+   - [ ] Mermaid flowcharts render correctly
+   - [ ] Step tables are complete
+
+3. **Verify Completeness**:
+   - [ ] 3-5 core user flows documented
+   - [ ] Each flow has happy path + 2+ exception paths
+   - [ ] Decision nodes have business logic documented
+   - [ ] Time estimates included in step tables
+
+4. **Verify Quality**:
+   - [ ] No dead-end nodes in any flow
+   - [ ] Flows can be traced start-to-end
+   - [ ] Cross-references to Phase 2 pages are valid
+
+5. **Output Summary**:
+   ```markdown
+   ## Phase 3 Output Verification Report
+
+   **Date**: YYYY-MM-DD
+   **Status**: ✅ PASS / ❌ FAIL
+
+   ### Structure Check
+   - Sections: X complete
+   - Flowcharts: X render correctly
+
+   ### Completeness Check
+   - Core Flows: X (target: 3-5)
+   - Exception Paths: X total
+   - Decision Nodes: X documented
+
+   ### Quality Check
+   - Dead-end Nodes: X found
+   - Traceability: ✅ Complete / ❌ Incomplete
+
+   ### Issues Found
+   - <<Issue 1>>
+   - <<Issue 2>>
+
+   ### Verdict
+   ✅ Ready for Phase 4
+   ❌ Needs revision
+   ```
+
+6. **Update Progress**:
+   - If PASS: Mark Phase 3 as complete in `progress.json`
+   - If FAIL: Fix issues, re-run verification

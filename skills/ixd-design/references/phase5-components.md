@@ -441,6 +441,8 @@ Organize components by these categories:
 
 ## Quality Checklist
 
+### Basic Verification
+
 - [ ] All design tokens are defined with specific values
 - [ ] Token naming is consistent and semantic
 - [ ] Every component from Phase 4 is covered
@@ -448,3 +450,55 @@ Organize components by these categories:
 - [ ] Touch targets ≥ 44px documented
 - [ ] Dark mode token mapping is complete
 - [ ] Responsive breakpoints are defined
+
+### Output Verification Procedure
+
+After completing Phase 5, perform the following verification:
+
+1. **Read Output File**: `doc/ixd/phase5-components.md`
+
+2. **Check Document Structure**:
+   - [ ] All required sections present (Design Tokens, Component Specs, States)
+   - [ ] No placeholder text remaining
+
+3. **Verify Completeness**:
+   - [ ] Design tokens defined for all categories (color, typography, spacing, etc.)
+   - [ ] All components from Phase 4 documented
+   - [ ] Each component has all states defined (default, hover, pressed, disabled, loading)
+
+4. **Verify Quality**:
+   - [ ] Touch targets ≥ 44px (mobile) / 32px (desktop)
+   - [ ] Dark mode mapping is complete with no gaps
+   - [ ] Responsive breakpoints defined and consistent with Phase 2
+
+5. **Output Summary**:
+   ```markdown
+   ## Phase 5 Output Verification Report
+
+   **Date**: YYYY-MM-DD
+   **Status**: ✅ PASS / ❌ FAIL
+
+   ### Structure Check
+   - Sections: X complete
+
+   ### Completeness Check
+   - Design Tokens: X defined
+   - Components: X documented
+   - States Covered: X
+
+   ### Quality Check
+   - Touch Targets: ✅ Compliant / ❌ Issues
+   - Dark Mode: ✅ Complete / ❌ Gaps found
+
+   ### Issues Found
+   - <<Issue 1>>
+   - <<Issue 2>>
+
+   ### Verdict
+   ✅ Ready for Phase 6
+   ❌ Needs revision
+   ```
+
+6. **Update Progress**:
+   - If PASS: Mark Phase 5 as complete in `progress.json`
+   - If FAIL: Fix issues, re-run verification
