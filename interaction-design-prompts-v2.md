@@ -1,7 +1,7 @@
 # AI 交互设计全流程提示词体系
 
 > 适用于 Claude / GPT 等大模型，产出对标墨刀、Figma 等工具的完整交互+视觉设计成果物
-> 作者：Weiping | 版本：v2.7
+> 作者：Weiping | 版本：v2.8
 
 ---
 
@@ -18,6 +18,7 @@
 | v2.5 | 2026-03 | 阶段七重构：外壳组件(PrototypeShell)精简为仅包含项目名+主题切换+展示区域，设备模拟(手机/桌面框)移至页面组件内部；新增PhoneFrame和WindowFrame组件；外壳不随滚动移动；鼠标滚动模拟滑动；严格遵循阶段四交互、阶段五控件、阶段六视觉要求 |
 | v2.6 | 2026-03 | 阶段七新增TDD开发方法：测试先行编写交互测试、批次交互走查(工具二47项检查表)、阶段二页面清单完整性检查，输出合并的评审报告 |
 | v2.7 | 2026-03 | 阶段八文档必须包含各阶段完整内容（非摘要）；第四章各页面包含阶段四完整交互规格（不含走查）；最终评审取消走查环节，保留Quality Checklist多角色评审 |
+| v2.8 | 2026-03 | 阶段七重构：PhoneFrame/WindowFrame 采用 Slot 模式（tabBar/sidebar prop），移除旧 tabs[]/showTabBar/activeTab API；新增 data-testid 支持 TDD 测试；集成 Vitest + Testing Library 测试框架；动态岛添加 pointer-events-none；批次评审统一写入 phase7-review-master.md（增量追加），移除独立 batch-N 文件；新增 AppTabBar/AppSidebar 组件模式和移动端/桌面端职责划分表；补充 Word 风格桌面菜单栏/工具栏实现方案 |
 
 ---
 
@@ -1253,24 +1254,22 @@ export function PrototypeShell({
 
 ```tsx
 // src/components/layout/PhoneFrame.tsx - 移动端手机框架组件
-import { useRef, useEffect, useState } from 'react';
+// 单一职责：提供 iPhone 14 物理框架，内置手机 Chrome（状态栏、灵动岛、Home Indicator）
+// Tab Bar 通过 tabBar slot 传入，由调用者提供自定义 AppTabBar 组件
+import React, { useRef, useEffect } from 'react';
 
 interface PhoneFrameProps {
+  /** 可滚动的页面内容（主区域），内部已预留 pt-11 状态栏安全区 */
   children: React.ReactNode;
+  /** 可选：自定义 Tab Bar 组件，渲染在屏幕底部（flex-shrink-0），不遮挡手机边框 */
+  tabBar?: React.ReactNode;
   theme?: 'light' | 'dark';
-  showTabBar?: boolean;
-  tabs?: { id: string; label: string; icon?: React.ReactNode }[];
-  activeTab?: string;
-  onTabChange?: (tabId: string) => void;
 }
 
 export function PhoneFrame({
   children,
+  tabBar,
   theme = 'light',
-  showTabBar = true,
-  tabs = [],
-  activeTab = '',
-  onTabChange
 }: PhoneFrameProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1281,9 +1280,7 @@ export function PhoneFrame({
     if (!content) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // 阻止默认滚动行为
       e.preventDefault();
-      // 将垂直滚动映射到内容区
       content.scrollTop += e.deltaY;
     };
 
@@ -1292,15 +1289,15 @@ export function PhoneFrame({
   }, []);
 
   return (
-    <div className="flex justify-center">
-      {/* iPhone 14 框架 - 390×844 */}
+    <div className="flex justify-center" data-testid="phone-frame">
+      {/* iPhone 14 框架 — 390×844px，手机边框为 p-1.5 (6px) */}
       <div
         className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${
           theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-neutral-900 ring-neutral-200'
         }`}
         style={{ width: '390px', height: '844px' }}
       >
-        {/* 状态栏 */}
+        {/* 状态栏 — 手机 Chrome，始终存在，绝对定位于外层框架 */}
         <div className="absolute top-0 left-0 right-0 h-11 flex items-center justify-between px-6 text-white z-10">
           <span className="text-sm font-medium">
             {new Date().toLocaleTimeString('zh-CN', { hour: 'numeric', minute: '2-digit', hour12: true })}
@@ -1326,44 +1323,32 @@ export function PhoneFrame({
           </div>
         </div>
 
-        {/* 屏幕区域 */}
-        <div className={`rounded-[40px] h-full overflow-hidden flex flex-col ${
-          theme === 'dark' ? 'bg-neutral-900' : 'bg-white'
-        }`}>
-          {/* 内容区 - 无滚动条，滚轮模拟滑动 */}
+        {/* 屏幕区域 — flex-col，被手机边框裁剪（rounded-[40px] overflow-hidden） */}
+        <div
+          ref={contentRef}
+          className={`rounded-[40px] h-full overflow-hidden flex flex-col ${
+            theme === 'dark' ? 'bg-neutral-900' : 'bg-white'
+          }`}
+        >
+          {/* 可滚动内容区 — pt-11 预留 44px 状态栏安全区 */}
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide pt-11 pb-16 touch-pan-y"
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide pt-11 touch-pan-y"
             style={{ scrollBehavior: 'smooth' }}
           >
             {children}
           </div>
 
-          {/* Tab 栏 - 在手机框架内部 */}
-          {showTabBar && tabs.length > 0 && (
-            <div className={`absolute bottom-0 left-0 right-0 h-16 ${
-              theme === 'dark' ? 'bg-neutral-900 border-t border-neutral-800' : 'bg-white border-t border-neutral-100'
-            } flex items-center justify-around px-4`}>
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange?.(tab.id)}
-                  className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? theme === 'dark' ? 'text-white' : 'text-black'
-                      : theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'
-                  }`}
-                >
-                  {tab.icon || <div className="w-5 h-5 rounded-sm bg-current opacity-20" />}
-                  <span className="text-[10px] font-medium">{tab.label}</span>
-                </button>
-              ))}
+          {/* Tab Bar slot — flex-shrink-0，在屏幕内部，不遮挡手机边框 */}
+          {tabBar && (
+            <div className="flex-shrink-0">
+              {tabBar}
             </div>
           )}
         </div>
 
-        {/* 灵动岛 */}
-        <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
+        {/* 灵动岛 — pointer-events-none 避免阻挡状态栏区域点击 */}
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20 pointer-events-none" />
 
         {/* Home Indicator */}
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
@@ -1373,14 +1358,56 @@ export function PhoneFrame({
 }
 ```
 
+**移动端职责划分**（v2.8 新增）：
+
+| UI 层 | 由谁负责 | 说明 |
+|-------|---------|------|
+| 状态栏（时间/信号/电量） | **PhoneFrame** — 内置 | 手机 Chrome，每页相同 |
+| 灵动岛 | **PhoneFrame** — 内置 | 手机 Chrome |
+| Home Indicator | **PhoneFrame** — 内置 | 手机 Chrome |
+| Tab Bar | **`tabBar` prop** → `AppTabBar` 组件 | App Chrome，各页共享，支持自定义（凸起按钮、徽标等） |
+| 顶部导航栏（标题/返回/搜索） | **页面 `children`** | 页面特有，可随滚动折叠 |
+| 页面内容（列表/卡片/表单） | **页面 `children`** | 页面特有，可滚动 |
+
+**AppTabBar 示例**：
+```tsx
+// src/components/AppTabBar.tsx
+function AppTabBar({ currentPage, onNavigate }: { currentPage: string; onNavigate: (id: string) => void }) {
+  const tabs = [
+    { id: 'home', label: '首页', icon: <HomeIcon /> },
+    { id: 'discover', label: '发现', icon: <DiscoverIcon /> },
+    { id: 'cart', label: '购物车', icon: <CartIcon /> },
+    { id: 'profile', label: '我的', icon: <ProfileIcon /> },
+  ];
+  return (
+    <div className="flex items-center justify-around h-16 bg-white border-t border-neutral-100">
+      {tabs.map(tab => (
+        <button key={tab.id} onClick={() => onNavigate(tab.id)}
+          className={`flex flex-col items-center gap-1 px-3 py-1 ${
+            currentPage === tab.id ? 'text-black' : 'text-neutral-400'
+          }`}>
+          {tab.icon}
+          <span className="text-[10px] font-medium">{tab.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+```
+
 ### WindowFrame 组件（桌面端设备模拟）
 
 ```tsx
 // src/components/layout/WindowFrame.tsx - 桌面端窗口框架组件
-import { useRef, useEffect } from 'react';
+// 单一职责：提供 macOS 风格窗口框架，内置标题栏（窗口 Chrome）
+// Sidebar 通过 sidebar slot 传入，由调用者提供自定义 AppSidebar 组件
+import React, { useRef, useEffect } from 'react';
 
 interface WindowFrameProps {
+  /** 可滚动的页面内容（主区域，在 sidebar 右侧）。不要在此处重新实现标题栏或侧边栏 */
   children: React.ReactNode;
+  /** 可选：自定义 Sidebar 组件，渲染为内容区左侧的 flex-shrink-0 列 */
+  sidebar?: React.ReactNode;
   theme?: 'light' | 'dark';
   title?: string;
   width?: number;
@@ -1389,6 +1416,7 @@ interface WindowFrameProps {
 
 export function WindowFrame({
   children,
+  sidebar,
   theme = 'light',
   title = 'Application',
   width = 1280,
@@ -1396,7 +1424,6 @@ export function WindowFrame({
 }: WindowFrameProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 鼠标滚轮滚动内容
   useEffect(() => {
     const content = scrollRef.current;
     if (!content) return;
@@ -1411,36 +1438,111 @@ export function WindowFrame({
   }, []);
 
   return (
-    <div className="flex justify-center">
-      {/* 桌面窗口框架 */}
-      <div className={`rounded-xl shadow-2xl overflow-hidden ring-1 ${
-        theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-white ring-neutral-200'
-      }`}
-      style={{ width: `${width}px`, height: `${height}px` }}>
-        {/* 标题栏 - macOS 风格 */}
-        <div className={`h-10 flex items-center px-4 gap-3 ${
-          theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'
-        }`}>
-          {/* 窗口控制按钮 */}
+    <div className="flex justify-center" data-testid="window-frame">
+      {/* 桌面窗口框架 — 标题栏为窗口 Chrome，始终存在 */}
+      <div
+        className={`rounded-xl shadow-2xl overflow-hidden ring-1 flex flex-col ${
+          theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-white ring-neutral-200'
+        }`}
+        style={{ width: `${width}px`, height: `${height}px` }}
+      >
+        {/* 标题栏 — 窗口 Chrome（macOS 红黄绿交通灯 + 标题），不在 children 中重新实现 */}
+        <div
+          className={`h-10 flex-shrink-0 flex items-center px-4 gap-3 ${
+            theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'
+          }`}
+        >
           <div className="flex gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer" />
             <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors cursor-pointer" />
             <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors cursor-pointer" />
           </div>
-          {/* 标题 */}
           <span className={`text-sm ${theme === 'dark' ? 'text-neutral-400' : 'text-neutral-500'}`}>
             {title}
           </span>
         </div>
 
-        {/* 内容区域 - 可滚动 */}
-        <div ref={scrollRef} className={`h-[calc(100%-40px)] overflow-auto ${
-          theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'
-        }`}>
-          {children}
+        {/* Body — flex-row：sidebar slot（左）+ 可滚动内容区（右） */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Sidebar slot — flex-shrink-0，高度撑满，不超出窗口区域 */}
+          {sidebar && (
+            <div className="flex-shrink-0 h-full">
+              {sidebar}
+            </div>
+          )}
+
+          {/* 可滚动内容区 */}
+          <div
+            ref={scrollRef}
+            className={`flex-1 overflow-auto ${
+              theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'
+            }`}
+          >
+            {children}
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+```
+
+**桌面端职责划分**（v2.8 新增）：
+
+| UI 层 | 由谁负责 | 说明 |
+|-------|---------|------|
+| 标题栏（窗口控制按钮 + 标题） | **WindowFrame** — 内置 | 窗口 Chrome，不在 children 中重新实现 |
+| 侧边栏导航 | **`sidebar` prop** → `AppSidebar` 组件 | App Chrome，各页共享，支持折叠/展开 |
+| 菜单栏 + 工具栏（Word 风格） | **页面 `children`** — `flex flex-col h-full` 包裹 | AppMenuBar/AppToolbar 为 `flex-shrink-0`，内容区为 `flex-1 overflow-y-auto` |
+| 页面级工具栏（如编辑器工具条） | **页面 `children`** | 页面特有，不跨页共享 |
+| 页面内容 | **页面 `children`** | 可滚动主内容区 |
+
+**AppSidebar 示例**：
+```tsx
+// src/components/AppSidebar.tsx
+function AppSidebar({ currentPage, onNavigate }: { currentPage: string; onNavigate: (id: string) => void }) {
+  const navItems = [
+    { id: 'dashboard', label: '概览', icon: <DashboardIcon /> },
+    { id: 'analytics', label: '数据', icon: <AnalyticsIcon /> },
+    { id: 'settings', label: '设置', icon: <SettingsIcon /> },
+  ];
+  return (
+    <div className="w-60 h-full flex flex-col bg-neutral-100 border-r border-neutral-200">
+      <div className="p-4 font-semibold text-sm">AppName</div>
+      <nav className="flex-1 px-2 space-y-1">
+        {navItems.map(item => (
+          <button key={item.id} onClick={() => onNavigate(item.id)}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${
+              currentPage === item.id ? 'bg-neutral-200 font-medium' : 'text-neutral-600 hover:bg-neutral-200'
+            }`}>
+            {item.icon}
+            {item.label}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+```
+
+**Word 风格菜单栏 + 工具栏（在 children 中实现）**：
+```tsx
+// 当应用需要菜单栏 + 工具栏时，在 children 中用 flex flex-col h-full 包裹
+function Dashboard({ currentPage, onNavigate }: PageProps) {
+  return (
+    <WindowFrame sidebar={<AppSidebar currentPage={currentPage} onNavigate={onNavigate} />}>
+      {/* flex flex-col h-full 让菜单栏/工具栏固定，内容区滚动 */}
+      <div className="flex flex-col h-full">
+        {/* 菜单栏 — flex-shrink-0 */}
+        <AppMenuBar />
+        {/* 工具栏 — flex-shrink-0 */}
+        <AppToolbar />
+        {/* 可滚动内容区 — flex-1 overflow-y-auto */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* 页面内容 */}
+        </div>
+      </div>
+    </WindowFrame>
   );
 }
 ```
@@ -1450,8 +1552,10 @@ export function WindowFrame({
 在 `App.tsx` 中包裹所有页面，每个页面使用 PhoneFrame 或 WindowFrame 包装：
 
 ```tsx
+// 移动端示例：使用 tabBar slot 传入自定义 AppTabBar
 import { PrototypeShell } from '@/components/layout/PrototypeShell';
 import { PhoneFrame } from '@/components/layout/PhoneFrame';
+import { AppTabBar } from '@/components/AppTabBar';
 import { Home, ProductDetail, Cart, Profile } from '@/pages/mobile';
 
 function App() {
@@ -1465,23 +1569,19 @@ function App() {
     { id: 'profile', name: '我的' },
   ];
 
-  // 移动端 Tab 导航
-  const tabs = [
-    { id: 'home', label: '首页', icon: <HomeIcon /> },
-    { id: 'discover', label: '发现', icon: <DiscoverIcon /> },
-    { id: 'cart', label: '购物车', icon: <CartIcon /> },
-    { id: 'profile', label: '我的', icon: <ProfileIcon /> },
-  ];
+  // Tab Bar 作为 slot 传入 — 仅在需要 Tab 的页面使用
+  const tabBar = <AppTabBar currentPage={currentPage} onNavigate={setCurrentPage} />;
 
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
         return (
-          <PhoneFrame theme={theme} tabs={tabs} activeTab="home" onTabChange={setCurrentPage}>
+          <PhoneFrame theme={theme} tabBar={tabBar}>
             <Home />
           </PhoneFrame>
         );
       case 'detail':
+        // 详情页无 Tab Bar
         return (
           <PhoneFrame theme={theme}>
             <ProductDetail />
@@ -1489,13 +1589,13 @@ function App() {
         );
       case 'cart':
         return (
-          <PhoneFrame theme={theme} tabs={tabs} activeTab="cart" onTabChange={setCurrentPage}>
+          <PhoneFrame theme={theme} tabBar={tabBar}>
             <Cart />
           </PhoneFrame>
         );
       case 'profile':
         return (
-          <PhoneFrame theme={theme} tabs={tabs} activeTab="profile" onTabChange={setCurrentPage}>
+          <PhoneFrame theme={theme} tabBar={tabBar}>
             <Profile />
           </PhoneFrame>
         );
@@ -1517,6 +1617,45 @@ function App() {
         "下拉刷新首页数据",
       ]}
     >
+      {renderPage()}
+    </PrototypeShell>
+  );
+}
+```
+
+```tsx
+// 桌面端示例：使用 sidebar slot 传入自定义 AppSidebar
+import { WindowFrame } from '@/components/layout/WindowFrame';
+import { AppSidebar } from '@/components/AppSidebar';
+import { Dashboard, Analytics, Settings } from '@/pages/desktop';
+
+function DesktopApp() {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  const sidebar = <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />;
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return (
+          <WindowFrame theme={theme} sidebar={sidebar} title="Dashboard">
+            <Dashboard />
+          </WindowFrame>
+        );
+      case 'analytics':
+        return (
+          <WindowFrame theme={theme} sidebar={sidebar} title="Analytics">
+            <Analytics />
+          </WindowFrame>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <PrototypeShell productName="<<产品名称>>" pages={[...]} currentPage={currentPage} onPageChange={setCurrentPage}>
       {renderPage()}
     </PrototypeShell>
   );
@@ -1767,24 +1906,61 @@ pnpm exec html-inline dist/desktop/index.desktop.html > prototype-desktop.html
 最终输出：单文件 HTML（可在浏览器直接打开）
 ```
 
-### TDD 开发方法（v2.6 新增）
+### TDD 开发方法（v2.6 新增，v2.8 更新）
 
 阶段七采用测试驱动开发（TDD）方法：
 
-1. **测试先行**：每个页面实现前，先根据阶段四交互规格编写交互测试
-2. **红绿重构**：先写失败的测试（RED），然后实现页面通过测试（GREEN），最后重构优化（IMPROVE）
-3. **批次交互走查**：每批次页面生成后，对照阶段四交互规格和工具二（47项启发式检查表）进行走查
-4. **生成评审报告**：输出 `doc/ixd/phase7-batch-N-review.md` 批次评审报告
+1. **测试先行**：每个页面实现前，先根据阶段四交互规格编写 Vitest 测试（smoke + `data-testid` + 内容断言）
+2. **红绿重构**：先写失败的测试（RED → `pnpm test` 失败），然后实现页面通过测试（GREEN → `pnpm test` 通过）
+3. **批次交互走查**：每批次页面完成后，运行 `pnpm test:run` 确认通过，再对照工具二（47项启发式检查表）进行走查
+4. **生成评审报告**：将批次评审结果**追加写入** `doc/ixd/phase7-review-master.md` 的 `## Batch N` 节（**不生成独立批次文件**）
 5. **完整性检查**：所有批次完成后，对照阶段二页面清单检查是否有遗漏
+
+**测试框架**：`pnpm test`（watch 模式）/ `pnpm test:run`（单次运行，用于打包前确认）
+
+**页面测试模板**（移动端）：
+```tsx
+import { render, screen } from '@testing-library/react';
+import { Home } from '../Home';
+
+describe('Home', () => {
+  it('renders without crashing', () => {
+    expect(() => render(<Home />)).not.toThrow();
+  });
+  it('wraps in PhoneFrame', () => {
+    const { getByTestId } = render(<Home />);
+    expect(getByTestId('phone-frame')).toBeInTheDocument();
+  });
+  it('shows main content area', () => {
+    render(<Home />);
+    expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+});
+```
 
 ### 批次交互走查流程
 
 每批次页面完成后：
-1. 读取该批次所有页面的阶段四规格
-2. 对照工具二（辅助工具.md）的 47 项启发式检查表逐项核查
-3. 生成批次评审报告
-4. 如有问题，修复后重新走查直到通过
-5. 确认通过后才能继续下一批次
+1. 运行 `pnpm test:run`，确认所有测试通过（TDD 绿灯）
+2. 读取该批次所有页面的阶段四规格
+3. 对照工具二（辅助工具.md）的 47 项启发式检查表逐项核查
+4. 将评审结果**追加**到 `doc/ixd/phase7-review-master.md` 的 `## Batch N` 节
+5. 如有问题，修复后重新运行 `pnpm test:run` + 重新走查，直到通过
+6. 确认通过后才能继续下一批次
+
+**评审主报告结构**（`phase7-review-master.md`，单文件增量追加）：
+```markdown
+# Phase 7 Review Master Report
+
+## Batch 1 — Pages: Home, ProductList, ProductDetail
+[批次 1 走查结果 + 每页验证表 + 结论]
+
+## Batch 2 — Pages: Cart, Profile, Settings
+[批次 2 走查结果 + 每页验证表 + 结论]
+
+## Final Completeness Check
+[对照阶段二清单的完整性核查报告]
+```
 
 ### 阶段二完整性检查
 
@@ -1793,7 +1969,7 @@ pnpm exec html-inline dist/desktop/index.desktop.html > prototype-desktop.html
 2. 扫描原型代码确认已实现的页面
 3. 对比清单，标识遗漏页面
 4. 如有遗漏，实现遗漏页面
-5. 输出完整性报告，追加到评审报告
+5. 输出完整性报告，追加到 `phase7-review-master.md` 的 `## Final Completeness Check` 节
 
 ---
 
