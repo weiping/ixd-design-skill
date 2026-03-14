@@ -232,39 +232,27 @@ Before developing any pages, verify the device frame components are properly set
 **Page Implementation Pattern**:
 
 ```tsx
-// src/pages/Home.tsx (Mobile)
+// src/pages/CommunityHome.tsx (Mobile — page with Tab Bar + Top Nav)
 import { PhoneFrame } from '@/components/layout/PhoneFrame';
+import { AppTabBar } from '@/components/layout/AppTabBar';
 
-export function Home() {
-  return (
-    <PhoneFrame theme="light" tabs={[...]}>
-      <div className="p-4">
-        <h1>Welcome Home</h1>
-      </div>
-    </PhoneFrame>
-  );
-}
-```
-
-```tsx
-// src/pages/Home.tsx (Mobile)
-import { PhoneFrame } from '@/components/layout/PhoneFrame';
-
-export function Home() {
+export function CommunityHome() {
   return (
     <PhoneFrame
       theme="light"
-      tabs={[
-        { id: 'home', label: 'Home', icon: <HomeIcon /> },
-        { id: 'profile', label: 'Profile', icon: <UserIcon /> },
-      ]}
-      activeTab="home"
-      onTabChange={(tab) => console.log(tab)}
+      tabBar={<AppTabBar activeTab="community" onTabChange={(tab) => console.log(tab)} />}
     >
-      {/* Page content goes INSIDE PhoneFrame */}
+      {/**
+       * children = scrollable page content ONLY.
+       * ✅ DO: implement page-specific top nav bar (搜索/分段控件/消息图标) here
+       * ✅ DO: implement all scrollable page content here
+       * ❌ DON'T: re-implement status bar — PhoneFrame already provides it (pt-11 safe area)
+       * ❌ DON'T: re-implement Tab Bar — pass it via `tabBar` prop above
+       */}
+      <TopNavBar />        {/* Page-specific top nav: search + segments + message icon */}
       <div className="p-4">
-        <h1>Welcome Home</h1>
-        {/* ... page content ... */}
+        <h1>Community Feed</h1>
+        {/* ... waterfall feed content ... */}
       </div>
     </PhoneFrame>
   );
@@ -272,18 +260,39 @@ export function Home() {
 ```
 
 ```tsx
-// src/pages/Home.tsx (Desktop)
+// src/pages/PostDetail.tsx (Mobile — detail page WITHOUT Tab Bar)
+import { PhoneFrame } from '@/components/layout/PhoneFrame';
+
+export function PostDetail() {
+  return (
+    <PhoneFrame theme="light">
+      {/* No tabBar prop → no Tab Bar rendered */}
+      <BackNavBar title="帖子详情" />
+      <div className="p-4">
+        {/* ... post detail content ... */}
+      </div>
+    </PhoneFrame>
+  );
+}
+```
+
+```tsx
+// src/pages/desktop/Home.tsx (Desktop)
 import { WindowFrame } from '@/components/layout/WindowFrame';
+import { AppSidebar } from '@/components/layout/AppSidebar';
 
 export function Home() {
+  const [activeItem, setActiveItem] = useState('dashboard');
+
   return (
     <WindowFrame
       theme="light"
       title="Dashboard"
       width={1280}
       height={800}
+      sidebar={<AppSidebar activeItem={activeItem} onItemChange={setActiveItem} />}
     >
-      {/* Page content goes INSIDE WindowFrame */}
+      {/* Page content — scrollable area to the right of the sidebar */}
       <div className="p-6">
         <h1>Dashboard</h1>
         {/* ... page content ... */}
@@ -302,30 +311,34 @@ export function Home() {
 - ❌ NOT using PhoneFrame/WindowFrame — device simulation won't work
 - ❌ Putting content outside PhoneFrame/WindowFrame — won't scroll properly
 - ❌ Forgetting to wrap each page — only first page has frame
-- ❌ Adding page-level top navigation bar — will cover iPhone status bar
-- ❌ Adding page-level bottom navigation bar — will cover iPhone home indicator
+- ❌ Re-implementing the **status bar** inside page children — PhoneFrame already renders it; adding it again causes duplication and layout overflow
+- ❌ Implementing Tab Bar inside page children — use `tabBar` prop slot so it stays within screen area
 - ❌ Using native scrollbar — PhoneFrame already handles scrolling with `scrollbar-hide`
+- ❌ Re-implementing the **title bar** inside WindowFrame children — WindowFrame already renders it
+- ❌ Implementing Sidebar inside page children — use `sidebar` prop slot so it stays as `flex-shrink-0` and never overflows the window
 
-**Mobile Page Development Rules**:
-| Issue | Solution |
-|-------|----------|
-| Status bar covered by page | PhoneFrame already has `pt-11` padding — do NOT add top nav |
-| Home indicator covered by page | PhoneFrame already has `pb-16` padding — do NOT add bottom nav |
-| Scrollbar visible | PhoneFrame uses `scrollbar-hide` class — no action needed |
+**Mobile Page Responsibility Split**:
 
-> **NOTE**: PhoneFrame already includes:
-> - Status bar area (44px top padding via `pt-11`)
-> - Home indicator area (64px bottom padding via `pb-16`)
-> - Hidden scrollbar (`scrollbar-hide` class)
-> - Scroll event capture (mouse wheel → swipe)
-> - Tab Bar (via `tabs` prop) - positioned at bottom, separate from content
+| Element | Belongs in | Reason |
+|---------|-----------|--------|
+| Status Bar (time / signal / battery) | **PhoneFrame** — already built-in | Phone Chrome, same on every page |
+| Dynamic Island | **PhoneFrame** — already built-in | Phone Chrome |
+| Home Indicator | **PhoneFrame** — already built-in | Phone Chrome |
+| Tab Bar (社区/问诊/发布/商城/我的) | **`tabBar` prop** → `AppTabBar` component | App Chrome, shared across pages, supports custom design (凸起按钮, badges) |
+| Top Navigation Bar (搜索/分段控件/标题/返回按钮) | **Page `children`** | Page-specific, may scroll or collapse per Phase 4 spec |
+| Page content (lists, cards, forms) | **Page `children`** | Page-specific, scrollable |
+
+> **NOTE**: PhoneFrame provides:
+> - **Status bar** (44px height, phone Chrome) — rendered automatically, `pt-11` applied to content area
+> - **`tabBar` slot** — your custom `AppTabBar` component renders here as `flex-shrink-0`
+> - **Hidden scrollbar** (`scrollbar-hide` class)
+> - **Mouse wheel → scroll** translation (simulates swipe on desktop)
+> - **Dynamic Island** (`pointer-events-none`, phone Chrome)
 >
-> **DO NOT** add your own top/bottom navigation inside PhoneFrame children.
->
-> **Content Safe Area**: Your page content goes inside PhoneFrame children. It should NOT exceed:
-> - Top: beyond 44px (status bar area)
-> - Bottom: beyond content height minus 64px (tab bar area)
-> - Left/Right: within 390px width (phone frame)
+> **Content Safe Area**: Page `children` must respect:
+> - Top: `pt-11` (44px) is already applied — do NOT re-add status bar; DO add page-specific top nav bar if needed
+> - Bottom: `tabBar` slot height is defined by `AppTabBar` — do NOT add bottom nav in children
+> - Left/Right: within 390px screen width
 
 **Mobile-Only Structure** (`platform: "mobile"` - default):
 
@@ -334,9 +347,9 @@ src/
 ├── components/
 │   ├── ui/              # shadcn/ui components (pre-installed)
 │   ├── layout/
-│   │   ├── MobileLayout.tsx    # Tab Bar + Top nav (inside phone frame)
-│   │   └── PrototypeShell.tsx # Simplified shell (project name + theme)
-│   │   └── PhoneFrame.tsx     # Device frame for mobile pages
+│   │   ├── AppTabBar.tsx      # Custom Tab Bar (tabBar slot for PhoneFrame) — implement per Phase 4 spec
+│   │   ├── PrototypeShell.tsx # Simplified shell (project name + theme)
+│   │   └── PhoneFrame.tsx     # Device frame for mobile pages (status bar built-in)
 │   └── shared/          # Shared business components
 ├── pages/               # Page components (each wraps in PhoneFrame)
 │   ├── Home.tsx
@@ -357,9 +370,9 @@ src/
 ├── components/
 │   ├── ui/              # shadcn/ui components (pre-installed)
 │   ├── layout/
-│   │   ├── DesktopLayout.tsx   # Sidebar + Toolbar (inside window frame)
+│   │   ├── AppSidebar.tsx     # Custom Sidebar (sidebar slot for WindowFrame) — implement per Phase 4 spec
 │   │   ├── PrototypeShell.tsx # Simplified shell (project name + theme)
-│   │   └── WindowFrame.tsx    # Desktop window frame for pages
+│   │   └── WindowFrame.tsx    # Desktop window frame for pages (title bar built-in)
 │   └── shared/          # Shared business components
 ├── pages/               # Page components (each wraps in WindowFrame)
 │   ├── Home.tsx
@@ -379,11 +392,11 @@ src/
 ├── components/
 │   ├── ui/              # shadcn/ui components (pre-installed)
 │   ├── layout/          # Layout components
-│   │   ├── MobileLayout.tsx    # Mobile: Tab Bar + Top nav
-│   │   ├── DesktopLayout.tsx  # Desktop: Sidebar + Toolbar
+│   │   ├── AppTabBar.tsx      # Mobile: Custom Tab Bar (tabBar slot for PhoneFrame)
+│   │   ├── AppSidebar.tsx     # Desktop: Custom Sidebar (sidebar slot for WindowFrame)
 │   │   ├── PrototypeShell.tsx # Shell (project name + theme)
-│   │   ├── PhoneFrame.tsx     # Mobile device frame
-│   │   └── WindowFrame.tsx   # Desktop device frame
+│   │   ├── PhoneFrame.tsx     # Mobile device frame (status bar built-in)
+│   │   └── WindowFrame.tsx    # Desktop device frame (title bar built-in)
 │   └── shared/          # Shared business components
 ├── pages/
 │   ├── mobile/          # Mobile-specific page implementations
@@ -526,257 +539,114 @@ The shell provides a simplified display environment without device frames. **Dev
 
 ### Shell Component Code
 
+> **Canonical source**: `scripts/templates/PrototypeShell.tsx`
+> The component is copied verbatim into the project by `init-artifact.sh`.
+> **Do NOT edit** the code block below — edit the template file instead.
+
+**Props API**:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `productName` | `string` | — | Product name shown in header |
+| `children` | `ReactNode` | — | Page content (device frames) |
+| `displayMode` | `'mobile' \| 'desktop' \| 'auto'` | `'auto'` | Sets content width: 390px / 1280px / auto |
+| `contentWidth` | `number` | — | Custom width, overrides `displayMode` |
+| `cornerStyle` | `'rounded' \| 'square'` | `'rounded'` | Header corner radius, should match device frame |
+| `pages` | `PageItem[]` | `[]` | Page navigator dots (right side) |
+| `currentPage` | `string` | `''` | Active page id |
+| `onPageChange` | `(id: string) => void` | — | Page navigation callback |
+| `interactions` | `string[]` | — | Interaction guide list (Phase 4 summary) |
+
+**Usage**:
 ```tsx
-// src/components/layout/PrototypeShell.tsx
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-
-interface PageItem {
-  id: string;
-  name: string;
-  icon?: React.ReactNode;
-}
-
-interface PrototypeShellProps {
-  productName: string;
-  children: React.ReactNode;
-  pages?: PageItem[]; // Page navigator items
-  currentPage?: string; // Current active page
-  onPageChange?: (pageId: string) => void;
-  interactions?: string[]; // Interaction guide list from Phase 4
-}
-
-export function PrototypeShell({
-  productName,
-  children,
-  pages = [],
-  currentPage = '',
-  onPageChange,
-  interactions
-}: PrototypeShellProps) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-
-  // Follow system preference
-  useEffect(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setTheme(prefersDark ? 'dark' : 'light');
-  }, []);
-
-  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
-
-  // Prevent shell from scrolling - capture scroll in child components
-  const handleWheel = (e: React.WheelEvent) => {
-    // Don't prevent default - let children handle scroll
-  };
-
-  return (
-    <div
-      className={`min-h-screen ${theme === 'dark' ? 'bg-neutral-950' : 'bg-neutral-50'} ${theme}`}
-      onWheel={handleWheel}
-    >
-      {/* Top control bar - refined aesthetic */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm bg-background/80">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
-            {productName}
-          </h1>
-          <span className="text-xs text-muted-foreground px-2 py-0.5 bg-muted rounded-full">v1.0</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Interaction guide - from Phase 4 */}
-          {interactions && (
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-                  Guide
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <h2 className="text-lg font-semibold mb-4">Interactions (Phase 4)</h2>
-                <ul className="space-y-2">
-                  {interactions.map((item, i) => (
-                    <li key={i} className="text-sm text-muted-foreground">• {item}</li>
-                  ))}
-                </ul>
-              </SheetContent>
-            </Sheet>
-          )}
-          {/* Theme toggle - icon button */}
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-            {theme === 'light' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-            )}
-          </Button>
-        </div>
-      </header>
-
-      {/* Display Area - contains device frame with page content */}
-      {/* This area captures scroll events - shell header stays fixed */}
-      <main className="pt-20 pb-8 px-4 min-h-screen">
-        <div className="max-w-6xl mx-auto">
-          {children}
-        </div>
-      </main>
-
-      {/* Page Navigator - side dots for desktop, bottom for mobile */}
-      {pages.length > 0 && (
-        <nav className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-40">
-          {pages.map((page) => (
-            <button
-              key={page.id}
-              onClick={() => onPageChange?.(page.id)}
-              className={`w-3 h-3 rounded-full transition-all ${
-                currentPage === page.id
-                  ? 'bg-primary scale-125'
-                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-              }`}
-              title={page.name}
-            />
-          ))}
-        </nav>
-      )}
-    </div>
-  );
-}
+<PrototypeShell productName="My App" displayMode="mobile" cornerStyle="rounded">
+  <PhoneFrame ...>...</PhoneFrame>
+</PrototypeShell>
 ```
 
 ## PhoneFrame Component (Mobile Device Simulation)
 
 **NEW in v2.5**: Device frame is now implemented as a separate component within each page, not in the shell. This allows proper scroll capture and swipe simulation.
 
+> **Canonical source**: `scripts/templates/PhoneFrame.tsx`
+> The component is copied verbatim into the project by `init-artifact.sh`.
+> **Do NOT edit** the code block below — edit the template file instead.
+
+### Design Principle
+
+PhoneFrame manages **phone Chrome** only (status bar, frame, dynamic island, home indicator, scroll container). App-level navigation (Tab Bar, top nav) is implemented by the caller and passed via slots.
+
+**Why not build Tab Bar into PhoneFrame?**
+- Phase 4 specs often require custom Tab Bar designs (e.g., raised center publish button, branded colors, badge counts)
+- Top navigation bars are page-specific (different headers per page)
+- The generic `tabs: { id, label, icon }[]` API cannot express complex Tab Bar layouts
+
 ### Key Features:
-- Realistic iPhone frame (Dynamic Island, status bar, home indicator)
+- Realistic iPhone 14 frame (390×844px, Dynamic Island, status bar, home indicator)
 - **No visible scrollbar** — uses `scrollbar-hide` utility
 - **Mouse wheel converts to swipe** — captures wheel events and translates to scroll
-- Bottom Tab Bar for navigation
+- **`tabBar` slot** — rendered as `flex-shrink-0` at bottom, stays within screen area, never covers phone border
+- **Dynamic Island** has `pointer-events-none` — does not intercept clicks
 
+### Layout Structure
+
+```
+PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)
+├── Status Bar (absolute top-0, h-11=44px, z-10)     ← phone Chrome, always present
+├── Screen Area (rounded-[40px], h-full, flex-col)
+│   ├── Content (flex-1, overflow-y-auto, pt-11)      ← 44px top safe area
+│   │   ├── [Top Nav Bar]  ← page-specific, inside children
+│   │   └── [Page Content] ← scrollable
+│   └── tabBar slot (flex-shrink-0)                   ← custom Tab Bar, within screen area
+├── Dynamic Island (absolute top-1, z-20, pointer-events-none)
+└── Home Indicator (absolute bottom-1, h-1)
+```
+
+**Props API**:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | Scrollable page content (top nav + main content). `pt-11` (44px) applied internally for status bar. |
+| `tabBar` | `ReactNode` | `undefined` | Custom Tab Bar component. Rendered as `flex-shrink-0` at bottom of screen area. Pass `null` for pages without Tab Bar. |
+| `theme` | `'light' \| 'dark'` | `'light'` | Frame and screen background color scheme |
+
+**Safe Area Rules**:
+- Top: `pt-11` (44px) reserved for status bar — automatically applied, do NOT add extra top padding to `children`
+- Bottom: `tabBar` slot is `flex-shrink-0` — the slot itself defines the height (e.g., 49pt + safe area)
+- Left/Right: content stays within 390px screen area
+
+**Usage**:
 ```tsx
-// src/components/layout/PhoneFrame.tsx
-import { useRef, useEffect, useState } from 'react';
+// Typical page with custom Tab Bar
+<PhoneFrame theme="light" tabBar={<AppTabBar activeTab="home" onTabChange={setTab} />}>
+  {/* Top navigation bar (page-specific, scrolls with content or sticky) */}
+  <TopNavBar title="社区" rightIcon={<SearchIcon />} />
+  {/* Scrollable page content */}
+  <WaterfallFeed posts={posts} />
+</PhoneFrame>
 
-interface PhoneFrameProps {
-  children: React.ReactNode;
-  theme?: 'light' | 'dark';
-  showTabBar?: boolean;
-  tabs?: { id: string; label: string; icon?: React.ReactNode }[];
-  activeTab?: string;
-  onTabChange?: (tabId: string) => void;
-}
+// Page without Tab Bar (e.g. detail page, auth page)
+<PhoneFrame theme="light">
+  <DetailPageContent />
+</PhoneFrame>
+```
 
-export function PhoneFrame({
-  children,
-  theme = 'light',
-  showTabBar = true,
-  tabs = [],
-  activeTab = '',
-  onTabChange
-}: PhoneFrameProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
-
-  // Convert mouse wheel to swipe/scroll
-  useEffect(() => {
-    const content = scrollRef.current;
-    if (!content) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      // Prevent default to stop page scroll
-      e.preventDefault();
-      // Translate vertical scroll to the content
-      content.scrollTop += e.deltaY;
-    };
-
-    content.addEventListener('wheel', handleWheel, { passive: false });
-    return () => content.removeEventListener('wheel', handleWheel);
-  }, []);
-
+**AppTabBar pattern** (implement in `src/components/layout/AppTabBar.tsx`):
+```tsx
+// Custom Tab Bar — full control over design,凸起 button, badges, colors
+export function AppTabBar({ activeTab, onTabChange }) {
   return (
-    <div className="flex justify-center">
-      {/* iPhone 14 Frame - 390×844 */}
-      <div
-        className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${
-          theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-neutral-900 ring-neutral-200'
-        }`}
-        style={{ width: '390px', height: '844px' }}
-      >
-        {/* Status Bar */}
-        <div className="absolute top-0 left-0 right-0 h-11 flex items-center justify-between px-6 text-white z-10">
-          <span className="text-sm font-medium">
-            {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-          </span>
-          <div className="flex items-center gap-1.5">
-            {/* Signal bars */}
-            <div className="flex items-end gap-[2px] h-3">
-              <div className="w-0.5 bg-white rounded-full" />
-              <div className="w-0.5 bg-white rounded-full" />
-              <div className="w-0.5 bg-white rounded-full" />
-              <div className="w-0.5 bg-white/40 rounded-full" />
-            </div>
-            {/* WiFi icon */}
-            <svg className="w-4 h-3" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
-            </svg>
-            {/* Battery icon */}
-            <svg className="w-5 h-2.5" viewBox="0 0 24 12" fill="currentColor">
-              <rect x="1" y="4" width="18" height="8" rx="2" stroke="currentColor" strokeWidth="1" fill="none" />
-              <rect x="3" y="5.5" width="14" height="5" rx="1.5" />
-              <rect x="20" y="4.5" width="2" height="3" rx="0.5" />
-            </svg>
-          </div>
-        </div>
-
-        {/* Screen Area */}
-        <div
-          ref={contentRef}
-          className={`rounded-[40px] h-full overflow-hidden flex flex-col ${
-            theme === 'dark' ? 'bg-neutral-900' : 'bg-white'
-          }`}
-        >
-          {/* Content - NO scrollbar, wheel converts to swipe */}
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide pt-11 pb-16 touch-pan-y"
-            style={{ scrollBehavior: 'smooth' }}
-          >
-            {children}
-          </div>
-
-          {/* Tab Bar - inside phone frame */}
-          {showTabBar && tabs.length > 0 && (
-            <div
-              className={`absolute bottom-0 left-0 right-0 h-16 ${
-                theme === 'dark' ? 'bg-neutral-900 border-t border-neutral-800' : 'bg-white border-t border-neutral-100'
-              } flex items-center justify-around px-4`}
-            >
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange?.(tab.id)}
-                  className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? theme === 'dark' ? 'text-white' : 'text-black'
-                      : theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'
-                  }`}
-                >
-                  {tab.icon || <div className="w-5 h-5 rounded-sm bg-current opacity-20" />}
-                  <span className="text-[10px] font-medium">{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Dynamic Island */}
-        <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
-
-        {/* Home Indicator */}
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
+    <div className="h-[83px] bg-white border-t border-neutral-100 flex items-start justify-around px-4 pt-2">
+      <TabItem id="community" label="社区" icon={<PawIcon />} active={activeTab === 'community'} />
+      <TabItem id="consult" label="问诊" icon={<MedIcon />} active={activeTab === 'consult'} />
+      {/* Center publish button — raised above tab bar */}
+      <div className="relative -top-4">
+        <button className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg">
+          <PlusIcon className="w-7 h-7 text-white" />
+        </button>
       </div>
+      <TabItem id="shop" label="商城" icon={<ShopIcon />} active={activeTab === 'shop'} />
+      <TabItem id="profile" label="我的" icon={<UserIcon />} active={activeTab === 'profile'} />
     </div>
   );
 }
@@ -786,82 +656,99 @@ export function PhoneFrame({
 
 Desktop window frame is also moved into page components.
 
-```tsx
-// src/components/layout/WindowFrame.tsx
-import { useRef, useEffect, useState } from 'react';
+> **Canonical source**: `scripts/templates/WindowFrame.tsx`
+> The component is copied verbatim into the project by `init-artifact.sh`.
+> **Do NOT edit** the code block below — edit the template file instead.
 
-interface WindowFrameProps {
-  children: React.ReactNode;
-  theme?: 'light' | 'dark';
-  title?: string;
-  width?: number;
-  height?: number;
+**Props API**:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | Scrollable main content area (right of sidebar) |
+| `sidebar` | `ReactNode` | `undefined` | Custom Sidebar component — rendered as `flex-shrink-0` column to the left of content. Use this for app-level navigation (e.g. `<AppSidebar />`). |
+| `theme` | `'light' \| 'dark'` | `'light'` | Frame color scheme |
+| `title` | `string` | `'Application'` | Title bar text |
+| `width` | `number` | `1280` | Window width in px |
+| `height` | `number` | `800` | Window height in px |
+
+**Usage**:
+```tsx
+import { WindowFrame } from '@/components/layout/WindowFrame';
+import { AppSidebar } from '@/components/layout/AppSidebar';
+
+export function Dashboard() {
+  return (
+    <WindowFrame
+      theme="light"
+      title="Dashboard"
+      width={1280}
+      height={800}
+      sidebar={<AppSidebar activeItem="dashboard" />}
+    >
+      {/* Page content — scrollable, right of sidebar */}
+      <div className="p-6">
+        <h1>Dashboard</h1>
+        {/* ... page content ... */}
+      </div>
+    </WindowFrame>
+  );
+}
+```
+
+**Desktop Page Responsibility Split**:
+
+| Element | Belongs in | Reason |
+|---------|-----------|--------|
+| Title Bar (traffic lights + window title) | **WindowFrame** — already built-in | Window Chrome, same on every page |
+| Sidebar (navigation items) | **`sidebar` prop** → `AppSidebar` component | App Chrome, shared across pages, supports collapsible design, any item layout |
+| Top Toolbar / Breadcrumb | **Page `children`** | Page-specific, part of scrollable or fixed content area |
+| Page content (lists, tables, forms) | **Page `children`** | Page-specific, scrollable |
+
+> **NOTE**: WindowFrame provides:
+> - **Title bar** (40px height, window Chrome) — rendered automatically, macOS traffic lights + title text
+> - **`sidebar` slot** — your custom `AppSidebar` component renders here as `flex-shrink-0` to the left of content
+> - **Mouse wheel → scroll** translation for the content area (simulates desktop scrolling)
+>
+> **Content Safe Area**: Page `children` must respect:
+> - Left: `sidebar` slot width is defined by `AppSidebar` — do NOT add sidebar navigation in children
+> - Right: within total window width minus sidebar
+> - Top: title bar is outside the content area — do NOT re-implement it inside children
+
+**AppSidebar Pattern** (implement per Phase 4 spec):
+```tsx
+// src/components/layout/AppSidebar.tsx
+interface AppSidebarProps {
+  activeItem: string;
+  onItemChange?: (id: string) => void;
 }
 
-export function WindowFrame({
-  children,
-  theme = 'light',
-  title = 'Application',
-  width = 1280,
-  height = 800
-}: WindowFrameProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Mouse wheel for content scrolling
-  useEffect(() => {
-    const content = scrollRef.current;
-    if (!content) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      content.scrollTop += e.deltaY;
-    };
-
-    content.addEventListener('wheel', handleWheel, { passive: false });
-    return () => content.removeEventListener('wheel', handleWheel);
-  }, []);
+export function AppSidebar({ activeItem, onItemChange }: AppSidebarProps) {
+  // Phase 4 spec defines: navigation items, collapsible behavior, item icons, active states
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboardIcon /> },
+    { id: 'analytics', label: 'Analytics', icon: <BarChartIcon /> },
+    // ... more items from Phase 4 spec
+  ];
 
   return (
-    <div className="flex justify-center">
-      {/* Desktop Window Frame */}
-      <div
-        className={`rounded-xl shadow-2xl overflow-hidden ring-1 ${
-          theme === 'dark' ? 'bg-neutral-800 ring-neutral-700' : 'bg-white ring-neutral-200'
-        }`}
-        style={{ width: `${width}px`, height: `${height}px` }}
-      >
-        {/* Title Bar - macOS style */}
-        <div
-          className={`h-10 flex items-center px-4 gap-3 ${
-            theme === 'dark' ? 'bg-neutral-800 border-b border-neutral-700' : 'bg-neutral-100 border-b border-neutral-200'
+    <div className="w-60 h-full bg-neutral-50 border-r border-neutral-200 flex flex-col py-4">
+      {navItems.map(item => (
+        <button
+          key={item.id}
+          onClick={() => onItemChange?.(item.id)}
+          className={`flex items-center gap-3 px-4 py-2 text-sm ${
+            activeItem === item.id ? 'bg-neutral-100 font-medium' : 'text-neutral-600 hover:bg-neutral-50'
           }`}
         >
-          {/* Window Controls */}
-          <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors cursor-pointer" />
-            <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors cursor-pointer" />
-          </div>
-          {/* Title */}
-          <span className={`text-sm ${theme === 'dark' ? 'text-neutral-400' : 'text-neutral-500'}`}>
-            {title}
-          </span>
-        </div>
-
-        {/* Content Area - scrollable */}
-        <div
-          ref={scrollRef}
-          className={`h-[calc(100%-40px)] overflow-auto ${
-            theme === 'dark' ? 'bg-neutral-900' : 'bg-neutral-50'
-          }`}
-        >
-          {children}
-        </div>
-      </div>
+          {item.icon}
+          {item.label}
+        </button>
+      ))}
     </div>
   );
 }
 ```
+
 
 ## Implementation Reference: Phase 4-6 Integration
 
@@ -892,23 +779,13 @@ export function Home() {
     // Implement refresh logic
   };
 
-  // Phase 4 interaction: swipe between sections
-  const tabs = [
-    { id: 'home', label: 'Home', icon: <HomeIcon /> },
-    { id: 'discover', label: 'Discover', icon: <DiscoverIcon /> },
-    { id: 'cart', label: 'Cart', icon: <CartIcon /> },
-    { id: 'profile', label: 'Profile', icon: <ProfileIcon /> },
-  ];
-
   return (
     <PhoneFrame
       theme={theme}
-      showTabBar={true}
-      tabs={tabs}
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
+      tabBar={<AppTabBar activeTab={activeTab} onTabChange={setActiveTab} />}
     >
       {/* Page content - implements Phase 4 layout from interaction specs */}
+      {/* Top nav bar (page-specific) goes here as a child */}
       <div className="p-4">
         {/* Content from Phase 4 Layout Structure */}
       </div>
@@ -976,29 +853,24 @@ function App() {
     { id: 'profile', name: 'Profile' },
   ];
 
-  // Tab navigation for mobile
-  const tabs = [
-    { id: 'home', label: 'Home', icon: <HomeIcon /> },
-    { id: 'cart', label: 'Cart', icon: <CartIcon /> },
-    { id: 'profile', label: 'Profile', icon: <ProfileIcon /> },
-  ];
-
   const renderPage = () => {
     switch (currentPage) {
+      // Pages with Tab Bar: pass AppTabBar as tabBar slot
       case 'home':
-        return <PhoneFrame theme={theme} tabs={tabs} activeTab="home" onTabChange={setCurrentPage}>
+        return <PhoneFrame theme={theme} tabBar={<AppTabBar activeTab="home" onTabChange={setCurrentPage} />}>
           <Home />
         </PhoneFrame>;
+      // Pages without Tab Bar: omit tabBar prop (detail pages, auth pages, etc.)
       case 'detail':
         return <PhoneFrame theme={theme}>
           <ProductDetail />
         </PhoneFrame>;
       case 'cart':
-        return <PhoneFrame theme={theme} tabs={tabs} activeTab="cart" onTabChange={setCurrentPage}>
+        return <PhoneFrame theme={theme} tabBar={<AppTabBar activeTab="cart" onTabChange={setCurrentPage} />}>
           <Cart />
         </PhoneFrame>;
       case 'profile':
-        return <PhoneFrame theme={theme} tabs={tabs} activeTab="profile" onTabChange={setCurrentPage}>
+        return <PhoneFrame theme={theme} tabBar={<AppTabBar activeTab="profile" onTabChange={setCurrentPage} />}>
           <Profile />
         </PhoneFrame>;
       default:
@@ -1128,7 +1000,7 @@ When `platform: "both"`, implement both platforms in a single project:
 
 1. **Read Phase 4, 5, 6 requirements first** for each page
 2. **Implement shared resources first**: Design Tokens (`index.css`), mock data (`lib/mockData.ts`), shared components
-3. **Implement layout components**: `MobileLayout.tsx` and `DesktopLayout.tsx` with platform-specific navigation
+3. **Implement layout components**: `AppTabBar.tsx` (mobile Tab Bar) and `AppSidebar.tsx` (desktop Sidebar) with platform-specific navigation
 4. **Implement page pairs**: For each page, create both `pages/mobile/X.tsx` and `pages/desktop/X.tsx`
 5. **Batch by page, not by platform**: Complete the mobile + desktop versions of a page together before moving to the next
 6. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
