@@ -221,6 +221,23 @@ cat > src/index.css << 'EOF'
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide scrollbar utility for prototype content areas */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+/* Safe area padding for notched phones */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
 EOF
 
 # Add path aliases to tsconfig.json

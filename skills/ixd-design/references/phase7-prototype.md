@@ -302,6 +302,24 @@ export function Home() {
 - ❌ NOT using PhoneFrame/WindowFrame — device simulation won't work
 - ❌ Putting content outside PhoneFrame/WindowFrame — won't scroll properly
 - ❌ Forgetting to wrap each page — only first page has frame
+- ❌ Adding page-level top navigation bar — will cover iPhone status bar
+- ❌ Adding page-level bottom navigation bar — will cover iPhone home indicator
+- ❌ Using native scrollbar — PhoneFrame already handles scrolling with `scrollbar-hide`
+
+**Mobile Page Development Rules**:
+| Issue | Solution |
+|-------|----------|
+| Status bar covered by page | PhoneFrame already has `pt-11` padding — do NOT add top nav |
+| Home indicator covered by page | PhoneFrame already has `pb-16` padding — do NOT add bottom nav |
+| Scrollbar visible | PhoneFrame uses `scrollbar-hide` class — no action needed |
+
+> **NOTE**: PhoneFrame already includes:
+> - Status bar area (44px top padding via `pt-11`)
+> - Home indicator area (64px bottom padding via `pb-16`)
+> - Hidden scrollbar (`scrollbar-hide` class)
+> - Scroll event capture (mouse wheel → swipe)
+>
+> **DO NOT** add your own top/bottom navigation inside PhoneFrame children.
 
 **Mobile-Only Structure** (`platform: "mobile"` - default):
 
