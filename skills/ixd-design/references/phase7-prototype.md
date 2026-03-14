@@ -318,8 +318,14 @@ export function Home() {
 > - Home indicator area (64px bottom padding via `pb-16`)
 > - Hidden scrollbar (`scrollbar-hide` class)
 > - Scroll event capture (mouse wheel → swipe)
+> - Tab Bar (via `tabs` prop) - positioned at bottom, separate from content
 >
 > **DO NOT** add your own top/bottom navigation inside PhoneFrame children.
+>
+> **Content Safe Area**: Your page content goes inside PhoneFrame children. It should NOT exceed:
+> - Top: beyond 44px (status bar area)
+> - Bottom: beyond content height minus 64px (tab bar area)
+> - Left/Right: within 390px width (phone frame)
 
 **Mobile-Only Structure** (`platform: "mobile"` - default):
 

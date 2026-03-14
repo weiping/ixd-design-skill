@@ -561,7 +561,8 @@ export function PhoneFrame({
           )}
         </div>
 
-        <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20" />
+        {/* Dynamic Island - positioned outside content area */}
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-full z-20 pointer-events-none" />
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/60 rounded-full" />
       </div>
     </div>
