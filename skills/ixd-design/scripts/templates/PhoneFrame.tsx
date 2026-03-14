@@ -33,7 +33,7 @@ export function PhoneFrame({
   }, []);
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center" data-testid="phone-frame">
       {/* iPhone 14 Frame — 390×844px, phone border is p-1.5 (6px) */}
       <div
         className={`relative rounded-[48px] p-1.5 shadow-2xl overflow-hidden ring-1 ${

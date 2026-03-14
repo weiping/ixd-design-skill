@@ -38,7 +38,7 @@ export function WindowFrame({
   }, []);
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center" data-testid="window-frame">
       {/* Desktop Window Frame — title bar is window Chrome, always present */}
       <div
         className={`rounded-xl shadow-2xl overflow-hidden ring-1 flex flex-col ${

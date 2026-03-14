@@ -270,6 +270,7 @@ fs.writeFileSync(path, JSON.stringify(config, null, 2));
 # Update vite.config.ts
 echo "⚙️  Updating Vite configuration..."
 cat > vite.config.ts << 'EOF'
+/// <reference types="vitest" />
 import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
@@ -281,7 +282,30 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+  },
 });
+EOF
+
+echo "📦 Installing test framework (Vitest + Testing Library)..."
+pnpm install -D vitest @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom
+
+echo "🧪 Adding test scripts to package.json..."
+node -e "
+const fs = require('fs');
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+pkg.scripts.test = 'vitest';
+pkg.scripts['test:run'] = 'vitest run';
+fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+"
+
+echo "📝 Creating test setup file..."
+mkdir -p src/test
+cat > src/test/setup.ts << 'EOF'
+import '@testing-library/jest-dom';
 EOF
 
 # Install all shadcn/ui dependencies

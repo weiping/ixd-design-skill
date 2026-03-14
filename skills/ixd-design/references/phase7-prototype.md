@@ -225,9 +225,100 @@ Before developing any pages, verify the device frame components are properly set
    grep -o "width: 1280px" phase7-prototype.html  # Desktop
    ```
 
-### Step 4: use TDD Implement Page Components (Wrap in Device Frame)
+### Step 4: Implement Page Components (TDD Cycle)
 
 > **CRITICAL**: Each page component MUST be wrapped in the device frame (PhoneFrame/WindowFrame) to ensure proper device simulation.
+
+**TDD Cycle (per page)**:
+
+For each page, follow RED → GREEN → proceed:
+
+```
+1. Write test  (RED)    → pnpm test → FAIL   ← component doesn't exist yet
+2. Implement component  → pnpm test → PASS   ← GREEN
+3. Next page in batch
+...
+After all pages in batch: Bundle + Walkthrough heuristic check (visual quality)
+```
+
+**Mobile Page Test Template**:
+```tsx
+// src/pages/__tests__/CommunityHome.test.tsx
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { CommunityHome } from '../CommunityHome';
+
+describe('CommunityHome', () => {
+  // ① Smoke — renders without crashing (catches import errors, undefined vars)
+  it('renders without crashing', () => {
+    expect(() => render(<CommunityHome />)).not.toThrow();
+  });
+
+  // ② Device frame — MUST wrap in PhoneFrame (data-testid="phone-frame" built-in)
+  it('wraps in PhoneFrame', () => {
+    const { getByTestId } = render(<CommunityHome />);
+    expect(getByTestId('phone-frame')).toBeInTheDocument();
+  });
+
+  // ③ Key content — replace with actual content from Phase 4 spec
+  it('shows main content area', () => {
+    render(<CommunityHome />);
+    expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+
+  // ④ Key interaction — add per Phase 4 interaction spec (optional but recommended)
+  it('clicking a feed card opens detail', async () => {
+    const user = userEvent.setup();
+    render(<CommunityHome />);
+    // implement per Phase 4 spec
+  });
+});
+```
+
+**Desktop Page Test Template**:
+```tsx
+// src/pages/desktop/__tests__/Dashboard.test.tsx
+import { render, screen } from '@testing-library/react';
+import { Dashboard } from '../Dashboard';
+
+describe('Dashboard', () => {
+  it('renders without crashing', () => {
+    expect(() => render(<Dashboard />)).not.toThrow();
+  });
+
+  // ② Device frame — MUST wrap in WindowFrame (data-testid="window-frame" built-in)
+  it('wraps in WindowFrame', () => {
+    const { getByTestId } = render(<Dashboard />);
+    expect(getByTestId('window-frame')).toBeInTheDocument();
+  });
+
+  // ③ Key content — replace with actual content from Phase 4 spec
+  it('shows dashboard content', () => {
+    render(<Dashboard />);
+    expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+});
+```
+
+**Test commands**:
+```bash
+pnpm test        # watch mode — runs during development, re-runs on save
+pnpm test:run    # single run — use before bundling to confirm all pages pass
+```
+
+**What tests cover vs Walkthrough**:
+
+| Concern | Vitest (automated) | Walkthrough (heuristic) |
+|---------|-------------------|------------------------|
+| Renders without crashing | ✅ | — |
+| Wrapped in device frame | ✅ (`data-testid`) | ✅ (bundle grep) |
+| Key content from Phase 4 | ✅ | ✅ |
+| State/interaction logic | ✅ | ⚠️ manual |
+| Safe area / flex layout | ❌ jsdom has no CSS | ✅ |
+| Animations / transitions | ❌ | ✅ |
+| Visual design tokens | ❌ | ✅ |
+
+> Tests catch **structural and logic** mistakes early. Walkthrough catches **visual and layout** issues after bundling. Both are required.
 
 **Page Implementation Pattern**:
 
@@ -326,8 +417,8 @@ export function Home() {
 | Status Bar (time / signal / battery) | **PhoneFrame** — already built-in | Phone Chrome, same on every page |
 | Dynamic Island | **PhoneFrame** — already built-in | Phone Chrome |
 | Home Indicator | **PhoneFrame** — already built-in | Phone Chrome |
-| Tab Bar (社区/问诊/发布/商城/我的) | **`tabBar` prop** → `AppTabBar` component | App Chrome, shared across pages, supports custom design (凸起按钮, badges) |
-| Top Navigation Bar (搜索/分段控件/标题/返回按钮) | **Page `children`** | Page-specific, may scroll or collapse per Phase 4 spec |
+| Tab Bar | **`tabBar` prop** → `AppTabBar` component | App Chrome, shared across pages, supports custom design (凸起按钮, badges) |
+| Top Navigation Bar  | **Page `children`** | Page-specific, may scroll or collapse per Phase 4 spec |
 | Page content (lists, cards, forms) | **Page `children`** | Page-specific, scrollable |
 
 > **NOTE**: PhoneFrame provides:
@@ -1040,12 +1131,13 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
      ```
    - **If frame count < page count**: Pages are not using device frames. Fix before continuing.
 
-3. **Batch Interaction Walkthrough**
-   - Run Tool 2 heuristic checklist against batch pages
-   - Generate batch review report
+3. **Batch Walkthrough + Per-Page Verification** (see [Per-Page Verification Procedure](#per-page-verification-procedure))
+   - For each page in the batch: run Tool 2 heuristic (47 items) + check Quality Checklist
+   - **Append** results to `doc/ixd/phase7-review-master.md` as a new `## Batch N` section
+   - (Create `phase7-review-master.md` on Batch 1; all subsequent batches append to it)
 
 4. **Fix Issues** (if any)
-   - Address issues found in walkthrough
+   - Address all FAIL items before proceeding to next batch
 
 5. **Pause for User Confirmation**
 
@@ -1059,11 +1151,11 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
    - Run `bundle-artifact.sh` to produce updated prototype HTML
    - Save/overwrite `doc/ixd/phase7-prototype.html` (or platform-specific filename)
    - Update `progress.json`: record completed page IDs and `lastBatch`
-   - **Generate Batch Review Report**: `doc/ixd/phase7-batch-N-review.md`
+   - **Append batch review to master report**: write `## Batch N` section to `doc/ixd/phase7-review-master.md` (create on Batch 1, append thereafter)
    - **PAUSE** — output a summary then ask the user:
      > "✅ Batch N complete — pages X, Y, Z implemented. Prototype updated: `phase7-prototype.html`
      > Progress: M/total pages done.
-     > Batch Review: `phase7-batch-N-review.md` attached
+     > Batch Review: `phase7-review-master.md` → Batch N section
      > **Continue to next batch?** (yes / stop here)"
    - Wait for user confirmation before proceeding
 
@@ -1090,26 +1182,25 @@ When `platform: "both"`, implement both platforms in a single project:
    - Bundle both platforms: run `bundle-artifact.sh` for mobile + desktop entries
    - Save/overwrite `doc/ixd/phase7-prototype-mobile.html` and `phase7-prototype-desktop.html`
    - Update `progress.json` with completed page IDs for both platforms
-   - **Generate Batch Review Report** for both platforms: `doc/ixd/phase7-batch-N-review.md`
+   - **Append batch review to master report**: write `## Batch N (mobile + desktop)` section to `doc/ixd/phase7-review-master.md`
    - **PAUSE** — output a summary then ask:
      > "✅ Batch N complete — page pairs X, Y implemented (mobile + desktop).
      > Prototypes updated: `phase7-prototype-mobile.html` + `phase7-prototype-desktop.html`
      > Progress: M/total page pairs done.
-     > Batch Review: `phase7-batch-N-review.md` attached
+     > Batch Review: `phase7-review-master.md` → Batch N section
      > **Continue to next batch?** (yes / stop here)"
    - Wait for user confirmation before proceeding
 
 ### Batch Interaction Walkthrough Report
 
-After each batch, generate a review report:
+After each batch, **append** the following section to `doc/ixd/phase7-review-master.md`:
 
 ```markdown
-## Batch N Interaction Review Report
+## Batch N — Pages: X, Y, Z
 
-**Batch**: Pages X, Y, Z
 **Platform**: mobile | desktop | both
 **Date**: YYYY-MM-DD
-**Reviewer**: AI (Walkthrough)
+**Reviewer**: AI (Walkthrough + Per-Page Verification)
 
 ### Test Results
 - Tool 2 Heuristic: <<PASS/FAIL>> (X/47 items passed)
@@ -1148,12 +1239,29 @@ After each batch, generate a review report:
 ❌ FAIL - Requires fixes before proceeding
 ```
 
-### Merging into Master Report
+### Master Report Structure (`phase7-review-master.md`)
 
-After each batch review:
-1. Append batch review to `doc/ixd/phase7-review-master.md`
-2. If issues were found and fixed, note the fixes in the master report
-3. If verdict is FAIL, do NOT proceed to next batch until issues are resolved
+All batch reviews and the final completeness check are written to **one file** with incremental sections:
+
+```markdown
+# Phase 7 Review Master Report
+
+## Batch 1 — Pages: Home, ProductList, ProductDetail
+[batch 1 walkthrough + per-page table + verdict]
+
+## Batch 2 — Pages: Cart, Profile, Settings
+[batch 2 walkthrough + per-page table + verdict]
+
+...
+
+## Final Completeness Check
+[completeness report against Phase 2 inventory]
+```
+
+**Rules**:
+- Create `phase7-review-master.md` on Batch 1; **append** (never overwrite) for all subsequent batches
+- If issues were found and fixed, record fixes inline under the relevant batch section
+- If verdict is FAIL: do NOT proceed to next batch until issues are resolved and verdict updated to PASS
 
 ## Resume Logic (Breakpoint Recovery)
 
@@ -1338,13 +1446,14 @@ Follow Phase 6 visual requirements. To avoid producing overly "AI-looking" desig
 Each page in the batch must pass the following checks:
 
 **Mobile**:
+- [ ] **TDD tests pass** — `pnpm test:run` exits green (smoke + `data-testid="phone-frame"` + content checks)
 - [ ] PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
 - [ ] PhoneFrame component wraps each mobile page with realistic iPhone frame
 - [ ] Status bar with time, signal, WiFi, battery (SVG icons)
 - [ ] Dynamic Island and Home Indicator present
 - [ ] **No scrollbar visible** — uses `scrollbar-hide` utility
 - [ ] **Mouse wheel converts to swipe** — scroll events captured in PhoneFrame
-- [ ] Tab Bar inside phone frame (not in shell)
+- [ ] Tab Bar passed via `tabBar` prop slot (not re-implemented inside page children)
 - [ ] All pages from Phase 2 architecture implemented
 - [ ] Phase 4 interactions implemented (gestures, transitions)
 - [ ] Phase 5 component states used correctly
@@ -1357,11 +1466,14 @@ Each page in the batch must pass the following checks:
 - [ ] No broken interactions or dead-end states
 
 **Desktop**:
+- [ ] **TDD tests pass** — `pnpm test:run` exits green (smoke + `data-testid="window-frame"` + content checks)
 - [ ] PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
 - [ ] WindowFrame component wraps each desktop page with macOS/Windows style window
-- [ ] Title bar with window controls (red/yellow/green dots for macOS)
+- [ ] Title bar with window controls (red/yellow/green dots for macOS) — NOT re-implemented inside children
 - [ ] Window frame with proper shadow and border
-- [ ] Content area scrollable
+- [ ] Sidebar passed via `sidebar` prop slot (not re-implemented inside page children)
+- [ ] Content area scrollable (right of sidebar)
+- [ ] App-level Menu Bar / Toolbar (if applicable) uses `flex flex-col h-full` wrapper — stays fixed above content
 - [ ] All pages from Phase 2 architecture implemented
 - [ ] Phase 4 interactions implemented (keyboard shortcuts, hover states)
 - [ ] Phase 5 component states used correctly
@@ -1377,34 +1489,26 @@ Each page in the batch must pass the following checks:
 
 ### Per-Page Verification Procedure
 
-For each batch of pages generated, perform the following verification **for every page**:
+This is the execution procedure for **Step 3 of each batch** ("Batch Walkthrough + Per-Page Verification"). For each batch of pages, perform the following **for every page** in the batch:
 
-1. **Run Tool 2 Heuristic**: Check against 47-item checklist
-2. **Per-Page Check**:
-   ```markdown
-   ## Phase 7 Batch N Per-Page Verification Report
+1. **Run `pnpm test:run`**: All TDD tests must pass before walkthrough
+2. **Run Tool 2 Heuristic**: Check each page against the 47-item checklist
+3. **Per-Page Check**: Record results in master report
+   *(This table is written as part of the `## Batch N` section in `phase7-review-master.md`)*
 
-   **Batch**: Pages X, Y, Z
-   **Date**: YYYY-MM-DD
+   | Page ID | Page Name | TDD ✅ | Tool 2 Score | Phase 4 Compliance |
+   |---------|-----------|--------|-------------|-------------------|
+   | P01 | Home | ✅ | 95% | ✅ |
+   | P02 | List | ✅ | 88% | ✅ |
+   | P03 | Detail | ✅ | 75% | ⚠️ Missing gestures |
 
-   ### Per-Page Check
+   **Issues Found**: P03 Tool 2 score below 80%
+   **Verdict**: ✅ All pages pass — Continue / ❌ Fix before proceeding
 
-   | Page ID | Page Name | Tool 2 | Phase 4 Compliance |
-   |---------|-----------|--------|-------------------|
-   | P01 | Home | 95% | ✅ |
-   | P02 | List | 88% | ✅ |
-   | P03 | Detail | 75% | ⚠️ Missing gestures |
+4. **Fix Issues** (if any): fix failing pages, re-run `pnpm test:run` + re-verify, update verdict in master report
 
-   ### Issues Found
-   - Page P03: Tool 2 score below 80%
-
-   ### Verdict
-   ✅ All pages pass - Continue to next batch
-   ❌ Some pages need fixes - Fix and re-verify
-   ```
-
-4. **Update Progress**:
+5. **Update Progress**:
    - Mark pages as verified in `progress.json`
-   - If any page fails: fix issues, re-verify before proceeding
+   - Only proceed to next batch when all pages in current batch have PASS verdict
 
 ---
