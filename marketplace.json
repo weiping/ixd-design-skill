@@ -6,8 +6,11 @@
     "name": "weiping",
     "email": "yuyang@msn.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/weiping/ixd-design-skill.git"
+  },
   "homepage": "https://github.com/weiping/ixd-design-skill",
-  "repository": "https://github.com/weiping/ixd-design-skill",
   "license": "MIT",
   "keywords": [
     "interaction-design",
@@ -20,5 +23,7 @@
     "information-architecture",
     "component-spec",
     "design-system"
-  ]
+  ],
+  "categories": ["design", "productivity"],
+  "readme": "README.md"
 }

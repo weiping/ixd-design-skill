@@ -22,7 +22,26 @@ Guides an AI assistant through a structured 8-phase interaction design workflow,
 
 ## Installation
 
-### Pi (recommended)
+### Claude Code
+
+**Manual Installation:**
+
+```bash
+cp -r ixd-design/ ~/.claude/skills/ixd-design/
+```
+
+**Marketplace Installation:**
+
+```bash
+# Add the marketplace repository
+/plugin marketplace add weiping/ixd-design-skill
+
+# Install the skill
+/plugin install ixd-design
+```
+
+
+### Pi
 
 Copy the `ixd-design/` folder to any of these locations:
 
@@ -51,12 +70,6 @@ cp -r ixd-design/ ~/.openclaw/skills/ixd-design/
 ```
 
 Refresh skills or start a new session to pick up the skill.
-
-### Claude Code
-
-```bash
-cp -r ixd-design/ ~/.claude/skills/ixd-design/
-```
 
 ### Claude Projects / Custom Instructions
 

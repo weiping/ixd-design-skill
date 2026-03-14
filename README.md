@@ -53,7 +53,45 @@ All outputs are saved to `doc/ixd/` in the working project directory.
 ### Installation
 
 <details>
-<summary><strong>Pi</strong> (recommended)</summary>
+<summary><strong>Claude Code</strong></summary>
+
+**Option A — Marketplace (recommended)**
+
+```bash
+# Add the marketplace repository
+/plugin marketplace add weiping/ixd-design-skill
+
+# Install the skill
+/plugin install ixd-design
+```
+
+**Option B — Manual install as local skill**
+
+```bash
+cp -r skills/ixd-design ~/.claude/skills/ixd-design
+```
+
+**Option C — Manual install as local plugin**
+
+Clone the repo and install from local path:
+
+```bash
+git clone https://github.com/weiping/ixd-design-skill.git
+/plugin install /path/to/ixd-design-skill
+```
+
+Claude Code reads `.claude-plugin/plugin.json` and loads `skills/` automatically.
+</details>
+
+<details>
+<summary><strong>Claude Projects / Other LLMs</strong></summary>
+
+1. Copy `SKILL.md` content into system prompt or custom instructions
+2. Upload `references/` files as project knowledge
+</details>
+
+<details>
+<summary><strong>Pi</strong> </summary>
 
 ```bash
 # Global — available in all projects
@@ -84,44 +122,6 @@ Skill precedence: workspace > `~/.openclaw/skills` > bundled.
 Refresh skills or start a new session to pick up the skill.
 
 You can also add a shared folder via `skills.load.extraDirs` in `~/.openclaw/openclaw.json` for multi-agent setups.
-</details>
-
-<details>
-<summary><strong>Claude Code</strong></summary>
-
-**Option A — Plugin marketplace (recommended)**
-
-The repo includes a `.claude-plugin/plugin.json`. If published to the [Claude Code Plugins Directory](https://github.com/anthropics/claude-plugins-official), install with:
-
-```bash
-/plugin install ixd-design@claude-plugin-directory
-```
-
-Or browse for it in `/plugin > Discover`.
-
-**Option B — Manual install as local skill**
-
-```bash
-cp -r skills/ixd-design ~/.claude/skills/ixd-design
-```
-
-**Option C — Manual install as local plugin**
-
-Clone the repo and install from local path:
-
-```bash
-git clone https://github.com/user/ixd-design-skill.git
-/plugin install /path/to/ixd-design-skill
-```
-
-Claude Code reads `.claude-plugin/plugin.json` and loads `skills/` automatically.
-</details>
-
-<details>
-<summary><strong>Claude Projects / Other LLMs</strong></summary>
-
-1. Copy `SKILL.md` content into system prompt or custom instructions
-2. Upload `references/` files as project knowledge
 </details>
 
 ### Usage

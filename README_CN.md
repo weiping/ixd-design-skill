@@ -52,7 +52,45 @@ P1          P2           P3          P4             P5         P6        P7     
 ### 安装
 
 <details>
-<summary><strong>Pi</strong>（推荐）</summary>
+<summary><strong>Claude Code</strong></summary>
+
+**方案 A — 插件市场（推荐）**
+
+```bash
+# 添加市场仓库
+/plugin marketplace add weiping/ixd-design-skill
+
+# 安装技能
+/plugin install ixd-design
+```
+
+**方案 B — 手动安装为本地技能**
+
+```bash
+cp -r skills/ixd-design ~/.claude/skills/ixd-design
+```
+
+**方案 C — 手动安装为本地插件**
+
+克隆仓库后从本地路径安装：
+
+```bash
+git clone https://github.com/weiping/ixd-design-skill.git
+/plugin install /path/to/ixd-design-skill
+```
+
+Claude Code 会读取 `.claude-plugin/plugin.json` 并自动加载 `skills/`。
+</details>
+
+<details>
+<summary><strong>Claude Projects / 其他 LLM</strong></summary>
+
+1. 将 `SKILL.md` 内容复制到系统提示词或自定义指令中
+2. 将 `references/` 文件上传为项目知识库
+</details>
+
+<details>
+<summary><strong>Pi</strong></summary>
 
 ```bash
 # 全局安装 — 所有项目可用
@@ -83,44 +121,6 @@ cp -r skills/ixd-design <workspace>/skills/ixd-design
 刷新技能或新开会话即可生效。
 
 也可以通过 `~/.openclaw/openclaw.json` 中的 `skills.load.extraDirs` 添加共享目录，适用于多 agent 场景。
-</details>
-
-<details>
-<summary><strong>Claude Code</strong></summary>
-
-**方案 A — 插件市场（推荐）**
-
-本仓库包含 `.claude-plugin/plugin.json`。如已发布到 [Claude Code 插件目录](https://github.com/anthropics/claude-plugins-official)，可直接安装：
-
-```bash
-/plugin install ixd-design@claude-plugin-directory
-```
-
-或在 `/plugin > Discover` 中浏览查找。
-
-**方案 B — 手动安装为本地技能**
-
-```bash
-cp -r skills/ixd-design ~/.claude/skills/ixd-design
-```
-
-**方案 C — 手动安装为本地插件**
-
-克隆仓库后从本地路径安装：
-
-```bash
-git clone https://github.com/user/ixd-design-skill.git
-/plugin install /path/to/ixd-design-skill
-```
-
-Claude Code 会读取 `.claude-plugin/plugin.json` 并自动加载 `skills/`。
-</details>
-
-<details>
-<summary><strong>Claude Projects / 其他 LLM</strong></summary>
-
-1. 将 `SKILL.md` 内容复制到系统提示词或自定义指令中
-2. 将 `references/` 文件上传为项目知识库
 </details>
 
 ### 使用方法
