@@ -17,7 +17,11 @@
 - **每页 10 节规格说明** — 面向开发者的交互规格，含强制走查环节
 - **跨平台双原型** — 独立的移动端 (390×844) + 桌面端 (1280×800) HTML 原型，共享设计令牌
 - **PC 桌面客户端支持** — 悬停状态、右键菜单、键盘快捷键、拖拽、窗口管理
+- **Slot 模式设备框架** — `PhoneFrame` 接受 `tabBar` slot；`WindowFrame` 接受 `sidebar` slot — 传入自定义组件，而非数据数组
+- **TDD 优先原型开发** — 预装 Vitest + Testing Library；PhoneFrame/WindowFrame 内置 `data-testid`，支持走查前自动化冒烟测试
+- **Word 风格桌面布局** — `flex flex-col h-full` 模式，在 WindowFrame 内实现固定菜单栏 + 工具栏 + 可滚动内容区
 - **47 项启发式走查** — 覆盖 10 个类别的自动化交互质量检查
+- **统一批次评审报告** — 所有批次评审追加写入 `phase7-review-master.md`（单文件增量追加，不生成独立批次文件）
 - **7 个辅助工具** — 竞品分析、启发式评审、A/B 对比、视觉风格探索、多角色评审、微交互设计、PC 客户端交互
 - **最终评审关卡** — 强制走查 + 多角色评审修复循环（最多 3 轮）后方可交付
 - **智能阶段恢复** — 基于依赖关系的上下文加载，而非"加载所有内容"
@@ -216,17 +220,26 @@ ixd-design-skill/
     └── ixd-design/                 ← AgentSkills 兼容的技能目录
         ├── SKILL.md                ← 主入口文件（740+ 行）
         ├── INSTALL.md              ← 安装指南
-        └── references/
-            ├── phase1-context.md       ← 产品上下文收集
-            ├── phase2-architecture.md  ← 22 种页面分类体系
-            ├── phase3-userflow.md      ← 流程图模式
-            ├── phase4-page-interaction.md ← 10 节页面规格格式
-            ├── phase5-components.md    ← 设计令牌 + 组件规格
-            ├── phase6-visual.md        ← 10 维度视觉系统
-            ├── phase7-prototype.md     ← HTML 原型模式（移动端 + 桌面端）
-            ├── phase8-delivery.md      ← 交付文档结构
-            ├── auxiliary-tools.md      ← 7 个辅助设计工具
-            └── quickref.md            ← 快速参考卡片
+        ├── references/
+        │   ├── phase1-context.md       ← 产品上下文收集
+        │   ├── phase2-architecture.md  ← 22 种页面分类体系
+        │   ├── phase3-userflow.md      ← 流程图模式
+        │   ├── phase4-page-interaction.md ← 10 节页面规格格式
+        │   ├── phase5-components.md    ← 设计令牌 + 组件规格
+        │   ├── phase6-visual.md        ← 10 维度视觉系统
+        │   ├── phase7-prototype.md     ← HTML 原型模式（移动端 + 桌面端）
+        │   ├── phase8-delivery.md      ← 交付文档结构
+        │   ├── auxiliary-tools.md      ← 7 个辅助设计工具
+        │   └── quickref.md            ← 快速参考卡片
+        └── scripts/
+            ├── init-artifact.sh        ← 项目脚手架（React + Vite + Tailwind + shadcn/ui + Vitest）
+            ├── bundle-artifact.sh      ← 将 React 应用打包为单文件 HTML
+            ├── shadcn-components.tar.gz ← 预构建的 shadcn/ui 组件包
+            └── templates/              ← 布局组件模板（单一可信源）
+                ├── PrototypeShell.tsx  ← 外壳：项目名 + 主题切换 + 页面导航
+                ├── PhoneFrame.tsx      ← 移动端框架：iPhone 14，tabBar slot，data-testid
+                ├── WindowFrame.tsx     ← 桌面端框架：macOS 窗口，sidebar slot，data-testid
+                └── layout-index.ts    ← 统一导出所有布局组件
 ```
 
 ### 产出结构（按项目生成）
@@ -242,10 +255,12 @@ doc/ixd/
 │   └── ...
 ├── phase5-components.md
 ├── phase6-visual.md
+├── phase7-prototype.html           ← 仅移动端原型
 ├── phase7-prototype-mobile.html    ← 跨平台：移动端
 ├── phase7-prototype-desktop.html   ← 跨平台：桌面端
+├── phase7-review-master.md         ← 统一评审报告（所有批次 + 完整性检查）
 ├── phase8-document.md
-└── phase8-review-round-1.md        ← 评审报告
+└── phase8-review-round-1.md        ← 最终交付评审报告
 ```
 
 ## 🔧 辅助工具

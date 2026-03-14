@@ -17,7 +17,11 @@ An [AgentSkills](https://agentskills.io)-compatible skill that guides AI assista
 - **10-section per-page specs** — Developer-ready interaction specifications with mandatory walkthrough
 - **Cross-platform dual prototypes** — Separate mobile (390×844) + desktop (1280×800) HTML prototypes sharing design tokens
 - **PC desktop client support** — Hover states, right-click menus, keyboard shortcuts, drag & drop, window management
+- **Slot pattern for device frames** — `PhoneFrame` accepts a `tabBar` slot; `WindowFrame` accepts a `sidebar` slot — custom components, not data arrays
+- **TDD-first prototype workflow** — Vitest + Testing Library pre-installed; `data-testid` built into PhoneFrame/WindowFrame for automated smoke tests before walkthrough
+- **Word-style desktop layout** — `flex flex-col h-full` pattern for fixed MenuBar + Toolbar above scrollable content inside WindowFrame
 - **47-item heuristic walkthrough** — Automated interaction quality check across 10 categories
+- **Unified batch review report** — All batch reviews append to `phase7-review-master.md` (single incremental file, no per-batch files)
 - **7 auxiliary tools** — Competitor analysis, heuristic review, A/B comparison, visual style exploration, multi-perspective review, micro-interaction design, PC client interaction
 - **Final review gate** — Mandatory walkthrough + multi-perspective review with fix cycle (max 3 rounds) before delivery
 - **Smart phase resumption** — Dependency-aware context loading, not "load everything"
@@ -217,17 +221,26 @@ ixd-design-skill/
     └── ixd-design/                 ← AgentSkills-compatible skill folder
         ├── SKILL.md                ← Main entry point (740+ lines)
         ├── INSTALL.md              ← Installation guide
-        └── references/
-            ├── phase1-context.md       ← Product context gathering
-            ├── phase2-architecture.md  ← 22-type page taxonomy
-            ├── phase3-userflow.md      ← Flow diagram patterns
-            ├── phase4-page-interaction.md ← 10-section page spec format
-            ├── phase5-components.md    ← Design token + component spec
-            ├── phase6-visual.md        ← 10-dimension visual system
-            ├── phase7-prototype.md     ← HTML prototype patterns (mobile + desktop)
-            ├── phase8-delivery.md      ← Delivery document structure
-            ├── auxiliary-tools.md      ← 7 auxiliary design tools
-            └── quickref.md            ← Quick reference card
+        ├── references/
+        │   ├── phase1-context.md       ← Product context gathering
+        │   ├── phase2-architecture.md  ← 22-type page taxonomy
+        │   ├── phase3-userflow.md      ← Flow diagram patterns
+        │   ├── phase4-page-interaction.md ← 10-section page spec format
+        │   ├── phase5-components.md    ← Design token + component spec
+        │   ├── phase6-visual.md        ← 10-dimension visual system
+        │   ├── phase7-prototype.md     ← HTML prototype patterns (mobile + desktop)
+        │   ├── phase8-delivery.md      ← Delivery document structure
+        │   ├── auxiliary-tools.md      ← 7 auxiliary design tools
+        │   └── quickref.md            ← Quick reference card
+        └── scripts/
+            ├── init-artifact.sh        ← Project scaffolding (React + Vite + Tailwind + shadcn/ui + Vitest)
+            ├── bundle-artifact.sh      ← Bundle React app to single HTML file
+            ├── shadcn-components.tar.gz ← Pre-built shadcn/ui components
+            └── templates/              ← Canonical layout component templates (single source of truth)
+                ├── PrototypeShell.tsx  ← Shell: project name, theme toggle, page nav
+                ├── PhoneFrame.tsx      ← Mobile frame: iPhone 14, tabBar slot, data-testid
+                ├── WindowFrame.tsx     ← Desktop frame: macOS window, sidebar slot, data-testid
+                └── layout-index.ts    ← Re-exports all layout components
 ```
 
 ### Output Structure (generated per project)
@@ -243,10 +256,12 @@ doc/ixd/
 │   └── ...
 ├── phase5-components.md
 ├── phase6-visual.md
+├── phase7-prototype.html           ← Mobile-only prototype
 ├── phase7-prototype-mobile.html    ← Cross-platform: mobile
 ├── phase7-prototype-desktop.html   ← Cross-platform: desktop
+├── phase7-review-master.md         ← Unified review report (all batches + completeness check)
 ├── phase8-document.md
-└── phase8-review-round-1.md        ← Review report
+└── phase8-review-round-1.md        ← Final delivery review report
 ```
 
 ## 🔧 Auxiliary Tools
