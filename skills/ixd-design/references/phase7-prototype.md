@@ -316,6 +316,8 @@ export function Home() {
 - ❌ Using native scrollbar — PhoneFrame already handles scrolling with `scrollbar-hide`
 - ❌ Re-implementing the **title bar** inside WindowFrame children — WindowFrame already renders it
 - ❌ Implementing Sidebar inside page children — use `sidebar` prop slot so it stays as `flex-shrink-0` and never overflows the window
+- ❌ Putting app-level Menu Bar / Toolbar directly in children (without `flex flex-col h-full` wrapper) — they will scroll with page content instead of staying fixed
+- ❌ Re-implementing Menu Bar / Toolbar on every page individually — extract to `AppMenuBar` / `AppToolbar` components, use once per page via wrapper
 
 **Mobile Page Responsibility Split**:
 
@@ -371,6 +373,8 @@ src/
 │   ├── ui/              # shadcn/ui components (pre-installed)
 │   ├── layout/
 │   │   ├── AppSidebar.tsx     # Custom Sidebar (sidebar slot for WindowFrame) — implement per Phase 4 spec
+│   │   ├── AppMenuBar.tsx     # App-level menu bar (File/Edit/View/...) — only if Phase 4 spec includes it
+│   │   ├── AppToolbar.tsx     # App-level toolbar/ribbon — only if Phase 4 spec includes it
 │   │   ├── PrototypeShell.tsx # Simplified shell (project name + theme)
 │   │   └── WindowFrame.tsx    # Desktop window frame for pages (title bar built-in)
 │   └── shared/          # Shared business components
@@ -700,8 +704,10 @@ export function Dashboard() {
 | Element | Belongs in | Reason |
 |---------|-----------|--------|
 | Title Bar (traffic lights + window title) | **WindowFrame** — already built-in | Window Chrome, same on every page |
-| Sidebar (navigation items) | **`sidebar` prop** → `AppSidebar` component | App Chrome, shared across pages, supports collapsible design, any item layout |
-| Top Toolbar / Breadcrumb | **Page `children`** | Page-specific, part of scrollable or fixed content area |
+| Sidebar (navigation items) | **`sidebar` prop** → `AppSidebar` component | App Chrome, shared across pages, supports collapsible design |
+| App-level Menu Bar (File / Edit / View / ...) | **`children` wrapper** → `AppMenuBar` (flex-shrink-0) | App Chrome — use `flex flex-col h-full` wrapper pattern (see below) |
+| App-level Toolbar / Ribbon (Bold / Undo / Insert...) | **`children` wrapper** → `AppToolbar` (flex-shrink-0) | App Chrome — same wrapper pattern |
+| Page-specific Toolbar (Filter / Sort / Breadcrumb) | **Page `children`** | Page-specific, part of scrollable content |
 | Page content (lists, tables, forms) | **Page `children`** | Page-specific, scrollable |
 
 > **NOTE**: WindowFrame provides:
@@ -713,6 +719,81 @@ export function Dashboard() {
 > - Left: `sidebar` slot width is defined by `AppSidebar` — do NOT add sidebar navigation in children
 > - Right: within total window width minus sidebar
 > - Top: title bar is outside the content area — do NOT re-implement it inside children
+
+**Word-style App Layout Pattern** (app with menu bar + toolbar):
+
+When the app has an app-level menu bar and/or toolbar (e.g. Microsoft Word, Figma, VS Code), use a `flex flex-col h-full` wrapper as the FIRST element in `children`. This keeps the bars fixed (non-scrolling) above the scrollable content area:
+
+```tsx
+// src/pages/desktop/Editor.tsx
+import { WindowFrame } from '@/components/layout/WindowFrame';
+import { AppSidebar } from '@/components/layout/AppSidebar';
+import { AppMenuBar } from '@/components/layout/AppMenuBar';
+import { AppToolbar } from '@/components/layout/AppToolbar';
+
+export function Editor() {
+  return (
+    <WindowFrame
+      theme="light"
+      title="Document.docx — MyEditor"
+      width={1280}
+      height={800}
+      sidebar={<AppSidebar activeItem="editor" />}  {/* optional */}
+    >
+      {/**
+       * App Chrome bars: use flex-col h-full wrapper.
+       * h-full fills the content area exactly — no outer overflow, outer div won't scroll.
+       * AppMenuBar and AppToolbar are flex-shrink-0 (non-scrolling).
+       * The inner div (flex-1 overflow-y-auto) handles the actual page scroll.
+       */}
+      <div className="flex flex-col h-full">
+        <AppMenuBar />   {/* App Chrome: File / Edit / View / Format / ... */}
+        <AppToolbar />   {/* App Chrome: Bold / Italic / Undo / Redo / ... */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Page content — scrollable */}
+          <DocumentContent />
+        </div>
+      </div>
+    </WindowFrame>
+  );
+}
+```
+
+**Why `flex flex-col h-full` works**:
+- `h-full` fills the WindowFrame content area exactly → outer `overflow-auto` never activates
+- Menu bar and toolbar are `flex-shrink-0` → they stay fixed above content, never scroll
+- `flex-1 overflow-y-auto` on the inner div → handles page scrolling independently
+
+**AppMenuBar pattern** (define once, used by all pages that share the menu):
+```tsx
+// src/components/layout/AppMenuBar.tsx
+export function AppMenuBar() {
+  return (
+    <div className="flex-shrink-0 h-8 flex items-center px-2 gap-1 bg-neutral-100 border-b border-neutral-200 text-sm">
+      {['File', 'Edit', 'View', 'Insert', 'Format', 'Help'].map(label => (
+        <button key={label} className="px-3 py-1 rounded hover:bg-neutral-200 text-neutral-700">
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+```
+
+**AppToolbar pattern** (ribbon / icon toolbar):
+```tsx
+// src/components/layout/AppToolbar.tsx
+export function AppToolbar() {
+  return (
+    <div className="flex-shrink-0 h-10 flex items-center gap-1 px-3 bg-white border-b border-neutral-200">
+      <button className="p-1.5 rounded hover:bg-neutral-100 font-bold text-sm">B</button>
+      <button className="p-1.5 rounded hover:bg-neutral-100 italic text-sm">I</button>
+      <button className="p-1.5 rounded hover:bg-neutral-100 underline text-sm">U</button>
+      {/* ... more toolbar buttons per Phase 4 spec ... */}
+    </div>
+  );
+}
+```
 
 **AppSidebar Pattern** (implement per Phase 4 spec):
 ```tsx
