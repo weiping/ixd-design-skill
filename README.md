@@ -22,7 +22,7 @@ An [AgentSkills](https://agentskills.io)-compatible skill that guides AI assista
 - **Word-style desktop layout** — `flex flex-col h-full` pattern for fixed MenuBar + Toolbar above scrollable content inside WindowFrame
 - **47-item heuristic walkthrough** — Automated interaction quality check across 10 categories
 - **Unified batch review report** — All batch reviews append to `phase7-review-master.md` (single incremental file, no per-batch files)
-- **7 auxiliary tools** — Competitor analysis, heuristic review, A/B comparison, visual style exploration, multi-perspective review, micro-interaction design, PC client interaction
+- **6 auxiliary tools** — Competitor analysis, heuristic review, A/B comparison, visual style exploration, multi-perspective review, micro-interaction design
 - **Final review gate** — Mandatory walkthrough + multi-perspective review with fix cycle (max 3 rounds) before delivery
 - **Smart phase resumption** — Dependency-aware context loading, not "load everything"
 
@@ -230,7 +230,7 @@ ixd-design-skill/
         │   ├── phase6-visual.md        ← 10-dimension visual system
         │   ├── phase7-prototype.md     ← HTML prototype patterns (mobile + desktop)
         │   ├── phase8-delivery.md      ← Delivery document structure
-        │   ├── auxiliary-tools.md      ← 7 auxiliary design tools
+        │   ├── auxiliary-tools.md      ← 6 auxiliary design tools
         │   └── quickref.md            ← Quick reference card
         └── scripts/
             ├── init-artifact.sh        ← Project scaffolding (React + Vite + Tailwind + shadcn/ui + Vitest)
@@ -276,7 +276,6 @@ These tools can be invoked at any point via natural language:
 | Visual Style Exploration | "style options" / "探索风格" |
 | Multi-Perspective Review | "different viewpoints" / "多角色评审" |
 | Micro-Interaction Design | "micro-interaction" / "微交互" |
-| PC Client Interaction | "desktop interaction" / "PC客户端设计" |
 
 ## 📊 Key Numbers
 

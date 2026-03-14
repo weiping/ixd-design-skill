@@ -22,7 +22,7 @@
 - **Word 风格桌面布局** — `flex flex-col h-full` 模式，在 WindowFrame 内实现固定菜单栏 + 工具栏 + 可滚动内容区
 - **47 项启发式走查** — 覆盖 10 个类别的自动化交互质量检查
 - **统一批次评审报告** — 所有批次评审追加写入 `phase7-review-master.md`（单文件增量追加，不生成独立批次文件）
-- **7 个辅助工具** — 竞品分析、启发式评审、A/B 对比、视觉风格探索、多角色评审、微交互设计、PC 客户端交互
+- **6 个辅助工具** — 竞品分析、启发式评审、A/B 对比、视觉风格探索、多角色评审、微交互设计
 - **最终评审关卡** — 强制走查 + 多角色评审修复循环（最多 3 轮）后方可交付
 - **智能阶段恢复** — 基于依赖关系的上下文加载，而非"加载所有内容"
 
@@ -229,7 +229,7 @@ ixd-design-skill/
         │   ├── phase6-visual.md        ← 10 维度视觉系统
         │   ├── phase7-prototype.md     ← HTML 原型模式（移动端 + 桌面端）
         │   ├── phase8-delivery.md      ← 交付文档结构
-        │   ├── auxiliary-tools.md      ← 7 个辅助设计工具
+        │   ├── auxiliary-tools.md      ← 6 个辅助设计工具
         │   └── quickref.md            ← 快速参考卡片
         └── scripts/
             ├── init-artifact.sh        ← 项目脚手架（React + Vite + Tailwind + shadcn/ui + Vitest）
@@ -275,7 +275,6 @@ doc/ixd/
 | 视觉风格探索 (Visual Style Exploration) | "探索风格" / "style options" |
 | 多角色评审 (Multi-Perspective Review) | "多角色评审" / "different viewpoints" |
 | 微交互设计 (Micro-Interaction Design) | "微交互" / "micro-interaction" |
-| PC 客户端交互 (PC Client Interaction) | "PC客户端设计" / "desktop interaction" |
 
 ## 📊 关键数据
 

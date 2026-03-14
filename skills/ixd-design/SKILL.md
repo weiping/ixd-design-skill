@@ -1130,7 +1130,6 @@ If **Round 3 still FAILS**:
 | Visual Style Exploration | "explore styles" / "style options" / "visual style" / "style direction" | `references/auxiliary-tools.md` |
 | Multi-Perspective Review | "multi-perspective review" / "different viewpoints" / "multiple angles" | `references/auxiliary-tools.md` |
 | Micro-Interaction Design | "micro-interaction" / "animation details" / "interaction polish" | `references/auxiliary-tools.md` |
-| PC Client Interaction | "PC client design" / "desktop interaction" / "desktop UX" | `references/auxiliary-tools.md` |
 
 ---
 
