@@ -337,7 +337,7 @@ export function CommunityHome() {
        * children = scrollable page content ONLY.
        * ✅ DO: implement page-specific top nav bar (搜索/分段控件/消息图标) here
        * ✅ DO: implement all scrollable page content here
-       * ❌ DON'T: re-implement status bar — PhoneFrame already provides it (pt-11 safe area)
+       * ❌ DON'T: re-implement status bar — PhoneFrame already provides it (flex child inside screen area)
        * ❌ DON'T: re-implement Tab Bar — pass it via `tabBar` prop above
        */}
       <TopNavBar />        {/* Page-specific top nav: search + segments + message icon */}
@@ -402,7 +402,8 @@ export function Home() {
 - ❌ NOT using PhoneFrame/WindowFrame — device simulation won't work
 - ❌ Putting content outside PhoneFrame/WindowFrame — won't scroll properly
 - ❌ Forgetting to wrap each page — only first page has frame
-- ❌ Re-implementing the **status bar** inside page children — PhoneFrame already renders it; adding it again causes duplication and layout overflow
+- ❌ Re-implementing the **status bar** inside page children — PhoneFrame already renders it as a flex child; adding it again causes duplication and layout overflow
+- ❌ Adding `pt-11` to page `children` — status bar is now a flex sibling above `children`, no manual top padding needed
 - ❌ Implementing Tab Bar inside page children — use `tabBar` prop slot so it stays within screen area
 - ❌ Using native scrollbar — PhoneFrame already handles scrolling with `scrollbar-hide`
 - ❌ Re-implementing the **title bar** inside WindowFrame children — WindowFrame already renders it
@@ -422,14 +423,14 @@ export function Home() {
 | Page content (lists, cards, forms) | **Page `children`** | Page-specific, scrollable |
 
 > **NOTE**: PhoneFrame provides:
-> - **Status bar** (44px height, phone Chrome) — rendered automatically, `pt-11` applied to content area
+> - **Status bar** (44px height, flex child inside screen) — rendered automatically, theme-aware colors, do NOT re-implement
 > - **`tabBar` slot** — your custom `AppTabBar` component renders here as `flex-shrink-0`
 > - **Hidden scrollbar** (`scrollbar-hide` class)
-> - **Mouse wheel → scroll** translation (simulates swipe on desktop)
+> - **Mouse wheel → scroll** translation (captures wheel events on entire phone frame; walks up from event target to find the nearest scrollable element — inner scroll containers scroll first, PhoneFrame root is fallback)
 > - **Dynamic Island** (`pointer-events-none`, phone Chrome)
 >
 > **Content Safe Area**: Page `children` must respect:
-> - Top: `pt-11` (44px) is already applied — do NOT re-add status bar; DO add page-specific top nav bar if needed
+> - Top: Status bar (44px) is already above `children` — do NOT add `pt-11`; DO add page-specific top nav bar if needed
 > - Bottom: `tabBar` slot height is defined by `AppTabBar` — do NOT add bottom nav in children
 > - Left/Right: within 390px screen width
 
@@ -686,10 +687,10 @@ PhoneFrame manages **phone Chrome** only (status bar, frame, dynamic island, hom
 ### Layout Structure
 
 ```
-PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)
-├── Status Bar (absolute top-0, h-11=44px, z-10)     ← phone Chrome, always present
+PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)  ← wheel events captured here
 ├── Screen Area (rounded-[40px], h-full, flex-col)
-│   ├── Content (flex-1, overflow-y-auto, pt-11)      ← 44px top safe area
+│   ├── Status Bar (flex-shrink-0, h-11=44px)         ← inside screen, theme-aware text color
+│   ├── Content (flex-1, overflow-y-auto)              ← scrollable, NO pt-11 needed
 │   │   ├── [Top Nav Bar]  ← page-specific, inside children
 │   │   └── [Page Content] ← scrollable
 │   └── tabBar slot (flex-shrink-0)                   ← custom Tab Bar, within screen area
@@ -697,16 +698,23 @@ PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)
 └── Home Indicator (absolute bottom-1, h-1)
 ```
 
+> **v2.9 change**: Status bar moved **inside** the screen area as a `flex-shrink-0` flex child (was `absolute`).
+> This ensures the status bar inherits the screen background and uses theme-aware text color (dark text on light screen,
+> white text on dark screen). `pt-11` on `children` is **no longer needed**.
+> Wheel event listener is now attached to the **outermost frame div** (covers the entire phone area),
+> so scrolling anywhere on the phone — including the status bar and tab bar zones — scrolls the content area,
+> not the outer PrototypeShell.
+
 **Props API**:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | — | Scrollable page content (top nav + main content). `pt-11` (44px) applied internally for status bar. |
+| `children` | `ReactNode` | — | Scrollable page content (top nav + main content). Status bar safe area is handled internally — do NOT add `pt-11`. |
 | `tabBar` | `ReactNode` | `undefined` | Custom Tab Bar component. Rendered as `flex-shrink-0` at bottom of screen area. Pass `null` for pages without Tab Bar. |
 | `theme` | `'light' \| 'dark'` | `'light'` | Frame and screen background color scheme |
 
 **Safe Area Rules**:
-- Top: `pt-11` (44px) reserved for status bar — automatically applied, do NOT add extra top padding to `children`
+- Top: Status bar (44px) is a flex child — automatically present, do NOT add extra top padding to `children`
 - Bottom: `tabBar` slot is `flex-shrink-0` — the slot itself defines the height (e.g., 49pt + safe area)
 - Left/Right: content stays within 390px screen area
 
