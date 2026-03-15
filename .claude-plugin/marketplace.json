@@ -1,34 +1,21 @@
 {
-  "name": "ixd-design",
+  "name": "ixd-design-skill",
+  "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
   "owner": {
     "name": "weiping",
     "email": "yuyang@msn.com"
   },
-  "metadata": {
-    "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
-    "version": "1.0.0",
-    "keywords": [
-      "interaction-design",
-      "ixd",
-      "ui-design",
-      "ux-design",
-      "design-workflow",
-      "prototype",
-      "visual-design",
-      "information-architecture",
-      "component-spec",
-      "design-system"
-    ]
-  },
   "plugins": [
     {
       "name": "ixd-design",
-      "description": "",
+      "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
+      "version": "1.0.0",
       "source": "./",
-      "strict": true,
+      "category": "development",
+      "strict": false,
       "skills": [
         "./skills/ixd-design"
       ]
-    },
+    }
   ]
 } 
