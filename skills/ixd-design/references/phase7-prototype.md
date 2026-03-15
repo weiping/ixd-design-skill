@@ -396,7 +396,23 @@ export function Home() {
 **Reference Phase 4 for each page**:
 - **Interaction Specs**: Each page must implement the gestures, transitions, and behaviors defined in `phase4-page-interaction.md`
 - **Component States**: Use component states (default, hover, pressed, disabled, loading) as defined in `phase5-components.md`
-- **Visual Styling**: Apply colors, typography, and spacing from `phase6-visual.md`
+- **Visual Styling**: Apply colors, typography, and spacing from `phase6-visual.md` using the two-step lookup below:
+
+**Phase 6 Visual Lookup (per page)**:
+
+1. **Identify the page type** (Hub / List / Detail / Form / Auth / …) from the Phase 2 page inventory
+2. **Find the type representative annotation** in `phase6-visual.md` Section 8A — this is the baseline visual spec for all pages of this type (background, nav bar, card style, CTA style, brand elements)
+3. **Check the Visual Exception Table** (`phase6-visual.md` Section 8B) — if this specific page appears in the table, apply the listed override on top of the type representative
+4. If the page type has no representative annotation and no exception entry, apply the standard design system defaults (tokens from `phase5-components.md` + colors from `phase6-visual.md` Section 1)
+
+```
+Visual decision priority (highest → lowest):
+Page-specific exception (Section 8B)
+  ↓
+Type representative annotation (Section 8A)
+  ↓
+Design system defaults (Phase 5 tokens + Phase 6 color/typography)
+```
 
 **Common Mistakes to Avoid**:
 - ❌ NOT using PhoneFrame/WindowFrame — device simulation won't work
@@ -996,6 +1012,11 @@ import { Input } from '@/components/ui/input';
 ```
 
 ### Phase 6 (Visual Design) Requirements
+
+**Before implementing any page**, run the Phase 6 Visual Lookup:
+1. Identify page type → read Section 8A type representative annotation
+2. Check Section 8B exception table for this specific page
+3. Apply: exception overrides > type annotation > design system defaults
 
 Apply design tokens from `phase6-visual.md`:
 

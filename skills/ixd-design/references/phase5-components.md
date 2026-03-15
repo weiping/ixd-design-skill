@@ -8,6 +8,11 @@ Extract reusable components from the page specs (Phase 4) and document them as a
 
 Design tokens are the atomic values that all components reference.
 
+> **Scope boundary — what Phase 5 owns vs. Phase 6:**
+> - **Phase 5 defines**: structural tokens (spacing, sizing, radius, motion timing/curves) with specific values; color and typography **token names** as semantic identifiers.
+> - **Phase 6 defines**: all color hex values, dark mode mappings, and font family selections.
+> - **Rule**: Do NOT invent color hex values or choose font families in Phase 5. Use `TBD (→ Phase 6)` as the value placeholder for all color tokens and font-family tokens. Phase 6 will back-fill these values into `phase5-components.md` after the visual system is finalized.
+
 ### Color System
 
 [English]
@@ -17,9 +22,9 @@ Design tokens are the atomic values that all components reference.
 ### Brand Colors
 | Token | Value | Usage |
 |-------|-------|-------|
-| --color-primary | #<<hex>> | Primary actions, links, selected states |
-| --color-primary-light | #<<hex>> | Primary light background |
-| --color-primary-dark | #<<hex>> | Primary pressed state |
+| --color-primary | TBD (→ Phase 6) | Primary actions, links, selected states |
+| --color-primary-light | TBD (→ Phase 6) | Primary light background |
+| --color-primary-dark | TBD (→ Phase 6) | Primary pressed state |
 
 ### Semantic Colors
 | Token | Value | Usage |
@@ -32,21 +37,23 @@ Design tokens are the atomic values that all components reference.
 ### Neutral Colors
 | Token | Value | Usage |
 |-------|-------|-------|
-| --color-text-primary | #1A1A1A | Headings, primary body text |
-| --color-text-secondary | #666666 | Secondary text, descriptions |
-| --color-text-placeholder | #BFBFBF | Input placeholder text |
-| --color-text-disabled | #C0C0C0 | Disabled state text |
-| --color-border | #E8E8E8 | Dividers, borders |
-| --color-bg-page | #F5F5F5 | Page background |
-| --color-bg-card | #FFFFFF | Card/component background |
-| --color-bg-mask | rgba(0,0,0,0.45) | Overlay mask |
+| --color-text-primary | TBD (→ Phase 6) | Headings, primary body text |
+| --color-text-secondary | TBD (→ Phase 6) | Secondary text, descriptions |
+| --color-text-placeholder | TBD (→ Phase 6) | Input placeholder text |
+| --color-text-disabled | TBD (→ Phase 6) | Disabled state text |
+| --color-border | TBD (→ Phase 6) | Dividers, borders |
+| --color-bg-page | TBD (→ Phase 6) | Page background |
+| --color-bg-card | TBD (→ Phase 6) | Card/component background |
+| --color-bg-mask | TBD (→ Phase 6) | Overlay mask |
 
 ### Dark Mode Mapping
+> Dark mode hex values are determined in Phase 6. List token pairs here; values TBD.
+
 | Light Token | Dark Value |
 |-------------|------------|
-| --color-text-primary | #E8E8E8 |
-| --color-bg-page | #141414 |
-| --color-bg-card | #1F1F1F |
+| --color-text-primary | TBD (→ Phase 6) |
+| --color-bg-page | TBD (→ Phase 6) |
+| --color-bg-card | TBD (→ Phase 6) |
 ```
 
 [中文]
@@ -56,9 +63,9 @@ Design tokens are the atomic values that all components reference.
 ### 品牌色
 | Token | 色值 | 用途 |
 |-------|------|------|
-| --color-primary | #<<hex>> | 主操作、链接、选中态 |
-| --color-primary-light | #<<hex>> | 主色浅色背景 |
-| --color-primary-dark | #<<hex>> | 主色按下态 |
+| --color-primary | TBD（→ 阶段六）| 主操作、链接、选中态 |
+| --color-primary-light | TBD（→ 阶段六）| 主色浅色背景 |
+| --color-primary-dark | TBD（→ 阶段六）| 主色按下态 |
 
 ### 功能色
 | Token | 色值 | 用途 |
@@ -71,21 +78,23 @@ Design tokens are the atomic values that all components reference.
 ### 中性色
 | Token | 色值 | 用途 |
 |-------|------|------|
-| --color-text-primary | #1A1A1A | 标题、正文主文字 |
-| --color-text-secondary | #666666 | 辅助文字、说明 |
-| --color-text-placeholder | #BFBFBF | 输入框占位文字 |
-| --color-text-disabled | #C0C0C0 | 禁用态文字 |
-| --color-border | #E8E8E8 | 分割线、边框 |
-| --color-bg-page | #F5F5F5 | 页面背景 |
-| --color-bg-card | #FFFFFF | 卡片/组件背景 |
-| --color-bg-mask | rgba(0,0,0,0.45) | 蒙层 |
+| --color-text-primary | TBD（→ 阶段六）| 标题、正文主文字 |
+| --color-text-secondary | TBD（→ 阶段六）| 辅助文字、说明 |
+| --color-text-placeholder | TBD（→ 阶段六）| 输入框占位文字 |
+| --color-text-disabled | TBD（→ 阶段六）| 禁用态文字 |
+| --color-border | TBD（→ 阶段六）| 分割线、边框 |
+| --color-bg-page | TBD（→ 阶段六）| 页面背景 |
+| --color-bg-card | TBD（→ 阶段六）| 卡片/组件背景 |
+| --color-bg-mask | TBD（→ 阶段六）| 蒙层 |
 
 ### 深色模式映射
+> 深色模式具体色值由阶段六决定，此处仅列出 Token 对应关系，色值 TBD。
+
 | Light Token | Dark Value |
 |-------------|-----------|
-| --color-text-primary | #E8E8E8 |
-| --color-bg-page | #141414 |
-| --color-bg-card | #1F1F1F |
+| --color-text-primary | TBD（→ 阶段六）|
+| --color-bg-page | TBD（→ 阶段六）|
+| --color-bg-card | TBD（→ 阶段六）|
 ```
 
 ### Typography Scale
@@ -95,9 +104,10 @@ Design tokens are the atomic values that all components reference.
 ## Typography System
 
 **Font Family**:
-- Chinese: <<PingFang SC / HarmonyOS Sans / Noto Sans SC>>
-- English: <<SF Pro / Roboto / follow Chinese>>
-- Numeric: <<DIN / Roboto Mono>> (amounts, counters, etc.)
+> Font family selection is a Phase 6 decision. Define token names only; actual font names are TBD.
+- Chinese: `--font-family-zh: TBD (→ Phase 6)`
+- English: `--font-family-en: TBD (→ Phase 6)`
+- Numeric: `--font-family-num: TBD (→ Phase 6)`
 
 ### Type Scale
 | Token | Size | Line Height | Weight | Usage |
@@ -116,9 +126,10 @@ Design tokens are the atomic values that all components reference.
 ## 字体系统
 
 **字体族**：
-- 中文：<<PingFang SC / HarmonyOS Sans / Noto Sans SC>>
-- 英文：<<SF Pro / Roboto / 跟随中文>>
-- 数字：<<DIN / Roboto Mono>>（金额、计数器等）
+> 字体家族选型由阶段六决定，此处仅定义 Token 名称，具体字体名称 TBD。
+- 中文：`--font-family-zh: TBD（→ 阶段六）`
+- 英文：`--font-family-en: TBD（→ 阶段六）`
+- 数字：`--font-family-num: TBD（→ 阶段六）`
 
 ### 字号阶梯
 | Token | 字号 | 行高 | 字重 | 用途 |
@@ -443,12 +454,14 @@ Organize components by these categories:
 
 ### Basic Verification
 
-- [ ] All design tokens are defined with specific values
+- [ ] Structural tokens (spacing, radius, shadow levels, motion timing/curves) have specific values
+- [ ] Color token NAMES are defined; brand/neutral color VALUES are `TBD (→ Phase 6)` — do NOT fill hex values
+- [ ] Typography type scale (sizes, line-heights, weights) defined; font-family tokens are `TBD (→ Phase 6)`
+- [ ] Dark mode token pairs are listed (Light Token ↔ Dark Token name); dark values are TBD
 - [ ] Token naming is consistent and semantic
 - [ ] Every component from Phase 4 is covered
-- [ ] Component specs include all states
+- [ ] Component specs include all states (use `--color-*` token names in state tables, not hex values)
 - [ ] Touch targets ≥ 44px documented
-- [ ] Dark mode token mapping is complete
 - [ ] Responsive breakpoints are defined
 
 ### Output Verification Procedure

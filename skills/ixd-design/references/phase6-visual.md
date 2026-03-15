@@ -4,12 +4,16 @@
 
 Based on the interaction specs (Phase 4) and component library (Phase 5), produce a complete visual design system. This bridges the gap between "what the product does" and "how it looks and feels" — equivalent to a Figma high-fidelity design token system.
 
+**Phase 6 owns two responsibilities:**
+1. Define all 10 visual design dimensions (color, typography, iconography, motion, etc.)
+2. **Back-fill Phase 5's color and typography token values** — Phase 5 intentionally left all `--color-*` and `--font-family-*` token values as `TBD (→ Phase 6)`. After completing Section 1 (Color) and Section 2 (Typography) below, update `doc/ixd/phase5-components.md` to replace every `TBD` with the actual hex values and font names decided here.
+
 ## Why This Phase Exists Here
 
 ```
-Phase 5 (Component Library) → defines the SKELETON (what components exist, sizes, states)
-Phase 6 (Visual Design)     → dresses the skeleton (color, type, icons, brand personality)
-Phase 7 (Prototype)         → brings the dressed skeleton to life (interactive code)
+Phase 5 (Component Library) → defines the SKELETON (component structure, sizes, states, token names)
+Phase 6 (Visual Design)     → dresses the skeleton (fills token values: color hex, font families, brand personality)
+Phase 7 (Prototype)         → brings the dressed skeleton to life (interactive code using final tokens)
 ```
 
 Visual design decisions must be made BEFORE prototyping, otherwise the prototype will use generic styling that doesn't reflect the product's brand or intended emotional tone.
@@ -164,14 +168,45 @@ See the component library (Phase 5) for base values. Visual design adds:
 
 ---
 
-## 8. Key Screen Visual Specs
+## 8. Page-Type Visual Annotations + Exception Table
 
-For 3-5 core screens, produce detailed visual annotations:
+Rather than annotating only 3-5 arbitrary "key pages", annotate **one representative page per page type** present in this product (derived from the Phase 2 page inventory). This creates a visual reference library for Phase 7.
+
+**Selection rule**: Map Phase 2 pages to the 22 page types, then pick the most prominent page of each type as its representative. Skip types not present in this product.
+
+**Common type → representative mapping**:
+
+| Page Type | Typical Representative |
+|-----------|----------------------|
+| Hub | Home / Dashboard / Main workspace |
+| List | Core content list (feed / product list / file browser) |
+| Detail | Core detail page (product detail / article / document) |
+| Search | Search results page |
+| Filter | Category/filter browse page |
+| Form | Primary creation or edit form |
+| Wizard | Onboarding / multi-step form |
+| Picker | Date picker / location selector |
+| Result | Success page (order placed / registration complete) |
+| Empty State | No-content placeholder |
+| Auth | Login page |
+| Profile | My Profile page |
+| Settings | Main settings page |
+| About / Legal | About Us / Terms page |
+| Splash | Splash screen |
+| Onboarding | First-time onboarding screen |
+| Dialog / Sheet | Most common overlay (confirmation sheet / add-item dialog) |
+| Workspace *(desktop)* | Main multi-panel workspace |
+| Side Panel *(desktop)* | Properties / navigation panel |
+| Preferences *(desktop)* | Preferences window |
+
+### 8A. Per-Type Representative Annotations
+
+For each page type present in this product, produce:
 
 ```markdown
-### Screen: <<Page Name>>
+#### [Type: <<Hub / List / Detail / ...>>] — Representative: <<Page Name>>
 
-**Overall Atmosphere**: <<Describe the visual feeling in one sentence>>
+**Overall Atmosphere**: <<One sentence visual feel>>
 **Background**: <<Solid color / gradient / texture / blurred image>>
 
 **Layout Annotations**:
@@ -181,17 +216,38 @@ For 3-5 core screens, produce detailed visual annotations:
 - Primary CTA: height <<px>>, radius <<px>>, bg <<solid/gradient>>
 
 **Brand Elements**:
-<<Any special visual treatment unique to this screen:
-  header gradient, brand illustration, decorative shapes, etc.>>
+<<Visual treatments unique to this page type — hero images, gradients, decorative shapes, illustrations, etc.>>
 ```
 
-> Cross-platform products need separate annotations for mobile and desktop versions
+> Cross-platform products: add a **Desktop Differences** sub-section per type:
+> - Title bar / toolbar style
+> - Sidebar width (collapsed / expanded)
+> - Information density (spacing / font size vs mobile)
+> - Window chrome style
 
-#### Desktop Differences (per key screen)
-- Title bar / toolbar style
-- Sidebar width
-- Information density adjustment
-- Window chrome style
+---
+
+### 8B. Visual Exception Table
+
+After annotating type representatives, scan all Phase 2 pages and record **only pages whose visual treatment deviates from their type representative or the standard design system**. Pages not listed here follow their type representative's annotation.
+
+| Page ID | Page Name | Exception Type | Description | Scope |
+|---------|-----------|---------------|-------------|-------|
+| <<P03>> | <<Order Success>> | Background | Brand gradient: primary→accent, 135° | Full-screen |
+| <<P08>> | <<Flash Sale>> | Color override | Accent color replaces primary for all CTAs | Page-wide |
+| <<P12>> | <<Onboarding Step 2>> | Illustration | Full-page illustration, no standard card layout | Content area |
+| ... | ... | ... | ... | ... |
+
+**Exception type vocabulary**:
+- `Background` — Non-standard background (gradient / image / video / texture)
+- `Color override` — Temporary color scheme or theme swap on this page
+- `Layout override` — Non-standard layout (full-bleed / centered card / split screen)
+- `Typography override` — Unusual font scale (hero text / marketing copy)
+- `Illustration` — Full-page illustration or custom visual assets required
+- `Dark forced` — This page is always dark regardless of system setting
+- `Chrome hidden` — Nav bar / tab bar intentionally hidden on this page
+
+> If no exceptions exist: write "All pages follow standard design system and their type representative annotations."
 
 ---
 
@@ -419,27 +475,83 @@ Define 2-3 principles (e.g., "purposeful", "natural", "restrained")
 - 页面边距(Margin)：<<16px(手机)/20px(平板)/24-32px(桌面)>>
 - 桌面端最大内容宽度：<<1200px/1440px/无限制（如为工具类应用）>>
 
-### 八、关键页面视觉标注 (Key Screen Specs)
+### 八、页面类型视觉标注 + 视觉例外表 (Page-Type Visual Annotations + Exception Table)
 
-为 3-5 个核心页面输出视觉标注说明（跨平台产品需分别标注移动端和桌面端版本）：
+不再只标注 3-5 个核心页面，而是为产品中存在的**每种页面类型各选一个代表页**进行视觉标注（基于阶段二页面清单），形成"视觉参考库"，供阶段七原型实现时按页面类型查阅。
 
-#### 页面：<<页面名>>
+**选取规则**：将阶段二页面映射到 22 种页面类型，每种类型选该产品中最重要的一个页面作为代表。不存在的类型跳过。
+
+**常见类型 → 代表页映射参考**：
+- Hub（中枢/首页）→ 首页 / Dashboard / 主工作区
+- List（列表）→ 核心内容列表（商品列表 / 信息流 / 文件列表）
+- Detail（详情）→ 核心详情页（商品详情 / 文章详情 / 文档详情）
+- Search（搜索）→ 搜索结果页
+- Filter（筛选）→ 分类筛选浏览页
+- Form（表单）→ 主要创建或编辑表单
+- Wizard（向导）→ 新手引导 / 多步骤表单
+- Picker（选择器）→ 日期选择器 / 地点选择器
+- Result（结果）→ 成功页（下单成功 / 注册完成）
+- Empty State（空态）→ 无内容占位页
+- Auth（认证）→ 登录页
+- Profile（个人主页）→ 我的主页
+- Settings（设置）→ 主设置页
+- About/Legal（关于/法律）→ 关于我们 / 用户协议
+- Splash → 启动页
+- Onboarding → 新手引导页
+- Dialog/Sheet（弹层）→ 最常用的弹层（确认 Sheet / 添加弹窗）
+- Workspace（工作区，桌面端）→ 主多面板工作区
+- Side Panel（侧面板，桌面端）→ 属性 / 导航面板
+- Preferences（偏好设置，桌面端）→ 设置窗口
+
+#### 八-A. 各类型代表页标注
+
+对产品中存在的每种页面类型，输出以下标注：
+
+```
+#### [类型：<<Hub / List / Detail / ...>>] — 代表页：<<页面名>>
+
 **整体氛围**：<<一段话描述视觉感受>>
-**背景处理**：<<纯色/渐变/纹理/图片模糊>>
+**背景处理**：<<纯色 / 渐变 / 纹理 / 图片模糊>>
+
 **布局标注**：
-- 导航栏高度：<<px>>，背景：<<色值/透明>>
+- 导航栏高度：<<px>>，背景：<<色值 / 透明>>
 - 内容区上边距：<<px>>
-- 卡片样式：<<圆角/阴影/边框>>，间距：<<px>>
-- 按钮样式：<<高度/圆角/渐变或纯色>>
+- 卡片样式：<<圆角 / 阴影 / 边框>>，间距：<<px>>
+- 主要 CTA 按钮：<<高度 / 圆角 / 渐变或纯色>>
 
 **特殊视觉元素**：
-<<该页面独有的视觉设计，如品牌氛围图/背景装饰/动画等>>
+<<该类型页面特有的视觉设计，如品牌氛围图/背景装饰/插画/进场动画等>>
+```
 
-**桌面端差异**（PC 客户端适用）：
-- 标题栏/工具栏样式：<<高度/背景/按钮位置>>
-- 侧边栏宽度：<<折叠态/展开态>>
-- 信息密度调整：<<间距/字号与移动端的差异>>
-- 窗口 chrome 样式：<<边框/阴影/圆角>>
+> 跨平台产品：每个类型标注末尾加"**桌面端差异**"子节：
+> - 标题栏/工具栏样式
+> - 侧边栏宽度（折叠态/展开态）
+> - 信息密度（间距/字号与移动端的差异）
+> - 窗口 chrome 样式
+
+---
+
+#### 八-B. 视觉例外表
+
+完成类型代表页标注后，扫描阶段二所有页面，只记录**视觉处理与其所属类型代表页或设计系统默认值有偏差的页面**。未列出的页面一律遵循其类型代表页的标注。
+
+| 页面 ID | 页面名 | 例外类型 | 描述 | 作用范围 |
+|---------|--------|---------|------|---------|
+| <<P03>> | <<订单成功>> | 背景 | 品牌渐变：主色→强调色，135° | 全屏背景 |
+| <<P08>> | <<限时活动>> | 颜色覆盖 | 所有 CTA 按钮改用强调色 | 全页 |
+| <<P12>> | <<引导步骤 2>> | 插画全屏 | 全屏插画，无标准卡片布局 | 内容区 |
+| ... | ... | ... | ... | ... |
+
+**例外类型词汇**：
+- `背景` — 非标准背景处理（渐变 / 图片 / 视频 / 纹理）
+- `颜色覆盖` — 本页面使用临时配色方案或主题切换
+- `布局覆盖` — 非标准布局（通栏 / 居中卡片 / 左右分栏）
+- `字体覆盖` — 特殊字号或字重（Hero 大字 / 营销文案）
+- `插画全屏` — 全页面插画或需要定制视觉素材
+- `强制深色` — 该页面无论系统设置始终显示为深色模式
+- `导航隐藏` — 该页面的导航栏或 Tab Bar 被刻意隐藏
+
+> 若无例外：写"所有页面均遵循设计系统默认值和类型代表页标注。"
 
 ### 九、深色模式方案 (Dark Mode)
 
@@ -495,6 +607,39 @@ Define 2-3 principles (e.g., "purposeful", "natural", "restrained")
 
 ---
 
+## Token Back-fill: Update Phase 5 with Final Values
+
+After completing the 10 visual dimensions above, perform the following mandatory step before marking Phase 6 as complete:
+
+**Open `doc/ixd/phase5-components.md` and replace all `TBD` placeholders with actual values:**
+
+### Color Token Back-fill
+Scan Phase 5 for every `TBD (→ Phase 6)` in the Color System section and replace:
+
+| Phase 5 Token | Fill from Phase 6 Section |
+|---------------|--------------------------|
+| `--color-primary` and variants | Section 1 Brand Colors |
+| `--color-text-*`, `--color-bg-*`, `--color-border` | Section 1 Neutral Scale |
+| Dark mode token values | Section 9 Dark Mode Mapping |
+
+### Typography Token Back-fill
+| Phase 5 Token | Fill from Phase 6 Section |
+|---------------|--------------------------|
+| `--font-family-zh` | Section 2 Font Selection (Chinese font) |
+| `--font-family-en` | Section 2 Font Selection (English font) |
+| `--font-family-num` | Section 2 Font Selection (Numeric font) |
+
+### Verification Checklist (run before saving)
+- [ ] Every `TBD (→ Phase 6)` in `phase5-components.md` Color System has been replaced with a hex value
+- [ ] Every `TBD（→ 阶段六）` in the Chinese section has been replaced
+- [ ] Dark mode token values are filled in (not just the light mode tokens)
+- [ ] Font family token values are filled in (`--font-family-zh`, `--font-family-en`, `--font-family-num`)
+- [ ] No remaining `TBD` placeholders exist in `phase5-components.md`
+
+> **Note**: Semantic colors (`--color-success`, `--color-warning`, `--color-error`, `--color-info`) may already have sensible default values from Phase 5. Review and adjust them if Phase 6's brand direction warrants changes.
+
+---
+
 ## Optional: Style Tile (HTML)
 
 Generate an HTML page that visually demonstrates all design tokens:
@@ -520,8 +665,11 @@ Generate an HTML page that visually demonstrates all design tokens:
 - [ ] Illustration scenarios cover all empty states
 - [ ] Dark mode mapping is complete (no gaps)
 - [ ] Motion curves and durations are specified
-- [ ] 3-5 key screens have detailed visual annotations
+- [ ] **Section 8A complete**: one representative page annotated per page type present in the product
+- [ ] **Section 8B complete**: Visual Exception Table lists all pages deviating from their type representative (or explicitly states "no exceptions")
 - [ ] Visual system is consistent with the brand tone from Phase 1
+- [ ] **Token back-fill complete**: all `TBD (→ Phase 6)` in `phase5-components.md` replaced with actual hex values
+- [ ] **Font family back-fill complete**: `--font-family-zh/en/num` tokens updated in `phase5-components.md`
 
 ### Output Verification Procedure
 
@@ -543,7 +691,9 @@ After completing Phase 6, perform the following verification:
    - [ ] All color combinations pass WCAG AA (4.5:1)
    - [ ] Dark mode mapping is complete with no gaps
    - [ ] Visual system aligns with Phase 1 brand tone
-   - [ ] Key screen annotations are detailed enough for implementation
+   - [ ] Section 8A: every page type present in product has a representative annotation
+   - [ ] Section 8B: Visual Exception Table present (or "no exceptions" statement)
+   - [ ] Each type annotation is detailed enough for Phase 7 implementation (atmosphere / background / nav bar / card style / CTA / brand elements)
 
 5. **Output Summary**:
    ```markdown

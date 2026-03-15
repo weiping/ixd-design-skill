@@ -144,8 +144,10 @@ Chapter 4: Page Interaction Specifications
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Chapter 5: Component Specifications
-  5.1 Design Tokens
-      → Phase 5: Color/Typography/Spacing/Radius/Shadow/Motion
+  5.1 Design Tokens (Structural)
+      → Spacing / Border Radius / Shadow levels / Motion timing & curves: Phase 5
+      → Color token values (hex) / Font family selections: Phase 6 (back-filled into phase5-components.md)
+      Note: When Phase 6 back-fill is complete, phase5-components.md contains the full token set.
   5.2 Basic Components
       → Phase 5: Button/Input/Selector, etc.
   5.3 Feedback Components
@@ -210,10 +212,13 @@ Chapter 6: Visual Design
       - Grid (including desktop 12-16 columns / max content width / compact spacing)
       - Page margin rules
 
-  6.8 Key Screen Visual Annotations
-      - 3-5 core pages with detailed visual annotations
-      - Cross-platform products: separate annotations for mobile and desktop
-      - Desktop differences (title bar/sidebar/information density/window chrome)
+  6.8 Page-Type Visual Annotations + Exception Table
+      - 8A: One representative page annotated per page type present (Hub/List/Detail/Form/Auth/Settings/… up to 20 types)
+            Each annotation covers: atmosphere, background, nav bar, card style, CTA style, brand elements
+      - 8B: Visual Exception Table — only pages that deviate from their type representative
+            Exception types: Background / Color override / Layout override / Typography override / Illustration / Dark forced / Chrome hidden
+      - Cross-platform products: each type annotation includes a Desktop Differences sub-section
+            (title bar/sidebar width/information density/window chrome)
 
   6.9 Dark Mode Scheme
       - Adaptation strategy (full/core/follow system)
@@ -436,8 +441,10 @@ Appendix
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 第五章 组件规范
-  5.1 设计 Token
-      → Phase 5: 颜色/字体/间距/圆角/阴影/动效
+  5.1 设计 Token（结构性）
+      → 间距/圆角/阴影层级/动效时长与缓动曲线：Phase 5
+      → 颜色 Token 值（hex）/字体家族选型：Phase 6（回填至 phase5-components.md）
+      注：Phase 6 回填完成后，phase5-components.md 包含完整 Token 集合。
   5.2 基础组件
       → Phase 5: 按钮/输入框/选择器 等
   5.3 反馈组件
@@ -502,10 +509,13 @@ Appendix
       - 栅格（含桌面端 12-16 栏 / 最大内容宽度 / 紧凑间距）
       - 页面边距规则
 
-  6.8 关键页面视觉标注
-      - 3-5 个核心页面的详细视觉标注
-      - 跨平台产品需分别标注移动端和桌面端版本
-      - 桌面端差异（标题栏/侧边栏/信息密度/窗口 chrome）
+  6.8 页面类型视觉标注 + 视觉例外表
+      - 八-A：对产品中存在的每种页面类型各标注一个代表页（Hub/List/Detail/Form/Auth/Settings/… 最多 20 种）
+              每个标注含：整体氛围、背景处理、导航栏、卡片样式、CTA 样式、特殊视觉元素
+      - 八-B：视觉例外表 — 只记录与类型代表页有偏差的页面
+              例外类型：背景 / 颜色覆盖 / 布局覆盖 / 字体覆盖 / 插画全屏 / 强制深色 / 导航隐藏
+      - 跨平台产品：每个类型标注含"桌面端差异"子节
+              （标题栏/侧边栏宽度/信息密度/窗口 chrome）
 
   6.9 深色模式方案
       - 适配策略（完整/核心/跟随系统）
