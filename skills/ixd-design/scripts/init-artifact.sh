@@ -361,6 +361,7 @@ cp "$TEMPLATES_DIR/PrototypeShell.tsx" src/components/layout/PrototypeShell.tsx
 cp "$TEMPLATES_DIR/PhoneFrame.tsx"     src/components/layout/PhoneFrame.tsx
 cp "$TEMPLATES_DIR/WindowFrame.tsx"    src/components/layout/WindowFrame.tsx
 cp "$TEMPLATES_DIR/layout-index.ts"   src/components/layout/index.ts
+cp "$TEMPLATES_DIR/ThemeContext.tsx"   src/components/layout/ThemeContext.tsx
 
 echo "✅ Layout components created!"
 
