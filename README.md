@@ -217,6 +217,7 @@ ixd-design-skill/
 ├── README.md                       ← This file (English)
 ├── README_CN.md                    ← Chinese version
 ├── LICENSE                         ← MIT
+├── demo-prototype.html             ← Built demo prototype (open in browser)
 └── skills/
     └── ixd-design/                 ← AgentSkills-compatible skill folder
         ├── SKILL.md                ← Main entry point (740+ lines)
@@ -240,7 +241,27 @@ ixd-design-skill/
                 ├── PrototypeShell.tsx  ← Shell: project name, theme toggle, page nav
                 ├── PhoneFrame.tsx      ← Mobile frame: iPhone 14, tabBar slot, data-testid
                 ├── WindowFrame.tsx     ← Desktop frame: macOS window, sidebar slot, data-testid
+                ├── ThemeContext.tsx    ← Theme provider for light/dark mode
                 └── layout-index.ts    ← Re-exports all layout components
+```
+
+### Demo Prototype
+
+This repo includes a built demo prototype at `demo-prototype.html`. Open it in your browser to see a complete cross-platform task management app with:
+
+- **Mobile**: Home, Projects, Calendar, Messages, Profile pages with bottom tab navigation
+- **Desktop**: Dashboard, Projects, Calendar, Messages, Team, Analytics, Settings with sidebar navigation
+- **Light/Dark theme toggle**
+- **20+ interactive tasks** with completion, filtering, and priority badges
+- **Complete UI components**: Select, Progress, Dialog, Dropdown, Tooltip, and more
+
+To modify the demo, edit `demo-prototype/src/App.tsx` or create a new prototype:
+
+```bash
+# Create a new prototype project
+bash skills/ixd-design/scripts/init-artifact.sh my-prototype
+cd my-prototype
+pnpm dev
 ```
 
 ### Output Structure (generated per project)

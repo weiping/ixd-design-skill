@@ -216,6 +216,7 @@ ixd-design-skill/
 ├── README.md                       ← 英文版说明
 ├── README_CN.md                    ← 本文件（中文版）
 ├── LICENSE                         ← MIT
+├── demo-prototype.html             ← 已构建的演示原型（在浏览器中打开）
 └── skills/
     └── ixd-design/                 ← AgentSkills 兼容的技能目录
         ├── SKILL.md                ← 主入口文件（740+ 行）
@@ -239,7 +240,27 @@ ixd-design-skill/
                 ├── PrototypeShell.tsx  ← 外壳：项目名 + 主题切换 + 页面导航
                 ├── PhoneFrame.tsx      ← 移动端框架：iPhone 14，tabBar slot，data-testid
                 ├── WindowFrame.tsx     ← 桌面端框架：macOS 窗口，sidebar slot，data-testid
+                ├── ThemeContext.tsx    ← 主题 Provider，支持浅色/深色模式
                 └── layout-index.ts    ← 统一导出所有布局组件
+```
+
+### 演示原型
+
+本仓库包含已构建的演示原型 `demo-prototype.html`。在浏览器中打开即可体验完整的跨平台任务管理应用：
+
+- **移动端**：首页、项目、日历、消息、个人资料页面，底部 Tab 导航
+- **桌面端**：仪表盘、项目、日历、消息、团队、分析、设置页面，侧边栏导航
+- **浅色/深色主题切换**
+- **20+ 交互任务**：包含完成勾选、筛选、优先级标签
+- **完整 UI 组件**：下拉选择、进度条、对话框、下拉菜单、工具提示等
+
+如需修改演示内容，编辑 `demo-prototype/src/App.tsx` 或创建新原型：
+
+```bash
+# 创建新原型项目
+bash skills/ixd-design/scripts/init-artifact.sh my-prototype
+cd my-prototype
+pnpm dev
 ```
 
 ### 产出结构（按项目生成）
