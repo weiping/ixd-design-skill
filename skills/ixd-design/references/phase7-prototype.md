@@ -216,7 +216,7 @@ pnpm test:run    # single run — use before bundling to confirm all pages pass
 - `scripts/examples/DesktopDashboard.tsx` — desktop page with Sidebar
 
 **Reference Phase 4 for each page**:
-- **Interaction Specs**: Each page must implement the gestures, transitions, and behaviors defined in `phase4-page-interaction.md`
+- **Interaction Specs**: Each page must implement the gestures, transitions, and behaviors defined in `phase4-page-specs/page-N.md`
 - **Component States**: Use component states (default, hover, pressed, disabled, loading) as defined in `phase5-components.md`
 - **Visual Styling**: Apply colors, typography, and spacing from `phase6-visual.md` using the two-step lookup below:
 

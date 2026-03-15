@@ -199,7 +199,7 @@ Rather than annotating only 3-5 arbitrary "key pages", annotate **one representa
 | Side Panel *(desktop)* | Properties / navigation panel |
 | Preferences *(desktop)* | Preferences window |
 
-### 8A. Per-Type Representative Annotations
+### A. Per-Type Representative Annotations
 
 For each page type present in this product, produce:
 
@@ -227,7 +227,7 @@ For each page type present in this product, produce:
 
 ---
 
-### 8B. Visual Exception Table
+### B. Visual Exception Table
 
 After annotating type representatives, scan all Phase 2 pages and record **only pages whose visual treatment deviates from their type representative or the standard design system**. Pages not listed here follow their type representative's annotation.
 
@@ -477,7 +477,7 @@ Define 2-3 principles (e.g., "purposeful", "natural", "restrained")
 
 ### 八、页面类型视觉标注 + 视觉例外表 (Page-Type Visual Annotations + Exception Table)
 
-不再只标注 3-5 个核心页面，而是为产品中存在的**每种页面类型各选一个代表页**进行视觉标注（基于阶段二页面清单），形成"视觉参考库"，供阶段七原型实现时按页面类型查阅。
+对产品中存在的**每种页面类型各选一个代表页**进行视觉标注（基于阶段二页面清单），形成"视觉参考库"，供阶段七原型实现时按页面类型查阅。
 
 **选取规则**：将阶段二页面映射到 22 种页面类型，每种类型选该产品中最重要的一个页面作为代表。不存在的类型跳过。
 
@@ -503,7 +503,7 @@ Define 2-3 principles (e.g., "purposeful", "natural", "restrained")
 - Side Panel（侧面板，桌面端）→ 属性 / 导航面板
 - Preferences（偏好设置，桌面端）→ 设置窗口
 
-#### 八-A. 各类型代表页标注
+#### A. 各类型代表页标注
 
 对产品中存在的每种页面类型，输出以下标注：
 
@@ -531,7 +531,7 @@ Define 2-3 principles (e.g., "purposeful", "natural", "restrained")
 
 ---
 
-#### 八-B. 视觉例外表
+#### B. 视觉例外表
 
 完成类型代表页标注后，扫描阶段二所有页面，只记录**视觉处理与其所属类型代表页或设计系统默认值有偏差的页面**。未列出的页面一律遵循其类型代表页的标注。
 

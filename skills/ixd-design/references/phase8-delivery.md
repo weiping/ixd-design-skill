@@ -101,29 +101,19 @@ Chapter 3: User Flows
 Chapter 4: Page Interaction Specifications
   (Organized by module)
 
-  This chapter provides a **page index** of all interaction specs.
-  Full content lives in the source files under `doc/ixd/phase4-page-specs/` — refer there for complete details.
-  This avoids document bloat while ensuring all pages are traceable.
-
-  4.0 Page Interaction Index
-
-  | Page ID | Page Name | Module | Page Type | Spec File | Key Interactions |
-  |---------|-----------|--------|-----------|-----------|-----------------|
-  | P01 | <<Page Name>> | <<Module>> | <<Hub/List/…>> | `phase4-page-specs/batch-1.md § P01` | <<1-sentence summary>> |
-  | P02 | <<Page Name>> | <<Module>> | <<List>> | `phase4-page-specs/batch-1.md § P02` | <<1-sentence summary>> |
-  | … | … | … | … | … | … |
-
   4.x <<Module Name>>
     4.x.1 P01 <<Page Name>>
-      Spec: `doc/ixd/phase4-page-specs/batch-N.md § P01`
       Sections: Overview / Layout / Components / Interactions / States / Motion / Data / Adaptation / Micro-interactions
-      Key interaction highlights: <<1-2 sentences on most important behaviors>>
+      Key interaction highlights: <<most important behaviors>>
       Desktop additions (if cross-platform):
         - Hover / Context menu / Keyboard shortcuts / Drag / Focus order
       Multi-window: <<yes: independent window / no>>
+      Spec: `doc/ixd/phase4-page-specs/page-N.md § P01`
     4.x.2 P02 <<Page Name>>
-      Spec: `doc/ixd/phase4-page-specs/batch-N.md § P02`
+      Sections: Overview / Layout / Components / Interactions / States / Motion / Data / Adaptation / Micro-interactions
       …
+    …
+  …
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -396,27 +386,15 @@ Appendix
 第四章 页面交互说明
   （按模块分节）
 
-  本章提供所有页面交互规格的**索引目录**。
-  完整内容见源文件 `doc/ixd/phase4-page-specs/`，详细规格请查阅对应文件。
-  此方式避免文档体积过大，同时确保所有页面可追溯。
-
-  4.0 页面交互索引
-
-  | 页面 ID | 页面名称 | 所属模块 | 页面类型 | 规格文件 | 核心交互要点 |
-  |---------|----------|----------|----------|----------|------------|
-  | P01 | <<页面名>> | <<模块>> | <<Hub/List/…>> | `phase4-page-specs/batch-1.md § P01` | <<一句话概述>> |
-  | P02 | <<页面名>> | <<模块>> | <<List>> | `phase4-page-specs/batch-1.md § P02` | <<一句话概述>> |
-  | … | … | … | … | … | … |
-
   4.x <<模块名称>>
     4.x.1 P01 <<页面名>>
-      规格文件：`doc/ixd/phase4-page-specs/batch-N.md § P01`
       包含章节：概述 / 布局结构 / 组件列表 / 交互规格 / 页面状态 / 动效规格 / 数据策略 / 适配规则 / 微交互
-      核心交互要点：<<1-2 句，描述最重要的交互行为>>
+      核心交互要点：<<描述最重要的交互行为>>
       桌面端补充（跨平台时）：悬停态 / 右键菜单 / 快捷键 / 拖拽 / 焦点顺序
       多窗口：<<是（可独立窗口）/ 否>>
+      规格文件：`doc/ixd/phase4-page-specs/page-N.md § P01`
     4.x.2 P02 <<页面名>>
-      规格文件：`doc/ixd/phase4-page-specs/batch-N.md § P02`
+      包含章节：概述 / 布局结构 / 组件列表 / 交互规格 / 页面状态 / 动效规格 / 数据策略 / 适配规则 / 微交互
       …
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
