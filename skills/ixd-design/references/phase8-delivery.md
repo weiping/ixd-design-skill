@@ -101,45 +101,29 @@ Chapter 3: User Flows
 Chapter 4: Page Interaction Specifications
   (Organized by module)
 
-  **IMPORTANT**: This chapter must contain the FULL interaction specifications from Phase 4, NOT summaries.
-  Copy complete content from `doc/ixd/phase4-page-specs/` for each page.
+  This chapter provides a **page index** of all interaction specs.
+  Full content lives in the source files under `doc/ixd/phase4-page-specs/` — refer there for complete details.
+  This avoids document bloat while ensuring all pages are traceable.
 
-  Each page includes 9 sections (exclude Walkthrough):
-  1. Overview - Full product context for this page
-  2. Layout Structure - Complete grid/placement details
-  3. Component List - All elements with positions
-  4. Interaction Specs - All gestures, flows, transitions (full details)
-  5. Page States - All 7 states with full descriptions
-  6. Motion Specs - Timing, easing curves (full values)
-  7. Data Strategy - Mock data structure, loading states
-  8. Adaptation Rules - Responsive, dark mode, accessibility rules
-  9. Micro-interactions - All micro-interaction descriptions
+  4.0 Page Interaction Index
 
-  Note: For cross-platform projects, each page should include mobile and desktop layout annotations
+  | Page ID | Page Name | Module | Page Type | Spec File | Key Interactions |
+  |---------|-----------|--------|-----------|-----------|-----------------|
+  | P01 | <<Page Name>> | <<Module>> | <<Hub/List/…>> | `phase4-page-specs/batch-1.md § P01` | <<1-sentence summary>> |
+  | P02 | <<Page Name>> | <<Module>> | <<List>> | `phase4-page-specs/batch-1.md § P02` | <<1-sentence summary>> |
+  | … | … | … | … | … | … |
 
   4.x <<Module Name>>
     4.x.1 P01 <<Page Name>>
-      → Section 1-9: Full content from Phase 4 (exclude Walkthrough)
-      → Desktop interaction additions:
-          - Hover state: button/card/list item hover feedback
-          - Context menu: elements that support right-click and menu items
-          - Keyboard shortcuts: supported keyboard shortcuts for this page
-          - Drag: draggable elements, drop zones, drag visual feedback
-          - Focus order: Tab key focus traversal order
-      → Multi-window annotation: whether this page can open as independent window
+      Spec: `doc/ixd/phase4-page-specs/batch-N.md § P01`
+      Sections: Overview / Layout / Components / Interactions / States / Motion / Data / Adaptation / Micro-interactions
+      Key interaction highlights: <<1-2 sentences on most important behaviors>>
+      Desktop additions (if cross-platform):
+        - Hover / Context menu / Keyboard shortcuts / Drag / Focus order
+      Multi-window: <<yes: independent window / no>>
     4.x.2 P02 <<Page Name>>
-      → Full content from Phase 4...
-
-  Page Onboarding and Walkthrough
-      → First-time user onboarding flow
-      → New feature introduction overlays
-      → Onboarding steps and skip logic
-
-  Micro-interaction Specifications
-      → Button tap feedback (ripple/scale/color change)
-      → Toggle switch animation
-      → Input focus/blur effects
-      → List item add/remove animations
+      Spec: `doc/ixd/phase4-page-specs/batch-N.md § P02`
+      …
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -412,31 +396,28 @@ Appendix
 第四章 页面交互说明
   （按模块分节）
 
-  注意：跨平台项目中，每个页面应包含移动端和桌面端双布局标注
+  本章提供所有页面交互规格的**索引目录**。
+  完整内容见源文件 `doc/ixd/phase4-page-specs/`，详细规格请查阅对应文件。
+  此方式避免文档体积过大，同时确保所有页面可追溯。
+
+  4.0 页面交互索引
+
+  | 页面 ID | 页面名称 | 所属模块 | 页面类型 | 规格文件 | 核心交互要点 |
+  |---------|----------|----------|----------|----------|------------|
+  | P01 | <<页面名>> | <<模块>> | <<Hub/List/…>> | `phase4-page-specs/batch-1.md § P01` | <<一句话概述>> |
+  | P02 | <<页面名>> | <<模块>> | <<List>> | `phase4-page-specs/batch-1.md § P02` | <<一句话概述>> |
+  | … | … | … | … | … | … |
 
   4.x <<模块名称>>
     4.x.1 P01 <<页面名>>
-      → Phase 4: 完整交互说明
-      → 桌面端交互补充:
-          - 悬停态（hover）: 按钮/卡片/列表项的 hover 反馈
-          - 右键菜单: 该页面可右键操作的元素及菜单项
-          - 快捷键: 该页面支持的键盘快捷操作
-          - 拖拽: 可拖拽元素、放置区域、拖拽视觉反馈
-          - 焦点顺序: Tab 键焦点遍历顺序
-      → 多窗口标注: 该页面是否可作为独立窗口打开
+      规格文件：`doc/ixd/phase4-page-specs/batch-N.md § P01`
+      包含章节：概述 / 布局结构 / 组件列表 / 交互规格 / 页面状态 / 动效规格 / 数据策略 / 适配规则 / 微交互
+      核心交互要点：<<1-2 句，描述最重要的交互行为>>
+      桌面端补充（跨平台时）：悬停态 / 右键菜单 / 快捷键 / 拖拽 / 焦点顺序
+      多窗口：<<是（可独立窗口）/ 否>>
     4.x.2 P02 <<页面名>>
-      → ...
-
-  页面引导与漫游（Walkthrough）
-      → 首次使用引导流程
-      → 新功能介绍弹层
-      → 引导步骤与跳过逻辑
-
-  微交互说明
-      → 按钮点击反馈（涟漪/缩放/颜色变化）
-      → 开关切换动画
-      → 输入框聚焦/失焦效果
-      → 列表项增删动画
+      规格文件：`doc/ixd/phase4-page-specs/batch-N.md § P02`
+      …
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -689,9 +670,17 @@ After the quality checklist above passes, a **mandatory review gate** must be ex
 **Note**: Walkthrough is already completed during Phase 4 and Phase 7 - no need to repeat in final review.
 
 Summary:
-1. Run **Quality Checklist Verification** for all 8 phases
+1. Run **Quality Checklist Verification** — use each phase's checklist to verify the **corresponding chapter** in `phase8-document.md`:
+   - Phase 1 checklist → Chapter 1 (Design Overview)
+   - Phase 2 checklist → Chapter 2 (Information Architecture)
+   - Phase 3 checklist → Chapter 3 (User Flows)
+   - Phase 4 checklist → Chapter 4 (Page Interaction Index — all pages listed with file references)
+   - Phase 5 checklist → Chapter 5 (Component Specifications)
+   - Phase 6 checklist → Chapter 6 (Visual Design)
+   - Phase 7 checklist → Appendix A (Prototype Demo — confirm prototype files exist and are complete)
+   - Phase 8 checklist → Full document (all chapters present, no placeholders, cross-references correct)
 2. Run **Multi-Perspective Review** (Tool 4) against the complete design
 3. Save report to `doc/ixd/phase8-review-round-<N>.md`
-4. **PASS** if: all Phase Quality Checklists pass AND no P0/P1 review items
-5. **FAIL** → fix source files + document → re-review (max 3 rounds)
+4. **PASS** if: all chapter checklists pass AND no P0/P1 review items
+5. **FAIL** → fix source files + corresponding document chapter → re-review (max 3 rounds)
 6. **BLOCK** after 3 failures → terminate, require human intervention

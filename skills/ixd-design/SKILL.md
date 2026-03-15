@@ -984,18 +984,18 @@ Read: `references/phase8-delivery.md`
 
 #### Review Procedure
 
-**Step 1: Quality Checklist Verification** — Run Quality Checklist verification against each phase's output:
+**Step 1: Quality Checklist Verification** — Use each phase's Quality Checklist to verify the **completeness of the corresponding chapter** in `doc/ixd/phase8-document.md` (not the source phase files):
 
-- Phase 1 Quality Checklist: Verify context document completeness
-- Phase 2 Quality Checklist: Verify architecture/information architecture
-- Phase 3 Quality Checklist: Verify user flows completeness
-- Phase 4 Quality Checklist: Verify all page specs (per-page verification)
-- Phase 5 Quality Checklist: Verify component specs
-- Phase 6 Quality Checklist: Verify visual design system
-- Phase 7 Quality Checklist: Verify prototype implementation (per-page verification)
-- Phase 8 Quality Checklist: Verify final document structure
+- Phase 1 Quality Checklist → verify **Chapter 1** (Design Overview: background, goals, principles, scope, platform strategy)
+- Phase 2 Quality Checklist → verify **Chapter 2** (Information Architecture: sitemap, page inventory, navigation, exhaustiveness check)
+- Phase 3 Quality Checklist → verify **Chapter 3** (User Flows: core flows, decision points, exception handling)
+- Phase 4 Quality Checklist → verify **Chapter 4** (Page Interaction Index: all pages from Phase 2 listed, file references present, key highlights captured)
+- Phase 5 Quality Checklist → verify **Chapter 5** (Component Specifications: design tokens, components, desktop components, responsive rules)
+- Phase 6 Quality Checklist → verify **Chapter 6** (Visual Design: color, typography, icons, page-type annotations 8A+8B, dark mode)
+- Phase 7 Quality Checklist → verify **Appendix A** (Prototype Demo: prototype file(s) exist, all pages implemented, interaction completeness)
+- Phase 8 Quality Checklist → verify **full document** (all chapters present, no placeholders, cross-references correct, consistent terminology)
 
-Output the verification results for each phase.
+Output the per-chapter verification results.
 
 **Step 2: Multi-Perspective Review** — Run the 6-perspective review (Tool 4 from `references/auxiliary-tools.md`) against the complete design. Output the priority table.
 
