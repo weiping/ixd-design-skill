@@ -12,7 +12,7 @@
       "version": "1.0.0",
       "source": "./",
       "category": "development",
-      "strict": false,
+      "strict": true,
       "skills": [
         "./skills/ixd-design"
       ]
