@@ -1,29 +1,34 @@
 {
   "name": "ixd-design",
-  "version": "1.0.0",
-  "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
-  "author": {
+  "owner": {
     "name": "weiping",
     "email": "yuyang@msn.com"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/weiping/ixd-design-skill.git"
+  "metadata": {
+    "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
+    "version": "1.0.0",
+    "keywords": [
+      "interaction-design",
+      "ixd",
+      "ui-design",
+      "ux-design",
+      "design-workflow",
+      "prototype",
+      "visual-design",
+      "information-architecture",
+      "component-spec",
+      "design-system"
+    ]
   },
-  "homepage": "https://github.com/weiping/ixd-design-skill",
-  "license": "MIT",
-  "keywords": [
-    "interaction-design",
-    "ixd",
-    "ui-design",
-    "ux-design",
-    "design-workflow",
-    "prototype",
-    "visual-design",
-    "information-architecture",
-    "component-spec",
-    "design-system"
-  ],
-  "categories": ["design", "productivity"],
-  "readme": "README.md"
-}
+  "plugins": [
+    {
+      "name": "ixd-design",
+      "description": "",
+      "source": "./",
+      "strict": true,
+      "skills": [
+        "./skills/ixd-design"
+      ]
+    },
+  ]
+} 
