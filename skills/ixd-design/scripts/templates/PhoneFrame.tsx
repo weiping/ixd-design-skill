@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useTheme } from './ThemeContext';
 
 interface PhoneFrameProps {
   /** Scrollable page content. Status bar safe area is handled internally — do NOT add pt-11.
@@ -8,16 +9,26 @@ interface PhoneFrameProps {
    *  Use this for app-level navigation (e.g. <AppTabBar />) that should be fixed above the home indicator.
    *  The slot is rendered as flex-shrink-0, so it stays within the screen area and never covers the phone border. */
   tabBar?: React.ReactNode;
+  /**
+   * Optional theme override. When omitted (recommended), theme is inherited from the
+   * nearest PrototypeShell via ThemeContext — the shell's toggle propagates here automatically.
+   * Only pass this prop when you need a page that is always light or always dark regardless
+   * of the shell setting (e.g. a forced-dark onboarding splash).
+   */
   theme?: 'light' | 'dark';
 }
 
 export function PhoneFrame({
   children,
   tabBar,
-  theme = 'light',
+  theme: themeProp,
 }: PhoneFrameProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Inherit theme from PrototypeShell context; explicit prop overrides for special pages.
+  const contextTheme = useTheme();
+  const theme = themeProp ?? contextTheme;
 
   // Capture ALL wheel events over the entire phone frame and route them to
   // the scrollable content area — prevents the outer PrototypeShell from scrolling.

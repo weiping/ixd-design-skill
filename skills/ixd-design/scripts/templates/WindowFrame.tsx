@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useTheme } from './ThemeContext';
 
 interface WindowFrameProps {
   /** Scrollable page content (main area to the right of the sidebar).
@@ -8,6 +9,12 @@ interface WindowFrameProps {
    *  Use this for app-level navigation (e.g. <AppSidebar />) that should be fixed alongside the content area.
    *  The slot is rendered as flex-shrink-0 in a flex-row body, so it stays within the window area. */
   sidebar?: React.ReactNode;
+  /**
+   * Optional theme override. When omitted (recommended), theme is inherited from the
+   * nearest PrototypeShell via ThemeContext — the shell's toggle propagates here automatically.
+   * Only pass this prop when you need a window that is always light or always dark regardless
+   * of the shell setting.
+   */
   theme?: 'light' | 'dark';
   title?: string;
   width?: number;
@@ -17,12 +24,16 @@ interface WindowFrameProps {
 export function WindowFrame({
   children,
   sidebar,
-  theme = 'light',
+  theme: themeProp,
   title = 'Application',
   width = 1280,
   height = 800
 }: WindowFrameProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Inherit theme from PrototypeShell context; explicit prop overrides for special windows.
+  const contextTheme = useTheme();
+  const theme = themeProp ?? contextTheme;
 
   useEffect(() => {
     const content = scrollRef.current;

@@ -330,7 +330,6 @@ import { AppTabBar } from '@/components/layout/AppTabBar';
 export function CommunityHome() {
   return (
     <PhoneFrame
-      theme="light"
       tabBar={<AppTabBar activeTab="community" onTabChange={(tab) => console.log(tab)} />}
     >
       {/**
@@ -356,7 +355,7 @@ import { PhoneFrame } from '@/components/layout/PhoneFrame';
 
 export function PostDetail() {
   return (
-    <PhoneFrame theme="light">
+    <PhoneFrame>
       {/* No tabBar prop → no Tab Bar rendered */}
       <BackNavBar title="帖子详情" />
       <div className="p-4">
@@ -377,7 +376,6 @@ export function Home() {
 
   return (
     <WindowFrame
-      theme="light"
       title="Dashboard"
       width={1280}
       height={800}
@@ -414,12 +412,63 @@ Type representative annotation (Section 8A)
 Design system defaults (Phase 5 tokens + Phase 6 color/typography)
 ```
 
+**Theme Propagation (Context)**:
+
+`PrototypeShell` propagates the theme to all descendant `PhoneFrame`/`WindowFrame` via `ThemeContext`. **Do NOT pass `theme` prop** on page-level usage — just omit it and the shell toggle works automatically:
+
+```tsx
+// ✅ CORRECT — omit theme prop; shell toggle propagates automatically
+<PhoneFrame tabBar={<AppTabBar />}>
+  ...
+</PhoneFrame>
+
+// ✅ CORRECT — use explicit prop ONLY for pages that must always be dark/light
+<PhoneFrame theme="dark">  {/* forced-dark splash */}
+  ...
+</PhoneFrame>
+
+// ❌ WRONG — hardcoding theme="light" breaks the shell toggle
+<PhoneFrame theme="light">
+  ...
+</PhoneFrame>
+```
+
+`useTheme()` is available for page content that needs to respond to theme changes:
+
+```tsx
+import { useTheme } from '@/components/layout';
+
+export function MyPage() {
+  const theme = useTheme(); // 'light' | 'dark', updates when shell toggles
+  return (
+    <PhoneFrame>
+      <div className={theme === 'dark' ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-900'}>
+        {/* Or better: use Tailwind tokens (bg-background text-foreground) */}
+      </div>
+    </PhoneFrame>
+  );
+}
+```
+
+**Avoid Hardcoding Theme Colors**:
+
+Page content must respond to theme changes. Use one of these patterns (in order of preference):
+
+| Priority | Pattern | Example |
+|----------|---------|---------|
+| 1st | Tailwind semantic tokens | `bg-background`, `text-foreground`, `text-muted-foreground`, `border-border` |
+| 2nd | Tailwind `dark:` variants | `bg-white dark:bg-neutral-900` |
+| 3rd | `useTheme()` hook | `theme === 'dark' ? 'bg-neutral-900' : 'bg-white'` |
+| ❌ Avoid | Raw hex / hardcoded value | `style={{ background: '#ffffff' }}` — breaks dark mode |
+
 **Common Mistakes to Avoid**:
 - ❌ NOT using PhoneFrame/WindowFrame — device simulation won't work
 - ❌ Putting content outside PhoneFrame/WindowFrame — won't scroll properly
 - ❌ Forgetting to wrap each page — only first page has frame
 - ❌ Re-implementing the **status bar** inside page children — PhoneFrame already renders it as a flex child; adding it again causes duplication and layout overflow
 - ❌ Adding `pt-11` to page `children` — status bar is now a flex sibling above `children`, no manual top padding needed
+- ❌ Hardcoding `theme="light"` or `theme="dark"` on PhoneFrame/WindowFrame — breaks the shell's theme toggle; omit the prop instead
+- ❌ Hardcoding colors as raw hex (`#ffffff`, `#1a1a1a`) in page content — use Tailwind tokens or `dark:` variants so dark mode works
 - ❌ Implementing Tab Bar inside page children — use `tabBar` prop slot so it stays within screen area
 - ❌ Using native scrollbar — PhoneFrame already handles scrolling with `scrollbar-hide`
 - ❌ Re-implementing the **title bar** inside WindowFrame children — WindowFrame already renders it
@@ -798,7 +847,6 @@ import { AppSidebar } from '@/components/layout/AppSidebar';
 export function Dashboard() {
   return (
     <WindowFrame
-      theme="light"
       title="Dashboard"
       width={1280}
       height={800}
