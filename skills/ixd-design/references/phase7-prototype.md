@@ -93,65 +93,7 @@ After initialization, the project includes:
 
 Define Phase 6 Design Tokens in `src/index.css` as CSS variables and Tailwind theme:
 
-**Color System** (example):
-```css
-:root {
-  --primary: <<primary-color>>;
-  --primary-foreground: <<primary-text-color>>;
-  --secondary: <<secondary-color>>;
-  --accent: <<accent-color>>;
-  --background: <<background-color>>;
-  --foreground: <<text-color>>;
-  --muted: <<muted-background>>;
-  --muted-foreground: <<muted-text>>;
-  --card: <<card-background>>;
-  --border: <<border-color>>;
-  --radius: <<border-radius-base>>;
-  /* Functional colors */
-  --success: <<success-color>>;
-  --warning: <<warning-color>>;
-  --destructive: <<error-color>>;
-}
-
-.dark {
-  /* Dark mode variable overrides */
-  --background: <<dark-background>>;
-  --foreground: <<dark-text>>;
-  /* ... */
-}
-
-/* Hide scrollbar utility for prototype content areas */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
-}
-```
-
-**Tailwind Theme Extension** (tailwind.config.js):
-```js
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        primary: 'hsl(var(--primary))',
-        secondary: 'hsl(var(--secondary))',
-        // ...
-      },
-      fontSize: {
-        'display': ['<<Display-size>>', { lineHeight: '<<line-height>>' }],
-        'h1': ['<<H1-size>>', { lineHeight: '<<line-height>>', fontWeight: '600' }],
-        // ...
-      },
-      spacing: {
-        'safe-bottom': 'env(safe-area-inset-bottom)', // Mobile safe area
-      }
-    }
-  }
-}
-```
+📄 **Examples**: `scripts/examples/design-tokens.css` (CSS variables template) and `scripts/examples/tailwind.config.js` (Tailwind theme extension) — read these files when implementing tokens.
 
 ### Step 3: Verify Device Frame Components
 
@@ -242,63 +184,10 @@ After all pages in batch: Bundle + Walkthrough heuristic check (visual quality)
 ```
 
 **Mobile Page Test Template**:
-```tsx
-// src/pages/__tests__/CommunityHome.test.tsx
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { CommunityHome } from '../CommunityHome';
-
-describe('CommunityHome', () => {
-  // ① Smoke — renders without crashing (catches import errors, undefined vars)
-  it('renders without crashing', () => {
-    expect(() => render(<CommunityHome />)).not.toThrow();
-  });
-
-  // ② Device frame — MUST wrap in PhoneFrame (data-testid="phone-frame" built-in)
-  it('wraps in PhoneFrame', () => {
-    const { getByTestId } = render(<CommunityHome />);
-    expect(getByTestId('phone-frame')).toBeInTheDocument();
-  });
-
-  // ③ Key content — replace with actual content from Phase 4 spec
-  it('shows main content area', () => {
-    render(<CommunityHome />);
-    expect(screen.getByRole('main')).toBeInTheDocument();
-  });
-
-  // ④ Key interaction — add per Phase 4 interaction spec (optional but recommended)
-  it('clicking a feed card opens detail', async () => {
-    const user = userEvent.setup();
-    render(<CommunityHome />);
-    // implement per Phase 4 spec
-  });
-});
-```
+📄 See `scripts/examples/CommunityHome.test.tsx` — copy and adapt for each mobile page.
 
 **Desktop Page Test Template**:
-```tsx
-// src/pages/desktop/__tests__/Dashboard.test.tsx
-import { render, screen } from '@testing-library/react';
-import { Dashboard } from '../Dashboard';
-
-describe('Dashboard', () => {
-  it('renders without crashing', () => {
-    expect(() => render(<Dashboard />)).not.toThrow();
-  });
-
-  // ② Device frame — MUST wrap in WindowFrame (data-testid="window-frame" built-in)
-  it('wraps in WindowFrame', () => {
-    const { getByTestId } = render(<Dashboard />);
-    expect(getByTestId('window-frame')).toBeInTheDocument();
-  });
-
-  // ③ Key content — replace with actual content from Phase 4 spec
-  it('shows dashboard content', () => {
-    render(<Dashboard />);
-    expect(screen.getByRole('main')).toBeInTheDocument();
-  });
-});
-```
+📄 See `scripts/examples/Dashboard.test.tsx` — copy and adapt for each desktop page.
 
 **Test commands**:
 ```bash
@@ -321,75 +210,10 @@ pnpm test:run    # single run — use before bundling to confirm all pages pass
 > Tests catch **structural and logic** mistakes early. Walkthrough catches **visual and layout** issues after bundling. Both are required.
 
 **Page Implementation Pattern**:
-
-```tsx
-// src/pages/CommunityHome.tsx (Mobile — page with Tab Bar + Top Nav)
-import { PhoneFrame } from '@/components/layout/PhoneFrame';
-import { AppTabBar } from '@/components/layout/AppTabBar';
-
-export function CommunityHome() {
-  return (
-    <PhoneFrame
-      tabBar={<AppTabBar activeTab="community" onTabChange={(tab) => console.log(tab)} />}
-    >
-      {/**
-       * children = scrollable page content ONLY.
-       * ✅ DO: implement page-specific top nav bar (搜索/分段控件/消息图标) here
-       * ✅ DO: implement all scrollable page content here
-       * ❌ DON'T: re-implement status bar — PhoneFrame already provides it (flex child inside screen area)
-       * ❌ DON'T: re-implement Tab Bar — pass it via `tabBar` prop above
-       */}
-      <TopNavBar />        {/* Page-specific top nav: search + segments + message icon */}
-      <div className="p-4">
-        <h1>Community Feed</h1>
-        {/* ... waterfall feed content ... */}
-      </div>
-    </PhoneFrame>
-  );
-}
-```
-
-```tsx
-// src/pages/PostDetail.tsx (Mobile — detail page WITHOUT Tab Bar)
-import { PhoneFrame } from '@/components/layout/PhoneFrame';
-
-export function PostDetail() {
-  return (
-    <PhoneFrame>
-      {/* No tabBar prop → no Tab Bar rendered */}
-      <BackNavBar title="帖子详情" />
-      <div className="p-4">
-        {/* ... post detail content ... */}
-      </div>
-    </PhoneFrame>
-  );
-}
-```
-
-```tsx
-// src/pages/desktop/Home.tsx (Desktop)
-import { WindowFrame } from '@/components/layout/WindowFrame';
-import { AppSidebar } from '@/components/layout/AppSidebar';
-
-export function Home() {
-  const [activeItem, setActiveItem] = useState('dashboard');
-
-  return (
-    <WindowFrame
-      title="Dashboard"
-      width={1280}
-      height={800}
-      sidebar={<AppSidebar activeItem={activeItem} onItemChange={setActiveItem} />}
-    >
-      {/* Page content — scrollable area to the right of the sidebar */}
-      <div className="p-6">
-        <h1>Dashboard</h1>
-        {/* ... page content ... */}
-      </div>
-    </WindowFrame>
-  );
-}
-```
+📄 Examples (read when implementing):
+- `scripts/examples/CommunityHome.tsx` — mobile page with Tab Bar + Top Nav
+- `scripts/examples/PostDetail.tsx` — mobile detail page without Tab Bar
+- `scripts/examples/DesktopDashboard.tsx` — desktop page with Sidebar
 
 **Reference Phase 4 for each page**:
 - **Interaction Specs**: Each page must implement the gestures, transitions, and behaviors defined in `phase4-page-interaction.md`
@@ -598,69 +422,11 @@ Output: `bundle.html`
 
 For `platform: "both"`, create two HTML entry files and bundle separately:
 
-**1. Create entry HTML files**:
-
-`index.mobile.html`:
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title><Product Name> - Mobile Prototype</title>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.mobile.tsx"></script>
-</body>
-</html>
-```
-
-`index.desktop.html`:
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><Product Name> - Desktop Prototype</title>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.desktop.tsx"></script>
-</body>
-</html>
-```
-
-**2. Create entry TSX files**:
-
-`src/main.mobile.tsx`:
-```tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.mobile';
-import './index.css';
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-```
-
-`src/main.desktop.tsx`:
-```tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.desktop';
-import './index.css';
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-```
+**1. Create entry files** (📄 read for exact content):
+- `scripts/examples/index.mobile.html` — mobile HTML entry
+- `scripts/examples/index.desktop.html` — desktop HTML entry
+- `scripts/examples/main.mobile.tsx` — mobile React entry
+- `scripts/examples/main.desktop.tsx` — desktop React entry
 
 **3. Bundle each entry**:
 
@@ -800,25 +566,7 @@ PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)  ← wheel e
 ```
 
 **AppTabBar pattern** (implement in `src/components/layout/AppTabBar.tsx`):
-```tsx
-// Custom Tab Bar — full control over design,凸起 button, badges, colors
-export function AppTabBar({ activeTab, onTabChange }) {
-  return (
-    <div className="h-[83px] bg-white border-t border-neutral-100 flex items-start justify-around px-4 pt-2">
-      <TabItem id="community" label="社区" icon={<PawIcon />} active={activeTab === 'community'} />
-      <TabItem id="consult" label="问诊" icon={<MedIcon />} active={activeTab === 'consult'} />
-      {/* Center publish button — raised above tab bar */}
-      <div className="relative -top-4">
-        <button className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg">
-          <PlusIcon className="w-7 h-7 text-white" />
-        </button>
-      </div>
-      <TabItem id="shop" label="商城" icon={<ShopIcon />} active={activeTab === 'shop'} />
-      <TabItem id="profile" label="我的" icon={<UserIcon />} active={activeTab === 'profile'} />
-    </div>
-  );
-}
-```
+📄 See `scripts/examples/AppTabBar.tsx` — shows custom Tab Bar with raised center button and badge support.
 
 ## WindowFrame Component (Desktop Device Simulation)
 
@@ -887,111 +635,18 @@ export function Dashboard() {
 
 When the app has an app-level menu bar and/or toolbar (e.g. Microsoft Word, Figma, VS Code), use a `flex flex-col h-full` wrapper as the FIRST element in `children`. This keeps the bars fixed (non-scrolling) above the scrollable content area:
 
-```tsx
-// src/pages/desktop/Editor.tsx
-import { WindowFrame } from '@/components/layout/WindowFrame';
-import { AppSidebar } from '@/components/layout/AppSidebar';
-import { AppMenuBar } from '@/components/layout/AppMenuBar';
-import { AppToolbar } from '@/components/layout/AppToolbar';
-
-export function Editor() {
-  return (
-    <WindowFrame
-      theme="light"
-      title="Document.docx — MyEditor"
-      width={1280}
-      height={800}
-      sidebar={<AppSidebar activeItem="editor" />}  {/* optional */}
-    >
-      {/**
-       * App Chrome bars: use flex-col h-full wrapper.
-       * h-full fills the content area exactly — no outer overflow, outer div won't scroll.
-       * AppMenuBar and AppToolbar are flex-shrink-0 (non-scrolling).
-       * The inner div (flex-1 overflow-y-auto) handles the actual page scroll.
-       */}
-      <div className="flex flex-col h-full">
-        <AppMenuBar />   {/* App Chrome: File / Edit / View / Format / ... */}
-        <AppToolbar />   {/* App Chrome: Bold / Italic / Undo / Redo / ... */}
-        <div className="flex-1 overflow-y-auto">
-          {/* Page content — scrollable */}
-          <DocumentContent />
-        </div>
-      </div>
-    </WindowFrame>
-  );
-}
-```
+📄 **Examples** (read when implementing):
+- `scripts/examples/Editor.tsx` — Word-style desktop page with Menu Bar + Toolbar (the `flex flex-col h-full` wrapper pattern)
+- `scripts/examples/AppMenuBar.tsx` — app-level menu bar component
+- `scripts/examples/AppToolbar.tsx` — app-level toolbar/ribbon component
 
 **Why `flex flex-col h-full` works**:
 - `h-full` fills the WindowFrame content area exactly → outer `overflow-auto` never activates
 - Menu bar and toolbar are `flex-shrink-0` → they stay fixed above content, never scroll
 - `flex-1 overflow-y-auto` on the inner div → handles page scrolling independently
 
-**AppMenuBar pattern** (define once, used by all pages that share the menu):
-```tsx
-// src/components/layout/AppMenuBar.tsx
-export function AppMenuBar() {
-  return (
-    <div className="flex-shrink-0 h-8 flex items-center px-2 gap-1 bg-neutral-100 border-b border-neutral-200 text-sm">
-      {['File', 'Edit', 'View', 'Insert', 'Format', 'Help'].map(label => (
-        <button key={label} className="px-3 py-1 rounded hover:bg-neutral-200 text-neutral-700">
-          {label}
-        </button>
-      ))}
-    </div>
-  );
-}
-```
-
-**AppToolbar pattern** (ribbon / icon toolbar):
-```tsx
-// src/components/layout/AppToolbar.tsx
-export function AppToolbar() {
-  return (
-    <div className="flex-shrink-0 h-10 flex items-center gap-1 px-3 bg-white border-b border-neutral-200">
-      <button className="p-1.5 rounded hover:bg-neutral-100 font-bold text-sm">B</button>
-      <button className="p-1.5 rounded hover:bg-neutral-100 italic text-sm">I</button>
-      <button className="p-1.5 rounded hover:bg-neutral-100 underline text-sm">U</button>
-      {/* ... more toolbar buttons per Phase 4 spec ... */}
-    </div>
-  );
-}
-```
-
 **AppSidebar Pattern** (implement per Phase 4 spec):
-```tsx
-// src/components/layout/AppSidebar.tsx
-interface AppSidebarProps {
-  activeItem: string;
-  onItemChange?: (id: string) => void;
-}
-
-export function AppSidebar({ activeItem, onItemChange }: AppSidebarProps) {
-  // Phase 4 spec defines: navigation items, collapsible behavior, item icons, active states
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboardIcon /> },
-    { id: 'analytics', label: 'Analytics', icon: <BarChartIcon /> },
-    // ... more items from Phase 4 spec
-  ];
-
-  return (
-    <div className="w-60 h-full bg-neutral-50 border-r border-neutral-200 flex flex-col py-4">
-      {navItems.map(item => (
-        <button
-          key={item.id}
-          onClick={() => onItemChange?.(item.id)}
-          className={`flex items-center gap-3 px-4 py-2 text-sm ${
-            activeItem === item.id ? 'bg-neutral-100 font-medium' : 'text-neutral-600 hover:bg-neutral-50'
-          }`}
-        >
-          {item.icon}
-          {item.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-```
+📄 See `scripts/examples/AppSidebar.tsx` — shows collapsible sidebar with navigation items and active state.
 
 
 ## Implementation Reference: Phase 4-6 Integration
@@ -1084,67 +739,7 @@ Apply design tokens from `phase6-visual.md`:
 
 ## Usage Example in App.tsx
 
-```tsx
-// src/App.mobile.tsx
-import { useState } from 'react';
-import { PrototypeShell } from '@/components/layout/PrototypeShell';
-import { PhoneFrame } from '@/components/layout/PhoneFrame';
-import { Home, ProductDetail, Cart, Profile } from '@/pages/mobile';
-
-function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-
-  const pages = [
-    { id: 'home', name: 'Home' },
-    { id: 'detail', name: 'Detail' },
-    { id: 'cart', name: 'Cart' },
-    { id: 'profile', name: 'Profile' },
-  ];
-
-  const renderPage = () => {
-    switch (currentPage) {
-      // Pages with Tab Bar: pass AppTabBar as tabBar slot
-      case 'home':
-        return <PhoneFrame theme={theme} tabBar={<AppTabBar activeTab="home" onTabChange={setCurrentPage} />}>
-          <Home />
-        </PhoneFrame>;
-      // Pages without Tab Bar: omit tabBar prop (detail pages, auth pages, etc.)
-      case 'detail':
-        return <PhoneFrame theme={theme}>
-          <ProductDetail />
-        </PhoneFrame>;
-      case 'cart':
-        return <PhoneFrame theme={theme} tabBar={<AppTabBar activeTab="cart" onTabChange={setCurrentPage} />}>
-          <Cart />
-        </PhoneFrame>;
-      case 'profile':
-        return <PhoneFrame theme={theme} tabBar={<AppTabBar activeTab="profile" onTabChange={setCurrentPage} />}>
-          <Profile />
-        </PhoneFrame>;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <PrototypeShell
-      productName="<<Product Name>>"
-      pages={pages}
-      currentPage={currentPage}
-      onPageChange={setCurrentPage}
-      interactions={[
-        // From Phase 4 interaction specs
-        "Tap product card to view details",
-        "Swipe left on cart item to delete",
-        "Pull down to refresh home data",
-      ]}
-    >
-      {renderPage()}
-    </PrototypeShell>
-  );
-}
-```
+📄 See `scripts/examples/App.mobile.tsx` — complete mobile routing example with PrototypeShell + PhoneFrame + AppTabBar page switching.
 
 ## Typography & Aesthetic Guidelines
 

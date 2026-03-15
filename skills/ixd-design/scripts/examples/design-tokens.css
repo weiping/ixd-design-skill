@@ -1,0 +1,37 @@
+/* Phase 6 Design Tokens — paste into src/index.css
+ * Fill in <<placeholders>> from doc/ixd/phase6-visual.md
+ */
+
+:root {
+  --primary: <<primary-color>>;
+  --primary-foreground: <<primary-text-color>>;
+  --secondary: <<secondary-color>>;
+  --accent: <<accent-color>>;
+  --background: <<background-color>>;
+  --foreground: <<text-color>>;
+  --muted: <<muted-background>>;
+  --muted-foreground: <<muted-text>>;
+  --card: <<card-background>>;
+  --border: <<border-color>>;
+  --radius: <<border-radius-base>>;
+  /* Functional colors */
+  --success: <<success-color>>;
+  --warning: <<warning-color>>;
+  --destructive: <<error-color>>;
+}
+
+.dark {
+  /* Dark mode variable overrides — fill from Phase 6 dark mode section */
+  --background: <<dark-background>>;
+  --foreground: <<dark-text>>;
+  /* ... */
+}
+
+/* Hide scrollbar utility for prototype content areas */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
