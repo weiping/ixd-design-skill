@@ -19,6 +19,7 @@
 | v2.6 | 2026-03 | 阶段七新增TDD开发方法：测试先行编写交互测试、批次交互走查(工具二47项检查表)、阶段二页面清单完整性检查，输出合并的评审报告 |
 | v2.7 | 2026-03 | 阶段八文档第四章改为页面索引目录（含规格文件引用），不再内嵌完整交互内容；最终评审关卡改为用各阶段质量清单审查文档对应章节（非审查各阶段源文件）；附录A用阶段七清单审查；全文用阶段八清单审查 |
 | v2.8 | 2026-03 | 阶段七重构：PhoneFrame/WindowFrame 采用 Slot 模式（tabBar/sidebar prop），移除旧 tabs[]/showTabBar/activeTab API；新增 data-testid 支持 TDD 测试；集成 Vitest + Testing Library 测试框架；动态岛添加 pointer-events-none；批次评审统一写入 phase7-review-master.md（增量追加），移除独立 batch-N 文件；新增 AppTabBar/AppSidebar 组件模式和移动端/桌面端职责划分表；补充 Word 风格桌面菜单栏/工具栏实现方案 |
+| v2.9 | 2026-03 | 阶段四改为按页面输出：每页单独保存为 `phase4-page-specs/page-<ID>.md`（如 `page-P01.md`），替代原有按批次合并的 `batch-N.md`；阶段五/七/八中对阶段四文件的引用同步更新为按页面 ID 加载 |
 
 ---
 
@@ -2013,7 +2014,7 @@ describe('Home', () => {
 
 每批次页面完成后：
 1. 运行 `pnpm test:run`，确认所有测试通过（TDD 绿灯）
-2. 读取该批次所有页面的阶段四规格
+2. 读取该批次各页面的阶段四规格（每页一个文件：`doc/ixd/phase4-page-specs/page-<ID>.md`）
 3. 对照工具二（辅助工具.md）的 47 项启发式检查表逐项核查
 4. 将评审结果**追加**到 `doc/ixd/phase7-review-master.md` 的 `## Batch N` 节
 5. 如有问题，修复后重新运行 `pnpm test:run` + 重新走查，直到通过
@@ -2109,12 +2110,12 @@ describe('Home', () => {
 
 | 页面 ID | 页面名称 | 所属模块 | 页面类型 | 规格文件 | 核心交互要点 |
 |---------|----------|----------|----------|----------|------------|
-| P01 | <<页面名>> | <<模块>> | <<Hub/List/…>> | `phase4-page-specs/batch-1.md § P01` | <<一句话概述>> |
+| P01 | <<页面名>> | <<模块>> | <<Hub/List/…>> | `phase4-page-specs/page-P01.md` | <<一句话概述>> |
 | … | … | … | … | … | … |
 
 **4.x <<模块名称>>**
   4.x.1 P01 <<页面名>>
-    规格文件：`doc/ixd/phase4-page-specs/batch-N.md § P01`
+    规格文件：`doc/ixd/phase4-page-specs/page-P01.md`
     包含章节：概述 / 布局结构 / 组件列表 / 交互规格 / 页面状态 / 动效规格 / 数据策略 / 适配规则 / 微交互
     核心交互要点：<<1-2 句，描述最重要的交互行为>>
     桌面端补充（跨平台时）：悬停态 / 右键菜单 / 快捷键 / 拖拽 / 焦点顺序

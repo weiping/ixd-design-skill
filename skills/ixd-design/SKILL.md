@@ -36,8 +36,8 @@ doc/ixd/
 ├── phase2-architecture.md      ← Phase 2 output
 ├── phase3-userflows.md         ← Phase 3 output
 ├── phase4-page-specs/
-│   ├── page-1.md              ← Page specs
-│   ├── page-2.md
+│   ├── page-P01.md            ← Page spec (one file per page, named by Phase 2 page ID)
+│   ├── page-P02.md
 │   └── ...
 ├── phase5-components.md        ← Phase 5 output
 ├── phase6-visual.md            ← Phase 6 output
@@ -64,7 +64,7 @@ Create `doc/ixd/` if it doesn't exist. After each phase, save the deliverable AN
     "4": {
       "status": "done",
       "file": "phase4-page-specs/",
-      "summary": "Completed <<N>>/<<total>> page specs; latest batch: <<page_names>>",
+      "summary": "Completed <<N>>/<<total>> page specs; pages: <<page_id_list>>",
       "pagesCompleted": [],
       "pagesTotal": 0
     },
@@ -266,14 +266,14 @@ Each phase depends on specific prior outputs. Loading everything wastes tokens; 
 | P2 | P1 | — | — |
 | P3 | P1, P2 | — | — |
 | P4 | P2, P3 | P1 | — |
-| P5 | P4 (batch being worked on or completed) | P1, P2 | P3 |
+| P5 | P4 (pages being worked on, load individually by page file) | P1, P2 | P3 |
 | P6 | P1, P5 | P2 | P3, P4 |
 | P7 | P5, P6, P4 (pages being prototyped) | P1, P2 | P3 |
 | P8 | P1, P2, P3, P5, P6, P4 (chapter-by-chapter) | — | — |
 
 **P4 Special Handling**: Phase 4 outputs are per-page files in `doc/ixd/phase4-page-specs/`. Do NOT load all at once.
 - **Phase 4 completeness check** reads P2 page inventory to identify missing pages.
-- **Phase 5** reads P4 batch-by-batch to extract components, then synthesizes.
+- **Phase 5** reads P4 page-by-page (each page is a separate file) to extract components, then synthesizes.
 - **Phase 7** loads only the pages being prototyped in the current batch, and reads P2 for completeness check.
 - **Phase 8** references P4 by section, does not need all pages in memory simultaneously.
 
@@ -633,10 +633,10 @@ Each page now has **10 sections**:
      → IF missing: supplement, then proceed to Phase 5
 ```
 
-Process in batches of 3-5 pages. Save each batch as `doc/ixd/phase4-page-specs/batch-<N>.md`.
+Process in batches of 3-5 pages. Save **each page as a separate file**: `doc/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`, `page-P02.md`, `page-P03.md`). One file per page, named by the page ID from Phase 2 inventory.
 
-**Batch Completeness Tracking**:
-- After each batch, record completed page IDs in `progress.json`
+**Page Tracking**:
+- After each batch, record the newly completed page IDs in `progress.json`
 - Before each new batch, check remaining pages from Phase 2 inventory
 - Prioritize: core pages → high-traffic pages → secondary pages
 
@@ -798,7 +798,7 @@ Same approach — generate both mobile + desktop pages simultaneously.
 - **After each batch**:
   1. Run `bundle-artifact.sh` to produce the latest prototype HTML file(s)
   2. Save/overwrite the output to `doc/ixd/phase7-prototype*.html`
-  3. Update `progress.json`: increment `pagesCompleted`, record `lastBatch`
+  3. Update `progress.json`: add newly completed page IDs to `pagesCompleted`
   4. **Verify Device Frames in Bundle**: Check each page uses PhoneFrame/WindowFrame
      - `grep -o "PhoneFrame" phase7-prototype.html | wc -l` >= page count
      - If NOT: Fix pages to use device frames, re-bundle
@@ -821,7 +821,7 @@ Same approach — generate both mobile + desktop pages simultaneously.
 After generating a batch of pages, perform the following review:
 
 1. **Read Phase 4 specs** for each page in the batch:
-   - `doc/ixd/phase4-page-specs/page-X.md`
+   - `doc/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`, `page-P02.md`)
    - Extract interaction requirements, gestures, transitions, animations
 
 2. **Run Tool 2 Heuristic Checklist** (47 items) against batch pages:
@@ -920,7 +920,7 @@ Read: `references/phase7-prototype.md`
 - **CRITICAL**: This chapter must contain the FULL interaction specifications from Phase 4, NOT summaries
 - Each page includes 9 sections: Overview / Layout / Components / Interactions / States / Motion / Data Strategy / Adaptation / **Micro-interactions**
 - **Exclude Walkthrough section** from Phase 4 pages (walkthrough is done during Phase 4, not needed in final document)
-- Copy full content from `doc/ixd/phase4-page-specs/` for each page:
+- Copy full content from `doc/ixd/phase4-page-specs/<page-id>.md` for each page:
   - Section 1: Overview (full content)
   - Section 2: Layout Structure (full content with grid/placement details)
   - Section 3: Component List (complete list with all elements)
@@ -1016,7 +1016,7 @@ When review **FAILS**:
 
 1. List all blocking items (walkthrough priority fixes + review P0/P1 items)
 2. Trace each item to its **source phase and file**:
-   - Page interaction issues → fix `doc/ixd/phase4-page-specs/<page>.md`
+   - Page interaction issues → fix `doc/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`)
    - Component spec issues → fix `doc/ixd/phase5-components.md`
    - Visual consistency issues → fix `doc/ixd/phase6-visual.md`
    - Flow defects → fix `doc/ixd/phase3-userflows.md`

@@ -186,7 +186,7 @@ Each phase loads only the prior outputs it directly depends on — not everythin
 | Phase | Must Load (Full) | Summary Only | Skip |
 |-------|-----------------|--------------|------|
 | P4 | P2, P3 | P1 | — |
-| P5 | P4 (current batch) | P1, P2 | P3 |
+| P5 | P4 (pages being worked on, load individually) | P1, P2 | P3 |
 | P6 | P1, P5 | P2 | P3, P4 |
 | P7 | P5, P6, P4 (pages being prototyped) | P1, P2 | P3 |
 
@@ -273,7 +273,7 @@ doc/ixd/
 ├── phase2-architecture.md
 ├── phase3-userflows.md
 ├── phase4-page-specs/
-│   ├── batch-1.md
+│   ├── page-P01.md            ← One file per page, named by Phase 2 page ID
 │   └── ...
 ├── phase5-components.md
 ├── phase6-visual.md

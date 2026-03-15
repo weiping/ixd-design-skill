@@ -670,7 +670,7 @@ For each page spec in the batch:
 
 For each batch of pages generated, perform the following verification **for every page**:
 
-1. **Read Page Spec**: `doc/ixd/phase4-page-specs/page-X.md`
+1. **Read Page Spec**: `doc/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`, `page-P02.md`)
 
 2. **Check Each Page**:
    - [ ] All 10 sections present and complete
@@ -731,7 +731,7 @@ Scan `doc/ixd/phase4-page-specs/` directory to identify which pages have been do
 ```js
 const completedPages = []; // List of page IDs from existing spec files
 
-// Check each batch file for page IDs
+// Check each page spec file (e.g., page-P01.md, page-P02.md)
 // Each spec file should start with "## P<<ID>> <<Page Name>>"
 ```
 
@@ -753,7 +753,7 @@ if (missingPages.length > 0) {
 For each missing page:
 1. Check if the page exists in Phase 3 user flows — extract interaction details
 2. Generate the 10-section spec using the template above
-3. Append to the appropriate batch file or create a new batch
+3. Save as a new page spec file: `doc/ixd/phase4-page-specs/page-<ID>.md`
 4. Ensure cross-references to related pages are updated
 
 ### Step 5: Update Progress

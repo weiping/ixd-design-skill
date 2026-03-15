@@ -185,7 +185,7 @@ cp -r skills/ixd-design <workspace>/skills/ixd-design
 | 阶段 | 必须完整加载 | 仅加载摘要 | 跳过 |
 |------|------------|----------|------|
 | P4 | P2, P3 | P1 | — |
-| P5 | P4（当前批次） | P1, P2 | P3 |
+| P5 | P4（逐页加载，按页面文件单独读取） | P1, P2 | P3 |
 | P6 | P1, P5 | P2 | P3, P4 |
 | P7 | P5, P6, P4（正在原型化的页面） | P1, P2 | P3 |
 
@@ -272,7 +272,7 @@ doc/ixd/
 ├── phase2-architecture.md
 ├── phase3-userflows.md
 ├── phase4-page-specs/
-│   ├── batch-1.md
+│   ├── page-P01.md            ← 每页一个文件，文件名来自阶段 2 的页面 ID
 │   └── ...
 ├── phase5-components.md
 ├── phase6-visual.md
