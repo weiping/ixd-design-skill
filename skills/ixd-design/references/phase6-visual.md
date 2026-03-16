@@ -305,7 +305,7 @@ Define 2-3 principles (e.g., "purposeful", "natural", "restrained")
 ```
 
 [中文]
-```markddown
+```markdown
 ### 一、色彩系统 (Color System)
 
 #### 1.1 品牌色 (Brand Colors)

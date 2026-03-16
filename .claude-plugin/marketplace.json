@@ -1,20 +1,60 @@
 {
+ "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "ixd-design-skill",
   "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
   "owner": {
     "name": "weiping",
     "email": "yuyang@msn.com"
   },
+  "metadata": {n": "Battle-tested Claude Code configurations from an Anthropic hackathon winner"
+    "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
+  },
   "plugins": [
     {
       "name": "ixd-design",
       "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
-      "version": "1.0.0",
+      "version": "1.0.1",
+      "author": {
+        "name": "weiping",
+        "email": "yuyang@msn.com"
+      },
       "source": "./",
-      "category": "development",
+      "homepage": "https://github.com/weiping/ixd-design-skill",
+      "repository": "https://github.com/weiping/ixd-design-skill",
+      "license": "MIT",
+      "category": "workflow",
       "strict": false,
-      "skills": [
-        "./skills/ixd-design"
+      "keywords": [
+        "interaction-design",
+        "ixd",
+        "ui-design",
+        "ux-design",
+        "design-workflow",
+        "prototype",
+        "visual-design",
+        "information-architecture",
+        "component-spec",
+        "design-system",
+        "skills",
+        "workflow",
+        "automation",
+        "best-practices"
+      ],
+      "tags": [
+        "interaction-design",
+        "ixd",
+        "ui-design",
+        "ux-design",
+        "design-workflow",
+        "prototype",
+        "visual-design",
+        "information-architecture",
+        "component-spec",
+        "design-system",
+        "skills",
+        "workflow",
+        "automation",
+        "best-practices"
       ]
     }
   ]

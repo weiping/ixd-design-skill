@@ -45,8 +45,6 @@ The `platform` field in `progress.json` determines the output:
 | `"desktop"` | Single project | `prototype.html` | Window frame inside page content |
 | `"both"` | Single project, dual entry | `prototype-mobile.html` + `prototype-desktop.html` | Both viewports |
 
-**Key Change in v2.5**: Device simulation (phone/desktop frame) is no longer in the shell — it's implemented within each page component. The shell only provides the project name, theme toggle, and scrollable display area.
-
 **Default behavior**: If `platform` is not set, assume `"mobile"`.
 
 ## Development Workflow
@@ -87,7 +85,7 @@ After initialization, the project includes:
 
 **IMPORTANT**: Before implementing, read the following documents to ensure the prototype strictly follows established specifications:
 
-1. **Phase 4 (Interaction Specs)**: `doc/ixd/phase4-page-interaction.md` — Contains per-page interaction requirements, gestures, animations, and user flow specifications
+1. **Phase 4 (Interaction Specs)**: `doc/ixd/phase4-page-specs/` — Contains per-page interaction requirements, gestures, animations, and user flow specifications (one file per page: `page-P01.md`, `page-P02.md`, …)
 2. **Phase 5 (Component Library)**: `doc/ixd/phase5-components.md` — Contains component specifications, states, and design tokens
 3. **Phase 6 (Visual Design)**: `doc/ixd/phase6-visual.md` — Contains color system, typography, spacing, and visual styling
 
@@ -169,13 +167,18 @@ Before developing any pages, verify the device frame components are properly set
 
 ### Step 4: Implement Page Components (TDD Cycle)
 
+> **CRITICAL — TDD IS MANDATORY**: You MUST write the test first before writing any component code. Do NOT implement a page without a passing test. Skipping TDD is not permitted.
+
 > **CRITICAL**: Each page component MUST be wrapped in the device frame (PhoneFrame/WindowFrame) to ensure proper device simulation.
 
 **TDD Cycle (per page)**:
 
-For each page, follow RED → GREEN → proceed:
+For each page, strictly follow RED → GREEN → proceed — **no exceptions**:
 
 ```
+❌ WRONG: Write component first, then test (or skip test entirely)
+✅ CORRECT: Write test first (RED), then implement until GREEN
+
 1. Write test  (RED)    → pnpm test → FAIL   ← component doesn't exist yet
 2. Implement component  → pnpm test → PASS   ← GREEN
 3. Next page in batch
@@ -236,6 +239,37 @@ Type representative annotation (Section 8A)
 Design system defaults (Phase 5 tokens + Phase 6 color/typography)
 ```
 
+**Cross-Platform Pages — Dual Implementation Required**:
+
+> **RULE**: Check the `Platform` column in the Phase 2 page inventory (`doc/ixd/phase2-architecture.md`). Pages marked `Cross-platform` / `跨平台` MUST produce **two separate implementations** — one in `pages/mobile/` and one in `pages/desktop/` — each following its own Phase 4 layout spec. Implementing only one version does not satisfy this requirement.
+
+| Platform value in Phase 2 | Required implementation |
+|---------------------------|------------------------|
+| `Mobile` / `移动端` / `MiniApp` / `小程序` | `pages/mobile/X.tsx` only |
+| `Desktop` / `PC端` | `pages/desktop/X.tsx` only |
+| `Web` | per Phase 4 spec (mobile or desktop frame) |
+| `Cross-platform` / `跨平台` | `pages/mobile/X.tsx` **AND** `pages/desktop/X.tsx` |
+
+When implementing a cross-platform page pair:
+1. Read the Phase 4 spec for the mobile version first → write test (RED → `pnpm test` FAIL) → implement `pages/mobile/X.tsx` → GREEN
+2. Read the Phase 4 spec for the desktop version → write test (RED → `pnpm test` FAIL) → implement `pages/desktop/X.tsx` → GREEN
+3. Both versions share mock data from `lib/mockData.ts` and shared business components from `components/shared/`
+4. Do NOT port mobile layout to desktop — each must use its platform-native frame and navigation pattern
+
+> **CRITICAL — USE DESIGN TOKENS FOR ALL STYLING**: Every color, typography size/weight, border-radius, and shadow value MUST come from the Design Tokens defined in `src/index.css` (Step 2). Do NOT use raw Tailwind palette values — they bypass the design system and break Phase 6 visual fidelity.
+>
+> | ❌ Raw Tailwind (avoid) | ✅ Design Token (required) |
+> |------------------------|--------------------------|
+> | `bg-neutral-50` / `bg-gray-100` | `bg-background` / `bg-muted` / `bg-card` |
+> | `text-gray-900` / `text-neutral-700` | `text-foreground` / `text-muted-foreground` / `text-card-foreground` |
+> | `border-neutral-200` / `border-gray-300` | `border-border` |
+> | `bg-blue-500` / `bg-indigo-600` (brand) | `bg-primary` / `bg-secondary` / `bg-accent` |
+> | `text-white` on colored button | `text-primary-foreground` / `text-accent-foreground` |
+> | `hover:bg-neutral-100` | `hover:bg-accent hover:text-accent-foreground` |
+> | `rounded-lg` (arbitrary choice) | `rounded-[var(--radius)]` or use shadcn component defaults |
+>
+> **Apply this rule to every element**: backgrounds, text, borders, icons, dividers, hover/active states, badges, and overlays.
+
 **Theme Propagation (Context)**:
 
 `PrototypeShell` propagates the theme to all descendant `PhoneFrame`/`WindowFrame` via `ThemeContext`. **Do NOT pass `theme` prop** on page-level usage — just omit it and the shell toggle works automatically:
@@ -274,7 +308,9 @@ export function MyPage() {
 }
 ```
 
-**Avoid Hardcoding Theme Colors**:
+**Dark Theme Support (MANDATORY)**:
+
+> **CRITICAL**: Every page component and shared component (TabBar, Sidebar, NavBar, etc.) MUST support both light and dark themes. Components that only work in light mode are not acceptable — the shell's theme toggle must visually affect all page content.
 
 Page content must respond to theme changes. Use one of these patterns (in order of preference):
 
@@ -401,7 +437,61 @@ src/
 └── index.css            # Global styles + Design Tokens (shared)
 ```
 
-### Step 5: Bundle to Single HTML
+### Step 5: Page Quality Check
+
+Before bundling, run the Quality Checklist against every implemented page. For cross-platform projects (`platform: "both"`), check **both** the mobile and desktop version of each page.
+
+**Severity levels** — defined in the [Quality Checklist](#quality-checklist) section:
+- **P0 — Critical**: Prototype is broken or unusable. MUST fix before proceeding.
+- **P1 — Important**: Significant deviation from spec or design system. MUST fix before bundling.
+- **P2 — Suggested**: Minor improvement; fix if time allows, otherwise log for next iteration.
+
+**Quality Check Loop**:
+
+```
+For each page (and each platform version for cross-platform pages):
+  ├── Run through every item in the Quality Checklist
+  ├── Record each FAIL with its severity (P0 / P1 / P2)
+  └── If any P0 or P1 FAILs found:
+        ├── Fix ALL P0 issues immediately
+        ├── Fix ALL P1 issues
+        └── Re-run Quality Check for the fixed pages → repeat until no P0/P1 FAILs remain
+  → Only after zero P0/P1 FAILs: proceed to Step 6 (Bundle)
+```
+
+**Record results** in `doc/ixd/phase7-review-master.md` under the current batch section:
+
+```markdown
+### Quality Check — Batch N
+
+| Page | Platform | P0 FAILs | P1 FAILs | P2 FAILs | Status |
+|------|----------|----------|----------|----------|--------|
+| Home | Mobile   | 0        | 1        | 2        | ⚠️ Fix P1 |
+| Home | Desktop  | 0        | 0        | 1        | ✅ |
+| Detail | Mobile | 1        | 0        | 0        | ❌ Fix P0 |
+
+#### Issues Found
+
+| ID | Page | Platform | Severity | Checklist Item | Description | Fix Applied |
+|----|------|----------|----------|----------------|-------------|-------------|
+| Q1 | Home | Mobile | P1 | Design Token enforced | `bg-gray-100` used in FeedCard | Changed to `bg-muted` |
+| Q2 | Detail | Mobile | P0 | Safe area compliance | Content overflows behind status bar | Added `pt-0`, fixed nav structure |
+
+#### Re-check Results (after fixes)
+
+| Page | Platform | P0 FAILs | P1 FAILs | Status |
+|------|----------|----------|----------|--------|
+| Home | Mobile   | 0        | 0        | ✅ |
+| Detail | Mobile | 0        | 0        | ✅ |
+
+**Quality Check Verdict**: ✅ All P0/P1 resolved — proceed to Bundle
+```
+
+> **IMPORTANT**: P2 issues do NOT block bundling. Log them in the issues table and continue.
+
+---
+
+### Step 6: Bundle to Single HTML
 
 #### Single-Platform Bundling
 
@@ -428,7 +518,7 @@ For `platform: "both"`, create two HTML entry files and bundle separately:
 - `scripts/examples/main.mobile.tsx` — mobile React entry
 - `scripts/examples/main.desktop.tsx` — desktop React entry
 
-**3. Bundle each entry**:
+**2. Bundle each entry**:
 
 ```bash
 # Bundle mobile version
@@ -493,8 +583,6 @@ The shell provides a simplified display environment without device frames. **Dev
 
 ## PhoneFrame Component (Mobile Device Simulation)
 
-**NEW in v2.5**: Device frame is now implemented as a separate component within each page, not in the shell. This allows proper scroll capture and swipe simulation.
-
 > **Canonical source**: `scripts/templates/PhoneFrame.tsx`
 > The component is copied verbatim into the project by `init-artifact.sh`.
 > **Do NOT edit** the code block below — edit the template file instead.
@@ -529,13 +617,6 @@ PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)  ← wheel e
 └── Home Indicator (absolute bottom-1, h-1)
 ```
 
-> **v2.9 change**: Status bar moved **inside** the screen area as a `flex-shrink-0` flex child (was `absolute`).
-> This ensures the status bar inherits the screen background and uses theme-aware text color (dark text on light screen,
-> white text on dark screen). `pt-11` on `children` is **no longer needed**.
-> Wheel event listener is now attached to the **outermost frame div** (covers the entire phone area),
-> so scrolling anywhere on the phone — including the status bar and tab bar zones — scrolls the content area,
-> not the outer PrototypeShell.
-
 **Props API**:
 
 | Prop | Type | Default | Description |
@@ -551,8 +632,8 @@ PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)  ← wheel e
 
 **Usage**:
 ```tsx
-// Typical page with custom Tab Bar
-<PhoneFrame theme="light" tabBar={<AppTabBar activeTab="home" onTabChange={setTab} />}>
+// Typical page with custom Tab Bar — omit theme prop; PrototypeShell toggle propagates automatically
+<PhoneFrame tabBar={<AppTabBar activeTab="home" onTabChange={setTab} />}>
   {/* Top navigation bar (page-specific, scrolls with content or sticky) */}
   <TopNavBar title="社区" rightIcon={<SearchIcon />} />
   {/* Scrollable page content */}
@@ -560,7 +641,7 @@ PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)  ← wheel e
 </PhoneFrame>
 
 // Page without Tab Bar (e.g. detail page, auth page)
-<PhoneFrame theme="light">
+<PhoneFrame>
   <DetailPageContent />
 </PhoneFrame>
 ```
@@ -569,8 +650,6 @@ PhoneFrame outer div (relative, 390×844px, p-1.5, overflow-hidden)  ← wheel e
 📄 See `scripts/examples/AppTabBar.tsx` — shows custom Tab Bar with raised center button and badge support.
 
 ## WindowFrame Component (Desktop Device Simulation)
-
-Desktop window frame is also moved into page components.
 
 > **Canonical source**: `scripts/templates/WindowFrame.tsx`
 > The component is copied verbatim into the project by `init-artifact.sh`.
@@ -653,7 +732,7 @@ When the app has an app-level menu bar and/or toolbar (e.g. Microsoft Word, Figm
 
 ### Phase 4 (Interaction Specs) Requirements
 
-Each page component MUST implement interactions defined in `phase4-page-interaction.md`:
+Each page component MUST implement interactions defined in `doc/ixd/phase4-page-specs/<page-id>.md`:
 
 | Interaction Type | Implementation |
 |-----------------|----------------|
@@ -789,11 +868,17 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
 
 **Process**:
 
-1. **Generate Pages** (Batch)
+1. **Generate Pages** (Batch, TDD cycle per page)
    - Read Phase 4 specs for pages in this batch
+   - **CRITICAL**: For each page — write test first (`pnpm test` → FAIL), then implement until GREEN. Do NOT implement before the test exists.
    - **CRITICAL**: Each page MUST wrap content in PhoneFrame (mobile) or WindowFrame (desktop)
 
-2. **Bundle and Verify**
+2. **Page Quality Check** (see [Step 5: Page Quality Check](#step-5-page-quality-check))
+   - Run Quality Checklist against every page in this batch; for cross-platform batches, check both mobile and desktop versions
+   - Fix all P0 and P1 FAILs; re-run check until zero P0/P1 remain
+   - Record results in `doc/ixd/phase7-review-master.md` under `### Quality Check — Batch N`
+
+3. **Bundle and Verify**
    - Run `bundle-artifact.sh` to produce prototype HTML
    - **VERIFY**: Check HTML includes device frames:
      ```bash
@@ -803,29 +888,30 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
      ```
    - **If frame count < page count**: Pages are not using device frames. Fix before continuing.
 
-3. **Batch Walkthrough + Per-Page Verification** (see [Per-Page Verification Procedure](#per-page-verification-procedure))
-   - For each page in the batch: run Tool 2 heuristic (47 items) + check Quality Checklist
+4. **Batch Walkthrough + Per-Page Verification** (see [Per-Page Verification Procedure](#per-page-verification-procedure))
+   - For each page in the batch: run Tool 2 heuristic (47 items) — focus on **visual/rendering aspects only** (animations, safe area layout, visual token rendering, dual-theme appearance, Phase 4 interaction compliance). Do NOT re-run the Quality Checklist — that was already completed in step 2.
    - **Append** results to `doc/ixd/phase7-review-master.md` as a new `## Batch N` section
    - (Create `phase7-review-master.md` on Batch 1; all subsequent batches append to it)
 
-4. **Fix Issues** (if any)
+5. **Fix Issues** (if any)
    - Address all FAIL items before proceeding to next batch
 
-5. **Pause for User Confirmation**
+6. **Pause for User Confirmation**
 
 ### Single-Platform Batch Output (`platform: "mobile"` or `"desktop"`)
 
 1. **Read page inventory** from `doc/ixd/phase2-architecture.md`
-2. **Read interaction specs** from `doc/ixd/phase4-page-interaction.md` for each page
+2. **Read interaction specs** from `doc/ixd/phase4-page-specs/<page-id>.md` for each page in the batch
 3. **Prioritize by importance**: dashboard/home → core lists → detail pages → forms → settings → secondary pages
 4. **Output in batches of 3-5 pages** per turn to avoid token limits
 5. **After each batch**:
+   - **Page Quality Check**: run Quality Checklist for all pages in this batch; fix P0/P1 FAILs and re-check until zero P0/P1 remain; record results in `doc/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
    - Run `bundle-artifact.sh` to produce updated prototype HTML
    - Save/overwrite `doc/ixd/phase7-prototype.html` (or platform-specific filename)
    - Update `progress.json`: record completed page IDs and `lastBatch`
    - **Append batch review to master report**: write `## Batch N` section to `doc/ixd/phase7-review-master.md` (create on Batch 1, append thereafter)
    - **PAUSE** — output a summary then ask the user:
-     > "✅ Batch N complete — pages X, Y, Z implemented. Prototype updated: `phase7-prototype.html`
+     > "✅ Batch N complete — pages X, Y, Z implemented. Quality Check: all P0/P1 resolved. Prototype updated: `phase7-prototype.html`
      > Progress: M/total pages done.
      > Batch Review: `phase7-review-master.md` → Batch N section
      > **Continue to next batch?** (yes / stop here)"
@@ -845,18 +931,19 @@ When `platform: "both"`, implement both platforms in a single project:
 
 1. **Read Phase 4, 5, 6 requirements first** for each page
 2. **Implement shared resources first**: Design Tokens (`index.css`), mock data (`lib/mockData.ts`), shared components
-3. **Implement layout components**: `AppTabBar.tsx` (mobile Tab Bar) and `AppSidebar.tsx` (desktop Sidebar) with platform-specific navigation
-4. **Implement page pairs**: For each page, create both `pages/mobile/X.tsx` and `pages/desktop/X.tsx`
+3. **Implement layout components** (TDD): `AppTabBar.tsx` (mobile Tab Bar) and `AppSidebar.tsx` (desktop Sidebar) — write a smoke test first (renders without crashing + correct `data-testid`) → implement → `pnpm test` GREEN
+4. **Implement page pairs** (TDD per page): For each page — write test (RED → `pnpm test` FAIL) → implement `pages/mobile/X.tsx` → GREEN, then write test (RED) → implement `pages/desktop/X.tsx` → GREEN
 5. **Batch by page, not by platform**: Complete the mobile + desktop versions of a page together before moving to the next
 6. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
 7. **Output in batches of 2-3 page pairs per turn**
 8. **After each batch**:
+   - **Page Quality Check**: run Quality Checklist for **both** the mobile and desktop version of each page in this batch; fix P0/P1 FAILs and re-check until zero P0/P1 remain for all versions; record results in `doc/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
    - Bundle both platforms: run `bundle-artifact.sh` for mobile + desktop entries
    - Save/overwrite `doc/ixd/phase7-prototype-mobile.html` and `phase7-prototype-desktop.html`
    - Update `progress.json` with completed page IDs for both platforms
    - **Append batch review to master report**: write `## Batch N (mobile + desktop)` section to `doc/ixd/phase7-review-master.md`
    - **PAUSE** — output a summary then ask:
-     > "✅ Batch N complete — page pairs X, Y implemented (mobile + desktop).
+     > "✅ Batch N complete — page pairs X, Y implemented (mobile + desktop). Quality Check: all P0/P1 resolved.
      > Prototypes updated: `phase7-prototype-mobile.html` + `phase7-prototype-desktop.html`
      > Progress: M/total page pairs done.
      > Batch Review: `phase7-review-master.md` → Batch N section
@@ -958,7 +1045,7 @@ const platform = progress.platform || 'mobile'; // "mobile" | "desktop" | "both"
 | `tokens` | Design tokens not implemented | Resume from Step 2: Implement Design Tokens (from Phase 6) |
 | `layout` | Layout framework not ready | Resume from Step 3: Implement PhoneFrame/WindowFrame |
 | `pages` | Pages being filled | Continue filling from first incomplete page |
-| `bundle` | All pages done, not bundled | Proceed to Step 4: Bundle |
+| `bundle` | All pages done, not bundled | Proceed to Step 5: Bundle |
 | `done` | Phase complete | Run completeness check, proceed to Phase 8 |
 
 ### Step 3: Page Resume Logic
@@ -1113,58 +1200,82 @@ Follow Phase 6 visual requirements. To avoid producing overly "AI-looking" desig
 
 ## Quality Checklist
 
+### Issue Severity Levels
+
+| Level | Name | Definition | Action Required |
+|-------|------|------------|-----------------|
+| **P0** | Critical | Prototype is broken, frame missing, page crashes, or content completely inaccessible. Makes the prototype unusable. | **Must fix immediately.** Do not bundle until all P0s are resolved. Re-run full Quality Check after fix. |
+| **P1** | Important | Significant deviation from spec, design system violation, broken navigation, or theme failure. Degrades prototype quality noticeably. | **Must fix before bundling.** Re-run Quality Check for affected pages after fix. |
+| **P2** | Suggested | Minor visual imperfection, missing enhancement, or suboptimal implementation. Prototype remains functional and spec-compliant. | Fix if time allows. Log in issues table and proceed to bundle if not fixed. |
+
+> **Fix loop rule**: After fixing P0/P1 issues, re-run the Quality Check for the affected pages only. Repeat until zero P0/P1 FAILs remain across all pages (and both platforms for cross-platform projects).
+
+---
+
 ### Per-Page Verification (Mandatory)
 
-Each page in the batch must pass the following checks:
+Each page in the batch must pass the following checks. Each item is tagged with its severity level.
 
 **Mobile**:
-- [ ] **TDD tests pass** — `pnpm test:run` exits green (smoke + `data-testid="phone-frame"` + content checks)
-- [ ] PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
-- [ ] PhoneFrame component wraps each mobile page with realistic iPhone frame
-- [ ] Status bar with time, signal, WiFi, battery (SVG icons)
-- [ ] Dynamic Island and Home Indicator present
-- [ ] **No scrollbar visible** — uses `scrollbar-hide` utility
-- [ ] **Mouse wheel converts to swipe** — scroll events captured in PhoneFrame
-- [ ] Tab Bar passed via `tabBar` prop slot (not re-implemented inside page children)
-- [ ] All pages from Phase 2 architecture implemented
-- [ ] Phase 4 interactions implemented (gestures, transitions)
-- [ ] Phase 5 component states used correctly
-- [ ] Phase 6 design tokens applied consistently
-- [ ] Page transitions have animation
-- [ ] Mock data is realistic
-- [ ] Touch targets are ≥ 44px
-- [ ] Back navigation works consistently
-- [ ] Dark mode toggle works
-- [ ] No broken interactions or dead-end states
+- [ ] `[P0]` **TDD tests pass** — `pnpm test:run` exits green (smoke + `data-testid="phone-frame"` + content checks)
+- [ ] `[P0]` PhoneFrame component wraps each mobile page with realistic iPhone frame
+- [ ] `[P0]` Tab Bar passed via `tabBar` prop slot (not re-implemented inside page children)
+- [ ] `[P0]` No broken interactions or dead-end states
+- [ ] `[P0]` **Safe area compliance** — no content hidden behind status bar (no manual `pt-11`), Tab Bar within screen area via `tabBar` slot, content stays within 390px
+- [ ] `[P1]` PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
+- [ ] `[P1]` Status bar with time, signal, WiFi, battery (SVG icons)
+- [ ] `[P1]` **No scrollbar visible** — uses `scrollbar-hide` utility
+- [ ] `[P1]` **Mouse wheel converts to swipe** — scroll events captured in PhoneFrame
+- [ ] `[P1]` All pages from Phase 2 architecture implemented
+- [ ] `[P1]` Phase 4 interactions implemented (gestures, transitions)
+- [ ] `[P1]` Phase 5 component states used correctly
+- [ ] `[P1]` Phase 6 design tokens applied consistently
+- [ ] `[P1]` Touch targets are ≥ 44px
+- [ ] `[P1]` Back navigation works consistently
+- [ ] `[P1]` **Design Token enforced** — no raw hex values (`#xxxxxx`), no raw Tailwind palette classes (`bg-gray-100`, `text-neutral-700`); all colors/radii via semantic tokens (`bg-background`, `text-foreground`, etc.)
+- [ ] `[P1]` **Both themes verified** — page renders correctly in light mode AND dark mode; toggle the shell theme switch and confirm no element uses hardcoded light-only or dark-only color
+- [ ] `[P2]` Dynamic Island and Home Indicator present
+- [ ] `[P2]` Page transitions have animation
+- [ ] `[P2]` Mock data is realistic
 
 **Desktop**:
-- [ ] **TDD tests pass** — `pnpm test:run` exits green (smoke + `data-testid="window-frame"` + content checks)
-- [ ] PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
-- [ ] WindowFrame component wraps each desktop page with macOS/Windows style window
-- [ ] Title bar with window controls (red/yellow/green dots for macOS) — NOT re-implemented inside children
-- [ ] Window frame with proper shadow and border
-- [ ] Sidebar passed via `sidebar` prop slot (not re-implemented inside page children)
-- [ ] Content area scrollable (right of sidebar)
-- [ ] App-level Menu Bar / Toolbar (if applicable) uses `flex flex-col h-full` wrapper — stays fixed above content
-- [ ] All pages from Phase 2 architecture implemented
-- [ ] Phase 4 interactions implemented (keyboard shortcuts, hover states)
-- [ ] Phase 5 component states used correctly
-- [ ] Phase 6 design tokens applied consistently
-- [ ] Sidebar navigation works and collapses correctly (240px ↔ 56px)
-- [ ] Keyboard navigation works (Tab focus ring visible on all interactive elements)
-- [ ] Keyboard shortcuts registered and hint labels shown
-- [ ] Right-click context menu appears on relevant items (shadcn/ui ContextMenu)
-- [ ] Hover states on all interactive elements
-- [ ] Tooltips with appropriate delay (shadcn/ui Tooltip)
-- [ ] Dark mode toggle works
-- [ ] No broken interactions or dead-end states
+- [ ] `[P0]` **TDD tests pass** — `pnpm test:run` exits green (smoke + `data-testid="window-frame"` + content checks)
+- [ ] `[P0]` WindowFrame component wraps each desktop page with macOS/Windows style window
+- [ ] `[P0]` Title bar with window controls (red/yellow/green dots for macOS) — NOT re-implemented inside children
+- [ ] `[P0]` Sidebar passed via `sidebar` prop slot (not re-implemented inside page children)
+- [ ] `[P0]` No broken interactions or dead-end states
+- [ ] `[P0]` **Safe area compliance** — no content hidden behind title bar (title bar is outside children), sidebar within `sidebar` slot (not re-implemented in children), content stays within window bounds
+- [ ] `[P1]` PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
+- [ ] `[P1]` Window frame with proper shadow and border
+- [ ] `[P1]` Content area scrollable (right of sidebar)
+- [ ] `[P1]` App-level Menu Bar / Toolbar (if applicable) uses `flex flex-col h-full` wrapper — stays fixed above content
+- [ ] `[P1]` All pages from Phase 2 architecture implemented
+- [ ] `[P1]` Phase 4 interactions implemented (keyboard shortcuts, hover states)
+- [ ] `[P1]` Phase 5 component states used correctly
+- [ ] `[P1]` Phase 6 design tokens applied consistently
+- [ ] `[P1]` Sidebar navigation works and collapses correctly (240px ↔ 56px)
+- [ ] `[P1]` Keyboard navigation works (Tab focus ring visible on all interactive elements)
+- [ ] `[P1]` Hover states on all interactive elements
+- [ ] `[P1]` **Design Token enforced** — no raw hex values, no raw Tailwind palette classes; all colors/radii via semantic tokens
+- [ ] `[P1]` **Both themes verified** — page renders correctly in light mode AND dark mode; no hardcoded light-only or dark-only color
+- [ ] `[P2]` Keyboard shortcuts registered and hint labels shown
+- [ ] `[P2]` Right-click context menu appears on relevant items (shadcn/ui ContextMenu)
+- [ ] `[P2]` Tooltips with appropriate delay (shadcn/ui Tooltip)
+
+**Cross-Platform** (only when `platform: "both"` or page has `Platform = Cross-platform` in Phase 2):
+- [ ] `[P0]` **Dual implementation** — every `Cross-platform` / `跨平台` page from Phase 2 has both `pages/mobile/X.tsx` AND `pages/desktop/X.tsx`; no page is implemented on one platform only
+- [ ] `[P1]` **Platform-native layout** — mobile version uses PhoneFrame + Tab Bar pattern; desktop version uses WindowFrame + Sidebar pattern; layouts are NOT copies of each other
+- [ ] `[P1]` **Design Token consistency** — both versions use the same `index.css` token definitions; visual appearance is coherent across platforms
+- [ ] `[P2]` **Shared resources used** — both versions reference shared mock data (`lib/mockData.ts`) and shared business components (`components/shared/`); logic is not duplicated
 
 ### Per-Page Verification Procedure
 
-This is the execution procedure for **Step 3 of each batch** ("Batch Walkthrough + Per-Page Verification"). For each batch of pages, perform the following **for every page** in the batch:
+This is the execution procedure for **Step 4 of each batch** ("Batch Walkthrough + Per-Page Verification"). It covers **visual/rendering verification only** — structural and code-level checks were already completed in step 2 (Quality Check). For each batch of pages, perform the following **for every page** in the batch:
 
-1. **Run `pnpm test:run`**: All TDD tests must pass before walkthrough
-2. **Run Tool 2 Heuristic**: Check each page against the 47-item checklist
+> **Scope**: Tool 2 Heuristic covers rendering concerns that jsdom cannot verify during the pre-bundle Quality Check: safe area / flex layout, animations / transitions, and visual design token rendering. Do NOT re-run the Quality Checklist here.
+
+1. **Run `pnpm test:run`**: All TDD tests must pass before walkthrough (quick re-confirm after bundle)
+2. **Run Tool 2 Heuristic**: Check each page against the 47-item checklist — focus on visual and Phase 4 compliance items
 3. **Per-Page Check**: Record results in master report
    *(This table is written as part of the `## Batch N` section in `phase7-review-master.md`)*
 

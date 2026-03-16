@@ -1,7 +1,6 @@
 ---
 name: ixd-design
-description: |
-  Use when designing apps, websites, mini-programs, or desktop clients (PC/Mac/Electron/Tauri).
+description:> Use when designing apps, websites, mini-programs, or desktop clients (PC/Mac/Electron/Tauri).
   Covers interaction design, visual design, prototyping, and developer handoff.
   Triggers: '交互设计', '原型设计', '页面流程', '信息架构', '设计文档', '视觉设计',
   '配色方案', 'wireframe', 'mockup', 'prototype', 'user flow', 'interaction spec',
@@ -14,15 +13,6 @@ metadata: {"openclaw": {"emoji": "🎨"}}
 # IxD Full Workflow Skill v1.0
 
 An 8-phase workflow producing professional interaction + visual design deliverables with flexible quick-start resumption.
-
-> **v2.8**: Phase 7 batch workflow — generate multiple pages at once, then use heuristic walkthrough for verification after each batch.
-
->
-> **v1.2**: Phase 8 requires full content from all phases (not summaries); Phase 4 pages include full interaction specs (excluding walkthrough); final review uses Quality Checklist-based multi-perspective review only.
->
-> **v1.1**: Phase 7 batch heuristic walkthrough (Tool 2) and Phase 2 completeness check with merged review report.
->
-> **v1.0**: 8-phase workflow; natural language triggers; 22 page types (including 4 desktop-specific); Phase 4 with 10 sections (交互走查 + 微交互说明); cross-platform dual prototypes (mobile + desktop); Phase 8 document structure with full desktop coverage; 快捷键映射总表 appendix; Socratic discovery (Phase 1); dependency-aware phase resumption; final review gate with 3-round fix cycle.
 
 ---
 
@@ -768,20 +758,9 @@ The `platform` field in `progress.json` determines output:
 
 **Generation Steps (Batch + Walkthrough)**:
 
-> **v2.8 Update**: Generate multiple pages at once, then use heuristic walkthrough for verification after each batch.
-
-**Workflow Summary**:
-1. **Batch Generate**: Generate 3-5 pages at once
-2. **Bundle**: Run `bundle-artifact.sh`
-3. **Verify Frames in Bundle**
-4. **Walkthrough Review**: Run heuristic checklist
-5. **Fix Issues**: Address any issues found
-6. **User Confirmation**: Pause for confirmation
-7. **Completeness check** against Phase 2 page inventory
-
 For single-platform:
 1. **Resume check**: Skip already completed pages
-2. **Batch Generate**: Generate 3-5 pages at once
+2. **Batch Generate (TDD)**: For each page — write test first (RED → pnpm test FAIL), then implement (GREEN → pnpm test PASS)
 3. **Bundle**: Run `bundle-artifact.sh`
 4. **Verify Frames in Bundle**
 5. **Walkthrough Review**: Run heuristic checklist
@@ -802,72 +781,18 @@ Same approach — generate both mobile + desktop pages simultaneously.
   4. **Verify Device Frames in Bundle**: Check each page uses PhoneFrame/WindowFrame
      - `grep -o "PhoneFrame" phase7-prototype.html | wc -l` >= page count
      - If NOT: Fix pages to use device frames, re-bundle
-  5. **Batch Interaction Walkthrough**: Run Tool 2 checklist against batch pages
-     - Read Phase 4 specs for each page in batch
-     - Verify against 47-item heuristic checklist
-     - Output batch review report to `doc/ixd/phase7-batch-N-review.md`
-  6. If issues found: fix and re-run walkthrough until passing
+  5. **Batch Quality Check + Walkthrough**: Follow procedure in `references/phase7-prototype.md`
+     - Run Quality Checklist; fix all P0/P1 FAILs; record results in `doc/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
+     - Run Per-Page Verification (Tool 2 Heuristic, 47 items); append `## Batch N` section to `phase7-review-master.md`
+  6. If issues found: fix and re-run until passing
   7. **PAUSE** — output a batch summary and ask the user:
-     > "✅ Batch N complete — pages X, Y, Z implemented. Prototype updated: `phase7-prototype.html`
+     > "✅ Batch N complete — pages X, Y, Z implemented. Quality Check: all P0/P1 resolved. Prototype updated: `phase7-prototype.html`
      > Progress: <<M>>/<<total>> pages done.
-     > Batch Review: `phase7-batch-N-review.md` (see attached)
+     > Batch Review: `phase7-review-master.md` → Batch N section
      > **Continue to next batch?** (yes / stop here)"
   8. Wait for user confirmation before proceeding to the next batch
 - Track completed pages in `progress.json`
 - Update `pagesCompleted` after each batch
-
-**Batch Interaction Walkthrough Procedure** (MANDATORY after each batch):
-
-After generating a batch of pages, perform the following review:
-
-1. **Read Phase 4 specs** for each page in the batch:
-   - `doc/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`, `page-P02.md`)
-   - Extract interaction requirements, gestures, transitions, animations
-
-2. **Run Tool 2 Heuristic Checklist** (47 items) against batch pages:
-   - Basic Interactions (5 items)
-   - Page States (4 items)
-   - Navigation and Flow (4 items)
-   - Forms and Input (4 items)
-   - Data Loading (4 items)
-   - Content Display (4 items)
-   - Visual and Brand (5 items)
-   - Touch and Click (3 items)
-   - Desktop-Exclusive (10 items, if applicable)
-   - Cross-Platform Consistency (4 items, if applicable)
-
-3. **Generate Batch Review Report** (`doc/ixd/phase7-batch-N-review.md`):
-   ```markdown
-   ## Batch N Interaction Review Report
-
-   **Batch**: Pages X, Y, Z
-   **Date**: YYYY-MM-DD
-   **Reviewer**: AI (Walkthrough)
-
-   ### Walkthrough Score
-
-   | Dimension | Pass/Total | Score |
-   |-----------|------------|-------|
-   | Basic Interactions | /5 | % |
-   | Page States | /4 | % |
-   | ... | ... | ... |
-   | **Overall** | **/47** | **%** |
-
-   ### Issues Found
-   - <<Issue 1>>
-   - <<Issue 2>>
-
-   ### Fixes Applied
-   - <<Fix 1>>
-   - <<Fix 2>>
-
-   ### Verdict
-   ✅ PASS / ❌ FAIL (requires re-implementation)
-   ```
-
-4. **If issues found**: Fix the issues in the prototype, re-run walkthrough, update report
-
-5. **Append to Master Report**: Merge batch review into `doc/ixd/phase7-review-master.md`
 
 **Page Completeness Check** (MANDATORY after all batches):
 

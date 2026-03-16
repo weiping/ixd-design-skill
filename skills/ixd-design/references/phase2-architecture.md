@@ -19,21 +19,28 @@ List every page/screen in the product. Use this table format:
 
 [English]
 ```markdown
-| ID | Page Name | Module | Level | Page Type | Entry Source | Description |
-|----|-----------|--------|-------|-----------|--------------|-------------|
-| P01 | Home | Core | L1 | Hub | App launch / Bottom Tab | Home feed and quick entries |
-| P02 | Search | Search | L2 | Search | Home search bar | Search input + results |
-| P03 | Detail | Content | L3 | Detail | List item tap | Content detail and actions |
+| ID | Page Name | Module | Level | Platform | Page Type | Entry Source | Description |
+|----|-----------|--------|-------|----------|-----------|--------------|-------------|
+| P01 | Home | Core | L1 | Mobile | Hub | App launch / Bottom Tab | Home feed and quick entries |
+| P02 | Search | Search | L2 | Mobile | Search | Home search bar | Search input + results |
+| P03 | Detail | Content | L3 | Mobile | Detail | List item tap | Content detail and actions |
 ```
+
+**Platform values**: `Mobile` · `Desktop` · `MiniApp` · `Web` · `Cross-platform`
+- Use `Cross-platform` when the page appears on multiple platforms with the same content/interaction (e.g. a settings page shared across mobile and desktop).
+- Use separate rows when the same feature has significantly different layouts per platform.
 
 [中文]
 ```markdown
-| 编号 | 页面名称 | 所属模块 | 层级 | 页面类型 | 入口来源 | 简要说明 |
-|------|---------|---------|------|---------|---------|---------|
-| P01 | 首页 | 核心 | L1 | 聚合页 | App启动/底部Tab | 首页信息流和快捷入口 |
-| P02 | 搜索页 | 搜索 | L2 | 搜索页 | 首页搜索栏 | 搜索输入+结果展示 |
-| P03 | 详情页 | 内容 | L3 | 详情页 | 列表项点击 | 内容详情和操作区 |
+| 编号 | 页面名称 | 所属模块 | 层级 | 平台类型 | 页面类型 | 入口来源 | 简要说明 |
+|------|---------|---------|------|---------|---------|---------|---------|
+| P01 | 首页 | 核心 | L1 | 移动端 | 聚合页 | App启动/底部Tab | 首页信息流和快捷入口 |
+| P02 | 搜索页 | 搜索 | L2 | 移动端 | 搜索页 | 首页搜索栏 | 搜索输入+结果展示 |
+| P03 | 详情页 | 内容 | L3 | 移动端 | 详情页 | 列表项点击 | 内容详情和操作区 |
 ```
+
+**平台类型取值**：`移动端` · `PC端` · `小程序` · `Web` · `跨平台`
+- 若同一页面在多端布局/交互高度一致，用 `跨平台`；若差异显著，拆分为独立行分别标注。
 
 ### Page Type Reference
 
@@ -364,7 +371,7 @@ After completing Phase 2, perform the following verification:
 2. **Check Document Structure**:
    - [ ] All required sections present (Page Inventory, Navigation, Sitemap, etc.)
    - [ ] Mermaid sitemap diagram renders correctly
-   - [ ] Page inventory table is complete
+   - [ ] Page inventory table is complete (includes Platform column)
 
 3. **Verify Completeness**:
    - [ ] All expected pages from the product scope are listed
