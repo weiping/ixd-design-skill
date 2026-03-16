@@ -6,9 +6,6 @@
     "name": "weiping",
     "email": "yuyang@msn.com"
   },
-  "metadata": {n": "Battle-tested Claude Code configurations from an Anthropic hackathon winner"
-    "description": "AI-powered 8-stage interaction design workflow: from product context to interactive prototype and delivery documentation. Supports iOS, Android, Web, and PC client platforms.",
-  },
   "plugins": [
     {
       "name": "ixd-design",
