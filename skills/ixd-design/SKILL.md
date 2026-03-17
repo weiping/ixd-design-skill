@@ -1,6 +1,7 @@
 ---
 name: ixd-design
-description:> Use when designing apps, websites, mini-programs, or desktop clients (PC/Mac/Electron/Tauri).
+description: >
+  Use when designing apps, websites, mini-programs, or desktop clients (PC/Mac/Electron/Tauri).
   Covers interaction design, visual design, prototyping, and developer handoff.
   Triggers: '交互设计', '原型设计', '页面流程', '信息架构', '设计文档', '视觉设计',
   '配色方案', 'wireframe', 'mockup', 'prototype', 'user flow', 'interaction spec',
