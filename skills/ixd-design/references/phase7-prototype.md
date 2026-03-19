@@ -874,7 +874,11 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
    - **CRITICAL**: Each page MUST wrap content in PhoneFrame (mobile) or WindowFrame (desktop)
 
 2. **Page Quality Check** (see [Step 5: Page Quality Check](#step-5-page-quality-check))
-   - Run Quality Checklist against every page in this batch; for cross-platform batches, check both mobile and desktop versions
+   - Run the **detailed Quality Checklist** against every page in this batch:
+     - **Mobile pages**: Check all A1-A7 categories (Frame & Containment, Safe Area, Overlay Architecture, Input Toolbar, Navigation, Visual Tokens, Shell)
+     - **Desktop pages**: Check all B1-B8 categories (WindowFrame & Entry Point, Window Dimensions, Overlay Architecture, Right-Panel, Safe Area, Navigation, Visual Tokens, Shell)
+     - **Cross-platform pages**: Also check C. Cross-Platform category (Dual implementation, Platform-native layout, Design Token consistency, Shared resources)
+   - For cross-platform batches, check **both** mobile and desktop versions
    - Fix all P0 and P1 FAILs; re-run check until zero P0/P1 remain
    - Record results in `doc/ixd/phase7-review-master.md` under `### Quality Check — Batch N`
 
@@ -1200,6 +1204,12 @@ Follow Phase 6 visual requirements. To avoid producing overly "AI-looking" desig
 
 ## Quality Checklist
 
+**Usage in Development Workflow**:
+- **Step 5 (Page Quality Check)**: Run this checklist before bundling to catch structural and code-level issues
+- **Batch Workflow Step 2 (Page Quality Check)**: Run this checklist for each page batch before walkthrough
+- **Focus Areas**: Frame containment, safe area compliance, overlay architecture, design tokens, theme support
+- **Batch Workflow Step 4 (Walkthrough)**: After Quality Check passes, run visual/rendering verification (Tool 2 Heuristic) — do NOT re-run this checklist
+
 ### Issue Severity Levels
 
 | Level | Name | Definition | Action Required |
@@ -1216,39 +1226,93 @@ Follow Phase 6 visual requirements. To avoid producing overly "AI-looking" desig
 
 Each page in the batch must pass the following checks. Each item is tagged with its severity level.
 
-**Mobile**:
-- [ ] `[P0]` **TDD tests pass** — `pnpm test:run` exits green (smoke + `data-testid="phone-frame"` + content checks)
-- [ ] `[P0]` PhoneFrame component wraps each mobile page with realistic iPhone frame
-- [ ] `[P0]` Tab Bar passed via `tabBar` prop slot (not re-implemented inside page children)
+#### A. Mobile
+
+**A1. Frame & Containment (PhoneFrame)**
+- [ ] `[P0]` **TDD tests pass** — `pnpm test` exits green (smoke + `data-testid="phone-frame"` + content checks)
+- [ ] `[P0]` PhoneFrame component wraps each mobile page; the root element inside PhoneFrame is `<div className="flex flex-col h-full ...">` (or a single container that fills the phone screen)
+- [ ] `[P0]` No content uses `position: fixed` — all overlays and full-screen views use `position: absolute` so they stay within PhoneFrame bounds and do not escape to the browser viewport
+- [ ] `[P0]` **Bottom action bars use flex layout, not absolute positioning** — bottom bars and toolbars use `flex-shrink-0` pattern inside a `flex flex-col h-full` parent; NEVER `absolute bottom-0 left-0 right-0` (which anchors to PhoneFrame's outer border, not the screen area)
 - [ ] `[P0]` No broken interactions or dead-end states
-- [ ] `[P0]` **Safe area compliance** — no content hidden behind status bar (no manual `pt-11`), Tab Bar within screen area via `tabBar` slot, content stays within 390px
+- [ ] `[P0]` Tab Bar passed via `tabBar` prop slot (not re-implemented inside page children)
+
+**A2. Safe Area Compliance**
+- [ ] `[P0]` No content hidden behind status bar (no manual `pt-11`); Tab Bar within screen area via `tabBar` slot; content stays within 390px
+- [ ] `[P1]` Content area wrapping: `<PhoneFrame>` → `<div className="relative flex flex-col h-full">` (the `relative` is critical — it makes `absolute`-positioned overlays anchor to the screen area, not the phone border)
+- [ ] `[P1]` Pages with `overflow-y-auto` content DO NOT set `pb-N` as a padding hack to avoid bottom bar overlap; they use `flex-shrink-0` on the bottom bar instead
+
+**A3. Overlay Architecture**
+- [ ] `[P0]` **Overlay-type pages are embedded as inline overlays, NOT navigated as separate routes** — pages classified as Overlay (Dialog/Modal/Sheet/Picker/Disclaimer/Share) in Phase 2 are rendered by their upstream page using local state; the upstream page imports and renders the overlay component inline
+- [ ] `[P1]` Overlay components use `absolute inset-0 z-50` (within the upstream page's `relative` container); they never use `fixed inset-0` for mobile
+- [ ] `[P1]` Overlay components have a `data-testid` root element and the upstream page has tests verifying they open/close correctly (no navigation call triggered)
+- [ ] `[P1]` Image pickers, disclaimer sheets, share sheets, media viewers triggered from chat/report pages are embedded as overlays — clicking opens them inline, no page route change occurs
+
+**A4. Input Toolbar Layout (for pages with input bars)**
+- [ ] `[P1]` Input toolbar buttons match the spec layout — typically `[icon] [input] [send/voice]`; no duplicate function buttons (e.g., two microphone buttons in the same toolbar)
+- [ ] `[P1]` Voice recording overlay (C17) is a full-screen overlay (`absolute inset-0`) with half-transparent backdrop + mic icon + waveform + timer; NOT a small bottom strip (C18 = desktop modal pattern)
+- [ ] `[P1]` Toolbar layout uses exactly the number of buttons specified in Phase 4 component table; cross-check C-numbered components with implementation
+
+**A5. Interaction Flows & Navigation**
+- [ ] `[P1]` Splash/onboarding page has auto-redirect timer (check Phase 4 spec for timing)
+- [ ] `[P1]` All upstream → downstream page flows connected; no orphan pages (pages with no entry point from a parent page)
+- [ ] `[P1]` Image/media click handlers in chat and detail pages trigger P15-style media viewer overlay
+- [ ] `[P1]` Share buttons in report/chat detail pages trigger share overlay within the same `relative` container
+- [ ] `[P1]` All pages from Phase 2 architecture implemented
+
+**A6. Visual & Design Tokens**
+- [ ] `[P1]` Phase 4 interactions implemented (gestures, transitions)
+- [ ] `[P1]` Phase 5 component states used correctly
+- [ ] `[P1]` Phase 6 design tokens applied consistently
+- [ ] `[P1]` Touch targets ≥ 44px
+- [ ] `[P1]` Back navigation works consistently
+- [ ] `[P1]` **Design Token enforced** — no raw hex values (`#xxxxxx`), no raw Tailwind palette classes (`bg-gray-100`, `text-neutral-700`); all colors via semantic tokens (`bg-background`, `text-foreground`, `border-border`, `text-muted-foreground`, etc.)
+- [ ] `[P1]` **Brand-specific exceptions documented** — certain colors (e.g., WeChat green `#07C160`) are intentionally hardcoded as brand identity; document these in Phase 6 visual spec Section 8B exceptions
+- [ ] `[P1]` **Both themes verified** — page renders correctly in light mode AND dark mode; no element uses hardcoded light-only or dark-only color (`bg-white`, `bg-neutral-900`, `border-neutral-200`, `dark:bg-neutral-*`, etc.)
+
+**A7. Shell & Device Frame**
 - [ ] `[P1]` PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
 - [ ] `[P1]` Status bar with time, signal, WiFi, battery (SVG icons)
 - [ ] `[P1]` **No scrollbar visible** — uses `scrollbar-hide` utility
 - [ ] `[P1]` **Mouse wheel converts to swipe** — scroll events captured in PhoneFrame
-- [ ] `[P1]` All pages from Phase 2 architecture implemented
-- [ ] `[P1]` Phase 4 interactions implemented (gestures, transitions)
-- [ ] `[P1]` Phase 5 component states used correctly
-- [ ] `[P1]` Phase 6 design tokens applied consistently
-- [ ] `[P1]` Touch targets are ≥ 44px
-- [ ] `[P1]` Back navigation works consistently
-- [ ] `[P1]` **Design Token enforced** — no raw hex values (`#xxxxxx`), no raw Tailwind palette classes (`bg-gray-100`, `text-neutral-700`); all colors/radii via semantic tokens (`bg-background`, `text-foreground`, etc.)
-- [ ] `[P1]` **Both themes verified** — page renders correctly in light mode AND dark mode; toggle the shell theme switch and confirm no element uses hardcoded light-only or dark-only color
 - [ ] `[P2]` Dynamic Island and Home Indicator present
 - [ ] `[P2]` Page transitions have animation
 - [ ] `[P2]` Mock data is realistic
 
-**Desktop**:
-- [ ] `[P0]` **TDD tests pass** — `pnpm test:run` exits green (smoke + `data-testid="window-frame"` + content checks)
-- [ ] `[P0]` WindowFrame component wraps each desktop page with macOS/Windows style window
+---
+
+#### B. Desktop
+
+**B1. WindowFrame & Entry Point**
+- [ ] `[P0]` **TDD tests pass** — `pnpm test` exits green (smoke + `data-testid="window-frame"` + content checks)
+- [ ] `[P0]` **Desktop prototype starts from the login/auth page** (not the home/dashboard page) — App.desktop.tsx `useState` defaults to the login page ID
+- [ ] `[P0]` WindowFrame component wraps **every non-overlay desktop page**; pages that lack WindowFrame must be wrapped in App's router either inline or with an explicit `<WindowFrame>` wrapper
 - [ ] `[P0]` Title bar with window controls (red/yellow/green dots for macOS) — NOT re-implemented inside children
 - [ ] `[P0]` Sidebar passed via `sidebar` prop slot (not re-implemented inside page children)
 - [ ] `[P0]` No broken interactions or dead-end states
-- [ ] `[P0]` **Safe area compliance** — no content hidden behind title bar (title bar is outside children), sidebar within `sidebar` slot (not re-implemented in children), content stays within window bounds
-- [ ] `[P1]` PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
-- [ ] `[P1]` Window frame with proper shadow and border
+
+**B2. Window Dimensions**
+- [ ] `[P1]` **Auth pages (login/register/OTP/forgot-password) use compact window size** (≤640×600) — these are modal-like auth dialogs, not full workspace windows
+- [ ] `[P1]` Auth page components use `h-full` (not `min-h-screen`) for their root element — `min-h-screen` overflows inside a fixed-height WindowFrame
+- [ ] `[P1]` **Main app pages use standard window size** (default 1280×800) — workspace, lists, details, settings
+- [ ] `[P1]` **Auth pages have no double WindowFrame** — if the component already has its own WindowFrame, the App router should NOT wrap it again in another WindowFrame
+
+**B3. Overlay Architecture (Desktop)**
+- [ ] `[P0]` **Dialog/overlay pages do NOT have WindowFrame** — pages classified as Dialog/Modal/Sheet in Phase 2 render without WindowFrame; they are presented as overlays by their upstream pages
+- [ ] `[P1]` Dialog/overlay components use `absolute inset-0 z-50` (within their upstream page's `relative` container) for overlays that should fill the window; they NEVER use `fixed inset-0` on desktop (which escapes the WindowFrame)
+- [ ] `[P1]` Dialog pages (e.g., confirmation dialogs, permission dialogs) that use `fixed inset-0` for a full-screen backdrop are acceptable ONLY when they are presented standalone in the prototype picker (for preview purposes); when triggered from upstream pages they should be overlay components
+- [ ] `[P1]` **Right-panel detail pages are embedded inline, not separate routes** — pages designed as right-panel sub-views (e.g., history panels, report detail panels) are shown inline in the parent page's right column by toggling local state; clicking "history" does not navigate to a new WindowFrame page
+
+**B4. Right-Panel Inline Expansion (for multi-panel layouts)**
+- [ ] `[P1]` List pages with a right detail column (Hub/List with sidebar) show detail views inline in the right panel when an item is clicked — not by navigating to a new full-page route
+- [ ] `[P1]` The right-panel detail component: (a) has no WindowFrame wrapper, (b) has an `onBack` prop to close itself, (c) is rendered conditionally by the parent's `detailView` state
+- [ ] `[P1]` Multi-level right-panel navigation works (e.g., list → item → sub-item) via local state `detailView` enum, not via App-level routing
+
+**B5. Safe Area & Layout Containment**
+- [ ] `[P0]` No content uses `position: fixed` inside a WindowFrame — all overlays use `position: absolute` so they stay within window bounds
 - [ ] `[P1]` Content area scrollable (right of sidebar)
-- [ ] `[P1]` App-level Menu Bar / Toolbar (if applicable) uses `flex flex-col h-full` wrapper — stays fixed above content
+- [ ] `[P1]` App-level toolbar/header uses `flex flex-col h-full` + `flex-shrink-0` wrapper — stays fixed above content
+
+**B6. Interaction & Navigation**
 - [ ] `[P1]` All pages from Phase 2 architecture implemented
 - [ ] `[P1]` Phase 4 interactions implemented (keyboard shortcuts, hover states)
 - [ ] `[P1]` Phase 5 component states used correctly
@@ -1256,17 +1320,54 @@ Each page in the batch must pass the following checks. Each item is tagged with 
 - [ ] `[P1]` Sidebar navigation works and collapses correctly (240px ↔ 56px)
 - [ ] `[P1]` Keyboard navigation works (Tab focus ring visible on all interactive elements)
 - [ ] `[P1]` Hover states on all interactive elements
-- [ ] `[P1]` **Design Token enforced** — no raw hex values, no raw Tailwind palette classes; all colors/radii via semantic tokens
-- [ ] `[P1]` **Both themes verified** — page renders correctly in light mode AND dark mode; no hardcoded light-only or dark-only color
+
+**B7. Visual & Design Tokens**
+- [ ] `[P1]` **Design Token enforced** — no raw hex values, no raw Tailwind palette classes (`bg-white`, `bg-neutral-*`, `border-neutral-*`); all colors via semantic tokens (`bg-background`, `border-border`, etc.)
+- [ ] `[P1]` **Both themes verified** — page renders correctly in light mode AND dark mode; desktop pages must NOT use `bg-white dark:bg-neutral-900` (hardcoded duality); use `bg-background` which handles both
+- [ ] `[P1]` Window frame with proper shadow and border
+
+**B8. Shell**
+- [ ] `[P1]` PrototypeShell provides project name, theme toggle, display area (no device frame in shell)
 - [ ] `[P2]` Keyboard shortcuts registered and hint labels shown
 - [ ] `[P2]` Right-click context menu appears on relevant items (shadcn/ui ContextMenu)
 - [ ] `[P2]` Tooltips with appropriate delay (shadcn/ui Tooltip)
 
-**Cross-Platform** (only when `platform: "both"` or page has `Platform = Cross-platform` in Phase 2):
-- [ ] `[P0]` **Dual implementation** — every `Cross-platform` / `跨平台` page from Phase 2 has both `pages/mobile/X.tsx` AND `pages/desktop/X.tsx`; no page is implemented on one platform only
-- [ ] `[P1]` **Platform-native layout** — mobile version uses PhoneFrame + Tab Bar pattern; desktop version uses WindowFrame + Sidebar pattern; layouts are NOT copies of each other
-- [ ] `[P1]` **Design Token consistency** — both versions use the same `index.css` token definitions; visual appearance is coherent across platforms
-- [ ] `[P2]` **Shared resources used** — both versions reference shared mock data (`lib/mockData.ts`) and shared business components (`components/shared/`); logic is not duplicated
+---
+
+#### C. Cross-Platform (only when `platform: "both"`)
+
+- [ ] `[P0]` **Dual implementation** — every `Cross-platform` page from Phase 2 has both `pages/mobile/X.tsx` AND `pages/desktop/X.tsx`; no page implemented on one platform only
+- [ ] `[P1]` **Platform-native layout** — mobile uses PhoneFrame + Tab Bar; desktop uses WindowFrame + Sidebar; layouts are NOT copies of each other
+- [ ] `[P1]` **Design Token consistency** — both versions use the same `index.css` token definitions
+- [ ] `[P1]` **Overlay architecture consistent** — same pages are overlay on both platforms (e.g., disclaimer sheet, share panel, image picker); behavior may differ by platform (mobile: `absolute inset-0` full-screen; desktop: `absolute` positioned panel within window)
+- [ ] `[P2]` **Shared resources used** — both versions reference shared mock data and shared business components; logic is not duplicated
+
+---
+
+### Quick Reference: Common Failure Patterns
+
+The following patterns have been observed in real prototypes and MUST be explicitly checked:
+
+| Pattern | Platform | Severity | Correct Approach |
+|---------|----------|----------|-----------------|
+| Bottom bar uses `absolute bottom-0 left-0 right-0` | Mobile | P0 | Use `flex flex-col h-full` + `flex-shrink-0` on bar |
+| Overlay component rendered as PhoneFrame sibling (not inside `relative` container) | Mobile | P0 | Move overlay inside `<div className="relative flex flex-col h-full">` |
+| Overlay uses `fixed inset-0` (escapes PhoneFrame to browser viewport) | Mobile | P0 | Change to `absolute inset-0 z-50` |
+| Missing `relative` wrapper on upstream page that contains overlays | Mobile | P1 | Add `relative` to PhoneFrame's direct child container |
+| Bottom content area uses `pb-N` hack instead of `flex-shrink-0` | Mobile | P1 | Refactor layout to flex column |
+| Voice recording overlay is a small bottom strip (C18 pattern instead of C17) | Mobile | P1 | Full-screen `absolute inset-0` with backdrop + waveform + swipe-to-cancel hint |
+| Two microphone buttons in input toolbar | Mobile | P1 | Single right-side button: enters voice mode when empty, sends when has text |
+| No P15 overlay trigger from image messages in chat | Mobile | P1 | Add `onClick={() => setShowMediaViewer(true)}` to image thumbnails |
+| App.desktop.tsx default page is home/dashboard, not login | Desktop | P0 | `useState('P03')` (login page ID) |
+| Auth page double-wrapped in WindowFrame (component + App router) | Desktop | P0 | Remove outer wrapper in App router |
+| Auth page uses `min-h-screen` inside WindowFrame | Desktop | P1 | Change to `h-full overflow-y-auto scrollbar-hide` |
+| Main app page has no WindowFrame in standalone preview | Desktop | P1 | Wrap in `<WindowFrame>` in App router's switch-case |
+| Desktop page uses `fixed inset-0` (escapes WindowFrame) | Desktop | P0 | Change to `absolute inset-0 z-50` |
+| Right-panel detail page is a separate route (not inline panel) | Desktop | P1 | Embed as inline component in parent's right column via `detailView` state |
+| Hardcoded `bg-white dark:bg-neutral-900` / `border-neutral-*` | Both | P1 | Replace with `bg-background` / `border-border` |
+| Brand color (WeChat green, etc.) overridden by theme token | Both | P1 | Hardcode brand color; document as exception in Phase 6 Section 8B |
+
+---
 
 ### Per-Page Verification Procedure
 
