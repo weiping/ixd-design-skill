@@ -40,6 +40,23 @@ export function WindowFrame({
     if (!content) return;
 
     const handleWheel = (e: WheelEvent) => {
+      // Walk up from the event target to find an inner scrollable element.
+      // If one exists and can still scroll in the wheel direction, let the
+      // browser handle it natively (do NOT call preventDefault).
+      let el = e.target as HTMLElement | null;
+      while (el && el !== content) {
+        const style = window.getComputedStyle(el);
+        const overflowY = style.overflowY;
+        if (
+          (overflowY === 'auto' || overflowY === 'scroll') &&
+          el.scrollHeight > el.clientHeight
+        ) {
+          // Inner scrollable found — let the browser scroll it naturally.
+          return;
+        }
+        el = el.parentElement;
+      }
+      // No inner scrollable — manually scroll the outer content area.
       e.preventDefault();
       content.scrollTop += e.deltaY;
     };

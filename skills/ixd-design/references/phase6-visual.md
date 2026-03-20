@@ -20,7 +20,7 @@ Visual design decisions must be made BEFORE prototyping, otherwise the prototype
 
 ## Deliverables (10 Dimensions)
 
-[english]
+[English]
 ```markdown
 ## 1. Color System
 
