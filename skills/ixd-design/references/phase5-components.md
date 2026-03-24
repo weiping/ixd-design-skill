@@ -468,7 +468,7 @@ Organize components by these categories:
 
 After completing Phase 5, perform the following verification:
 
-1. **Read Output File**: `doc/ixd/phase5-components.md`
+1. **Read Output File**: `docs/ixd/phase5-components.md`
 
 2. **Check Document Structure**:
    - [ ] All required sections present (Design Tokens, Component Specs, States)

@@ -25,6 +25,9 @@
 - **6 个辅助工具** — 竞品分析、启发式评审、A/B 对比、视觉风格探索、多角色评审、微交互设计
 - **最终评审关卡** — 强制走查 + 多角色评审修复循环（最多 3 轮）后方可交付
 - **智能阶段恢复** — 基于依赖关系的上下文加载，而非"加载所有内容"
+- **阶段职责强制边界** — 每个阶段有严格的产出范围（可产出/不得产出对照表）；任何阶段不得提前产出后续阶段的内容
+- **Token 前向引用规则** — 阶段 1–4 通过命名设计令牌（如 `var(--color-surface)`）引用视觉属性，禁止写入具体值；实际 hex/px 值仅在阶段 5–6 填入
+- **px 单位统一标准** — 所有阶段的所有测量值及原型代码一律使用 `px`，禁用 `rem`、`em`、`vw` 等其他单位
 
 ## 📋 工作流概览
 
@@ -45,7 +48,7 @@ P1          P2           P3          P4             P5         P6        P7     
 | P7 — 可交互原型 (Interactive Prototype) | 高保真 HTML 原型 | `phase7-prototype*.html` |
 | P8 — 设计交付 (Design Delivery) | 完整规格文档 + 评审报告 | `phase8-document.md` |
 
-所有产出保存在项目目录的 `doc/ixd/` 下。
+所有产出保存在项目目录的 `docs/ixd/` 下。
 
 ## 🚀 快速开始
 
@@ -191,6 +194,29 @@ cp -r skills/ixd-design <workspace>/skills/ixd-design
 
 这样可以节省 token 并保持上下文聚焦。
 
+### 阶段职责边界约束
+
+每个阶段有严格的产出范围，提前产出后续阶段内容会破坏渐进精化模型：
+
+| 阶段 | 可以产出 | 绝对不得产出 |
+|------|---------|------------|
+| P1 | 产品定位、用户角色、设计原则、视觉方向**关键词** | 页面清单、流程、交互规格、具体色值/字号 |
+| P2 | 页面清单、站点地图、导航结构 | 流程图、交互规格、组件规范 |
+| P3 | 任务流程、步骤表、决策节点 | 页面交互规格、组件规范、视觉决策 |
+| P4 | 布局、组件清单、交互行为、动效概念（Token 变量名） | 具体 hex 色值、px 数值、组件 Props/API |
+
+任何阶段引用视觉属性时必须使用**命名 Token**，不得写入具体值：
+
+```
+✅ 正确（P4）：transition: var(--motion-duration-page) var(--motion-easing-standard)
+❌ 错误（P4）：transition: 300ms cubic-bezier(0.4, 0, 0.2, 1)
+
+✅ 正确（P4）：background: var(--color-surface); border-radius: var(--radius-card)
+❌ 错误（P4）：background: #FFFFFF; border-radius: 12px
+```
+
+Token 名称在阶段五结构化定义，具体值（hex、px、ms）在阶段六填入。
+
 ### 最终评审关卡（阶段 8）
 
 交付文档生成后，强制执行评审循环：
@@ -219,7 +245,7 @@ ixd-design-skill/
 ├── demo-prototype.html             ← 已构建的演示原型（在浏览器中打开）
 └── skills/
     └── ixd-design/                 ← AgentSkills 兼容的技能目录
-        ├── SKILL.md                ← 主入口文件（740+ 行）
+        ├── SKILL.md                ← 主入口文件（1230+ 行）
         ├── INSTALL.md              ← 安装指南
         ├── references/
         │   ├── phase1-context.md       ← 产品上下文收集
@@ -266,7 +292,7 @@ pnpm dev
 ### 产出结构（按项目生成）
 
 ```
-doc/ixd/
+docs/ixd/
 ├── progress.json               ← 阶段追踪器（含各阶段摘要）
 ├── phase1-context.md
 ├── phase2-architecture.md

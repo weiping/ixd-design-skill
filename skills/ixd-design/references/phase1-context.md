@@ -196,7 +196,7 @@ Before moving to Phase 2, verify:
 
 After completing Phase 1, perform the following verification:
 
-1. **Read Output File**: `doc/ixd/phase1-context.md`
+1. **Read Output File**: `docs/ixd/phase1-context.md`
 
 2. **Check Document Structure**:
    - [ ] All required sections present (Background, User Roles, Core Features, Constraints, Principles)

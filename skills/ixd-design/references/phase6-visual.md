@@ -6,7 +6,7 @@ Based on the interaction specs (Phase 4) and component library (Phase 5), produc
 
 **Phase 6 owns two responsibilities:**
 1. Define all 10 visual design dimensions (color, typography, iconography, motion, etc.)
-2. **Back-fill Phase 5's color and typography token values** — Phase 5 intentionally left all `--color-*` and `--font-family-*` token values as `TBD (→ Phase 6)`. After completing Section 1 (Color) and Section 2 (Typography) below, update `doc/ixd/phase5-components.md` to replace every `TBD` with the actual hex values and font names decided here.
+2. **Back-fill Phase 5's color and typography token values** — Phase 5 intentionally left all `--color-*` and `--font-family-*` token values as `TBD (→ Phase 6)`. After completing Section 1 (Color) and Section 2 (Typography) below, update `docs/ixd/phase5-components.md` to replace every `TBD` with the actual hex values and font names decided here.
 
 ## Why This Phase Exists Here
 
@@ -611,7 +611,7 @@ Define 2-3 principles (e.g., "purposeful", "natural", "restrained")
 
 After completing the 10 visual dimensions above, perform the following mandatory step before marking Phase 6 as complete:
 
-**Open `doc/ixd/phase5-components.md` and replace all `TBD` placeholders with actual values:**
+**Open `docs/ixd/phase5-components.md` and replace all `TBD` placeholders with actual values:**
 
 ### Color Token Back-fill
 Scan Phase 5 for every `TBD (→ Phase 6)` in the Color System section and replace:
@@ -675,7 +675,7 @@ Generate an HTML page that visually demonstrates all design tokens:
 
 After completing Phase 6, perform the following verification:
 
-1. **Read Output File**: `doc/ixd/phase6-visual.md`
+1. **Read Output File**: `docs/ixd/phase6-visual.md`
 
 2. **Check Document Structure**:
    - [ ] All required sections present (Color, Typography, Icon, Motion, etc.)

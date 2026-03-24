@@ -567,7 +567,7 @@ const pagesTotal = phase4Status.pagesTotal || 0;
 
 ```js
 // Read Phase 2 page inventory
-const expectedPages = readPageInventory('doc/ixd/phase2-architecture.md');
+const expectedPages = readPageInventory('docs/ixd/phase2-architecture.md');
 // Returns: [{ id: 'P01', name: 'Home', type: 'Hub' }, ...]
 
 // Calculate remaining
@@ -602,8 +602,8 @@ ELSE (remainingPages.length === 0):
 Even when `pagesCompleted.length === pagesTotal`, verify actual files:
 
 ```js
-// Scan doc/ixd/phase4-page-specs/ for actual specs
-const actualSpecs = scanDirectory('doc/ixd/phase4-page-specs/');
+// Scan docs/ixd/phase4-page-specs/ for actual specs
+const actualSpecs = scanDirectory('docs/ixd/phase4-page-specs/');
 // Extract page IDs from each spec file header: "## P<<ID>>"
 
 // Compare with Phase 2 inventory
@@ -670,7 +670,7 @@ For each page spec in the batch:
 
 For each batch of pages generated, perform the following verification **for every page**:
 
-1. **Read Page Spec**: `doc/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`, `page-P02.md`)
+1. **Read Page Spec**: `docs/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`, `page-P02.md`)
 
 2. **Check Each Page**:
    - [ ] All 10 sections present and complete
@@ -714,7 +714,7 @@ After all page specs are generated, perform a **completeness check** against the
 ### Step 1: Read Page Inventory
 
 ```js
-// Read from doc/ixd/phase2-architecture.md
+// Read from docs/ixd/phase2-architecture.md
 // Extract the page list table to get all expected pages
 const expectedPages = [
   { id: 'P01', name: 'Home', type: 'Hub', module: 'Core' },
@@ -726,7 +726,7 @@ const expectedPages = [
 
 ### Step 2: Check Completed Page Specs
 
-Scan `doc/ixd/phase4-page-specs/` directory to identify which pages have been documented:
+Scan `docs/ixd/phase4-page-specs/` directory to identify which pages have been documented:
 
 ```js
 const completedPages = []; // List of page IDs from existing spec files
@@ -753,7 +753,7 @@ if (missingPages.length > 0) {
 For each missing page:
 1. Check if the page exists in Phase 3 user flows — extract interaction details
 2. Generate the 10-section spec using the template above
-3. Save as a new page spec file: `doc/ixd/phase4-page-specs/page-<ID>.md`
+3. Save as a new page spec file: `docs/ixd/phase4-page-specs/page-<ID>.md`
 4. Ensure cross-references to related pages are updated
 
 ### Step 5: Update Progress

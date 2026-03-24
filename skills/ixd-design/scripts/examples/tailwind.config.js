@@ -1,5 +1,5 @@
 // tailwind.config.js — Tailwind theme extension for Phase 6 design tokens
-// Fill in <<placeholders>> from doc/ixd/phase6-visual.md
+// Fill in <<placeholders>> from docs/ixd/phase6-visual.md
 module.exports = {
   theme: {
     extend: {

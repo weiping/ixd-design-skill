@@ -85,9 +85,9 @@ After initialization, the project includes:
 
 **IMPORTANT**: Before implementing, read the following documents to ensure the prototype strictly follows established specifications:
 
-1. **Phase 4 (Interaction Specs)**: `doc/ixd/phase4-page-specs/` — Contains per-page interaction requirements, gestures, animations, and user flow specifications (one file per page: `page-P01.md`, `page-P02.md`, …)
-2. **Phase 5 (Component Library)**: `doc/ixd/phase5-components.md` — Contains component specifications, states, and design tokens
-3. **Phase 6 (Visual Design)**: `doc/ixd/phase6-visual.md` — Contains color system, typography, spacing, and visual styling
+1. **Phase 4 (Interaction Specs)**: `docs/ixd/phase4-page-specs/` — Contains per-page interaction requirements, gestures, animations, and user flow specifications (one file per page: `page-P01.md`, `page-P02.md`, …)
+2. **Phase 5 (Component Library)**: `docs/ixd/phase5-components.md` — Contains component specifications, states, and design tokens
+3. **Phase 6 (Visual Design)**: `docs/ixd/phase6-visual.md` — Contains color system, typography, spacing, and visual styling
 
 Define Phase 6 Design Tokens in `src/index.css` as CSS variables and Tailwind theme:
 
@@ -241,7 +241,7 @@ Design system defaults (Phase 5 tokens + Phase 6 color/typography)
 
 **Cross-Platform Pages — Dual Implementation Required**:
 
-> **RULE**: Check the `Platform` column in the Phase 2 page inventory (`doc/ixd/phase2-architecture.md`). Pages marked `Cross-platform` / `跨平台` MUST produce **two separate implementations** — one in `pages/mobile/` and one in `pages/desktop/` — each following its own Phase 4 layout spec. Implementing only one version does not satisfy this requirement.
+> **RULE**: Check the `Platform` column in the Phase 2 page inventory (`docs/ixd/phase2-architecture.md`). Pages marked `Cross-platform` / `跨平台` MUST produce **two separate implementations** — one in `pages/mobile/` and one in `pages/desktop/` — each following its own Phase 4 layout spec. Implementing only one version does not satisfy this requirement.
 
 | Platform value in Phase 2 | Required implementation |
 |---------------------------|------------------------|
@@ -459,7 +459,7 @@ For each page (and each platform version for cross-platform pages):
   → Only after zero P0/P1 FAILs: proceed to Step 6 (Bundle)
 ```
 
-**Record results** in `doc/ixd/phase7-review-master.md` under the current batch section:
+**Record results** in `docs/ixd/phase7-review-master.md` under the current batch section:
 
 ```markdown
 ### Quality Check — Batch N
@@ -732,7 +732,7 @@ When the app has an app-level menu bar and/or toolbar (e.g. Microsoft Word, Figm
 
 ### Phase 4 (Interaction Specs) Requirements
 
-Each page component MUST implement interactions defined in `doc/ixd/phase4-page-specs/<page-id>.md`:
+Each page component MUST implement interactions defined in `docs/ixd/phase4-page-specs/<page-id>.md`:
 
 | Interaction Type | Implementation |
 |-----------------|----------------|
@@ -880,7 +880,7 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
      - **Cross-platform pages**: Also check C. Cross-Platform category (Dual implementation, Platform-native layout, Design Token consistency, Shared resources)
    - For cross-platform batches, check **both** mobile and desktop versions
    - Fix all P0 and P1 FAILs; re-run check until zero P0/P1 remain
-   - Record results in `doc/ixd/phase7-review-master.md` under `### Quality Check — Batch N`
+   - Record results in `docs/ixd/phase7-review-master.md` under `### Quality Check — Batch N`
 
 3. **Bundle and Verify**
    - Run `bundle-artifact.sh` to produce prototype HTML
@@ -894,7 +894,7 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
 
 4. **Batch Walkthrough + Per-Page Verification** (see [Per-Page Verification Procedure](#per-page-verification-procedure))
    - For each page in the batch: run Tool 2 heuristic (47 items) — focus on **visual/rendering aspects only** (animations, safe area layout, visual token rendering, dual-theme appearance, Phase 4 interaction compliance). Do NOT re-run the Quality Checklist — that was already completed in step 2.
-   - **Append** results to `doc/ixd/phase7-review-master.md` as a new `## Batch N` section
+   - **Append** results to `docs/ixd/phase7-review-master.md` as a new `## Batch N` section
    - (Create `phase7-review-master.md` on Batch 1; all subsequent batches append to it)
 
 5. **Fix Issues** (if any)
@@ -904,16 +904,16 @@ Follow Phase 6 visual requirements. For distinctive, non-generic aesthetics:
 
 ### Single-Platform Batch Output (`platform: "mobile"` or `"desktop"`)
 
-1. **Read page inventory** from `doc/ixd/phase2-architecture.md`
-2. **Read interaction specs** from `doc/ixd/phase4-page-specs/<page-id>.md` for each page in the batch
+1. **Read page inventory** from `docs/ixd/phase2-architecture.md`
+2. **Read interaction specs** from `docs/ixd/phase4-page-specs/<page-id>.md` for each page in the batch
 3. **Prioritize by importance**: dashboard/home → core lists → detail pages → forms → settings → secondary pages
 4. **Output in batches of 3-5 pages** per turn to avoid token limits
 5. **After each batch**:
-   - **Page Quality Check**: run Quality Checklist for all pages in this batch; fix P0/P1 FAILs and re-check until zero P0/P1 remain; record results in `doc/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
+   - **Page Quality Check**: run Quality Checklist for all pages in this batch; fix P0/P1 FAILs and re-check until zero P0/P1 remain; record results in `docs/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
    - Run `bundle-artifact.sh` to produce updated prototype HTML
-   - Save/overwrite `doc/ixd/phase7-prototype.html` (or platform-specific filename)
+   - Save/overwrite `docs/ixd/phase7-prototype.html` (or platform-specific filename)
    - Update `progress.json`: record completed page IDs and `lastBatch`
-   - **Append batch review to master report**: write `## Batch N` section to `doc/ixd/phase7-review-master.md` (create on Batch 1, append thereafter)
+   - **Append batch review to master report**: write `## Batch N` section to `docs/ixd/phase7-review-master.md` (create on Batch 1, append thereafter)
    - **PAUSE** — output a summary then ask the user:
      > "✅ Batch N complete — pages X, Y, Z implemented. Quality Check: all P0/P1 resolved. Prototype updated: `phase7-prototype.html`
      > Progress: M/total pages done.
@@ -941,11 +941,11 @@ When `platform: "both"`, implement both platforms in a single project:
 6. **Page-by-page order**: dashboard/home → list/browse → detail → form/create → settings
 7. **Output in batches of 2-3 page pairs per turn**
 8. **After each batch**:
-   - **Page Quality Check**: run Quality Checklist for **both** the mobile and desktop version of each page in this batch; fix P0/P1 FAILs and re-check until zero P0/P1 remain for all versions; record results in `doc/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
+   - **Page Quality Check**: run Quality Checklist for **both** the mobile and desktop version of each page in this batch; fix P0/P1 FAILs and re-check until zero P0/P1 remain for all versions; record results in `docs/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
    - Bundle both platforms: run `bundle-artifact.sh` for mobile + desktop entries
-   - Save/overwrite `doc/ixd/phase7-prototype-mobile.html` and `phase7-prototype-desktop.html`
+   - Save/overwrite `docs/ixd/phase7-prototype-mobile.html` and `phase7-prototype-desktop.html`
    - Update `progress.json` with completed page IDs for both platforms
-   - **Append batch review to master report**: write `## Batch N (mobile + desktop)` section to `doc/ixd/phase7-review-master.md`
+   - **Append batch review to master report**: write `## Batch N (mobile + desktop)` section to `docs/ixd/phase7-review-master.md`
    - **PAUSE** — output a summary then ask:
      > "✅ Batch N complete — page pairs X, Y implemented (mobile + desktop). Quality Check: all P0/P1 resolved.
      > Prototypes updated: `phase7-prototype-mobile.html` + `phase7-prototype-desktop.html`
@@ -956,7 +956,7 @@ When `platform: "both"`, implement both platforms in a single project:
 
 ### Batch Interaction Walkthrough Report
 
-After each batch, **append** the following section to `doc/ixd/phase7-review-master.md`:
+After each batch, **append** the following section to `docs/ixd/phase7-review-master.md`:
 
 ```markdown
 ## Batch N — Pages: X, Y, Z
@@ -1056,7 +1056,7 @@ const platform = progress.platform || 'mobile'; // "mobile" | "desktop" | "both"
 
 ```js
 // If currentStep === 'pages'
-const expectedPages = readPageInventory('doc/ixd/phase2-architecture.md');
+const expectedPages = readPageInventory('docs/ixd/phase2-architecture.md');
 const remainingPages = expectedPages.filter(p => !completedPages.includes(p.id));
 
 if (remainingPages.length > 0) {
@@ -1143,7 +1143,7 @@ After all batches are complete, generate a completeness report against Phase 2 p
 ### Merging Final Report
 
 After generating completeness report:
-1. Append completeness report to `doc/ixd/phase7-review-master.md`
+1. Append completeness report to `docs/ixd/phase7-review-master.md`
 2. Update `progress.json` with final `pagesCompleted` and `pagesTotal`
 3. If verdict is COMPLETE, proceed to Phase 8
 4. If verdict is INCOMPLETE, implement missing pages then re-run completeness check

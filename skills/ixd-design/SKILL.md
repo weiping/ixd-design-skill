@@ -78,10 +78,10 @@ You never accept surface-level requirements at face value. You are a detective +
 
 ## Output Directory Rule
 
-**ALL phase deliverables MUST be saved to `doc/ixd/` in the current project directory.**
+**ALL phase deliverables MUST be saved to `docs/ixd/` in the current project directory.**
 
 ```
-doc/ixd/
+docs/ixd/
 ├── phase1-context.md           ← Phase 1 output
 ├── phase2-architecture.md      ← Phase 2 output
 ├── phase3-userflows.md         ← Phase 3 output
@@ -99,7 +99,7 @@ doc/ixd/
 └── progress.json               ← Phase progress tracker
 ```
 
-Create `doc/ixd/` if it doesn't exist. After each phase, save the deliverable AND update `doc/ixd/progress.json`.
+Create `docs/ixd/` if it doesn't exist. After each phase, save the deliverable AND update `docs/ixd/progress.json`.
 
 **progress.json schema:**
 ```json
@@ -145,14 +145,14 @@ Create `doc/ixd/` if it doesn't exist. After each phase, save the deliverable AN
 
 | # | Phase | Key Deliverable | File | Reference |
 |---|-------|----------------|------|-----------|
-| 1 | Product Context | Design brief, principles, challenges | `doc/ixd/phase1-context.md` | `references/phase1-context.md` |
-| 2 | Information Architecture | Exhaustive sitemap, page inventory (22 types) | `doc/ixd/phase2-architecture.md` | `references/phase2-architecture.md` |
-| 3 | User Flows | Mermaid flow diagrams, step tables | `doc/ixd/phase3-userflows.md` | `references/phase3-userflow.md` |
-| 4 | Page Interaction Specs | Per-page 10-section interaction spec | `doc/ixd/phase4-page-specs/` | `references/phase4-page-interaction.md` |
-| 5 | Component Library | Design tokens, component specs | `doc/ixd/phase5-components.md` | `references/phase5-components.md` |
-| 6 | Visual Design | 10-dimension visual system | `doc/ixd/phase6-visual.md` | `references/phase6-visual.md` |
-| 7 | Interactive Prototype | High-fidelity HTML prototype (dual for cross-platform) | `doc/ixd/phase7-prototype*.html` | `references/phase7-prototype.md` |
-| 8 | Design Document | Complete specification document | `doc/ixd/phase8-document.md` | `references/phase8-delivery.md` |
+| 1 | Product Context | Design brief, principles, challenges | `docs/ixd/phase1-context.md` | `references/phase1-context.md` |
+| 2 | Information Architecture | Exhaustive sitemap, page inventory (22 types) | `docs/ixd/phase2-architecture.md` | `references/phase2-architecture.md` |
+| 3 | User Flows | Mermaid flow diagrams, step tables | `docs/ixd/phase3-userflows.md` | `references/phase3-userflow.md` |
+| 4 | Page Interaction Specs | Per-page 10-section interaction spec | `docs/ixd/phase4-page-specs/` | `references/phase4-page-interaction.md` |
+| 5 | Component Library | Design tokens, component specs | `docs/ixd/phase5-components.md` | `references/phase5-components.md` |
+| 6 | Visual Design | 10-dimension visual system | `docs/ixd/phase6-visual.md` | `references/phase6-visual.md` |
+| 7 | Interactive Prototype | High-fidelity HTML prototype (dual for cross-platform) | `docs/ixd/phase7-prototype*.html` | `references/phase7-prototype.md` |
+| 8 | Design Document | Complete specification document | `docs/ixd/phase8-document.md` | `references/phase8-delivery.md` |
 
 ---
 
@@ -177,9 +177,9 @@ The skill supports two ways to enter or resume the workflow.
 
 ### Method 2: Artifact Auto-Detection
 
-When the user provides prior work or `doc/ixd/` files exist, auto-detect completed phases:
+When the user provides prior work or `docs/ixd/` files exist, auto-detect completed phases:
 
-**Check `doc/ixd/progress.json` FIRST.** If it exists, use it as ground truth.
+**Check `docs/ixd/progress.json` FIRST.** If it exists, use it as ground truth.
 
 If no progress.json, detect from provided content:
 
@@ -194,7 +194,7 @@ If no progress.json, detect from provided content:
 | HTML/React prototype code present | Phase 7 ✓ |
 
 After detection, confirm with the user:
-> "Based on `doc/ixd/progress.json` / the content you provided, I've identified these phases as complete: Phase 1 ✅, Phase 2 ✅. Suggesting to start from **Phase 3 (User Flows)**. Is this correct?"
+> "Based on `docs/ixd/progress.json` / the content you provided, I've identified these phases as complete: Phase 1 ✅, Phase 2 ✅. Suggesting to start from **Phase 3 (User Flows)**. Is this correct?"
 
 ---
 
@@ -206,7 +206,7 @@ Phase 4 and Phase 7 are **page-based** — they process multiple pages across ba
 
 ```js
 // Read from progress.json
-const { phases } = require('./doc/ixd/progress.json');
+const { phases } = require('./docs/ixd/progress.json');
 const phase4Status = phases['4'];
 const phase7Status = phases['7'];
 ```
@@ -219,7 +219,7 @@ const completedPages = phase4Status.pagesCompleted || [];  // e.g., ["P01", "P02
 const pagesTotal = phase4Status.pagesTotal || 0;
 
 // Read expected pages from Phase 2
-const expectedPages = readPageInventory('doc/ixd/phase2-architecture.md');
+const expectedPages = readPageInventory('docs/ixd/phase2-architecture.md');
 
 // Calculate remaining
 const remainingPages = expectedPages.filter(p => !completedPages.includes(p.id));
@@ -251,13 +251,13 @@ Even when `pagesCompleted.length === pagesTotal`, verify against Phase 2 invento
 
 ```js
 // 1. Read Phase 2 page inventory
-const phase2Pages = readPageInventory('doc/ixd/phase2-architecture.md');
+const phase2Pages = readPageInventory('docs/ixd/phase2-architecture.md');
 
 // 2. For Phase 4: scan phase4-page-specs/ directory
-const phase4ActualPages = scanPhase4Specs('doc/ixd/phase4-page-specs/');
+const phase4ActualPages = scanPhase4Specs('docs/ixd/phase4-page-specs/');
 
 // For Phase 7: scan prototype code for route definitions
-const phase7ActualPages = scanPrototypeRoutes('doc/ixd/phase7-prototype*.html');
+const phase7ActualPages = scanPrototypeRoutes('docs/ixd/phase7-prototype*.html');
 
 // 3. Compare
 const missingPages = phase2Pages.filter(p => !phase4ActualPages.includes(p.id));
@@ -306,7 +306,7 @@ Verifying against Phase 2 page inventory...
 
 Each phase depends on specific prior outputs. Loading everything wastes tokens; loading too little produces inconsistent results.
 
-**Step 1**: Always read `doc/ixd/progress.json` first (lightweight, has per-phase summaries).
+**Step 1**: Always read `docs/ixd/progress.json` first (lightweight, has per-phase summaries).
 
 **Step 2**: Load prior phase outputs according to this dependency table:
 
@@ -321,7 +321,7 @@ Each phase depends on specific prior outputs. Loading everything wastes tokens; 
 | P7 | P5, P6, P4 (pages being prototyped) | P1, P2 | P3 |
 | P8 | P1, P2, P3, P5, P6, P4 (chapter-by-chapter) | — | — |
 
-**P4 Special Handling**: Phase 4 outputs are per-page files in `doc/ixd/phase4-page-specs/`. Do NOT load all at once.
+**P4 Special Handling**: Phase 4 outputs are per-page files in `docs/ixd/phase4-page-specs/`. Do NOT load all at once.
 - **Phase 4 completeness check** reads P2 page inventory to identify missing pages.
 - **Phase 5** reads P4 page-by-page (each page is a separate file) to extract components, then synthesizes.
 - **Phase 7** loads only the pages being prototyped in the current batch, and reads P2 for completeness check.
@@ -332,7 +332,7 @@ Each phase depends on specific prior outputs. Loading everything wastes tokens; 
 **Step 4**: If resuming (not Phase 1), briefly recap key decisions before executing:
 > "Based on existing deliverables, the product is <<product_name>>, target platform <<platform>>, with <<N>> pages. Now entering Phase <<N>>..."
 
-**Step 5**: Execute the phase, save deliverables to `doc/ixd/`, update `progress.json`.
+**Step 5**: Execute the phase, save deliverables to `docs/ixd/`, update `progress.json`.
 
 **Why this dependency structure:**
 - **P1 (context)** is small (~2K tokens) and contains foundational decisions (platform, brand direction, design principles). Most phases benefit from having it.
@@ -644,7 +644,7 @@ The `platform` value determines:
 - **Phase 7 output**: `"mobile"` → `phase7-prototype.html`; `"desktop"` → `phase7-prototype-desktop.html`; `"both"` → two files (`phase7-prototype-mobile.html` + `phase7-prototype-desktop.html`)
 - **Phase 2, 4, 5, 6**: Whether to include desktop-specific sections
 
-Save to: `doc/ixd/phase1-context.md`
+Save to: `docs/ixd/phase1-context.md`
 Read: `references/phase1-context.md`
 
 ---
@@ -681,7 +681,7 @@ Read: `references/phase1-context.md`
 **Desktop Lifecycle Check**: If platform includes PC client, add to page exhaustiveness check:
 - Install/Uninstall → First Launch → Window Management → Tray Behavior → Auto-update → Keyboard Shortcuts → System Integration (file association / context menu / protocol handler)
 
-Save to: `doc/ixd/phase2-architecture.md`
+Save to: `docs/ixd/phase2-architecture.md`
 Read: `references/phase2-architecture.md`
 
 ---
@@ -694,7 +694,7 @@ If platform includes PC client, include desktop-specific flows:
 - Cold Start Flow: Download → Install Wizard → First Launch → Setup Wizard → Main Window
 - Auto-update Flow: Check Update → Prompt User → Background Download → Install → Restart
 
-Save to: `doc/ixd/phase3-userflows.md`
+Save to: `docs/ixd/phase3-userflows.md`
 Read: `references/phase3-userflow.md`
 
 ---
@@ -733,7 +733,7 @@ Each page now has **10 sections**:
      → IF missing: supplement, then proceed to Phase 5
 ```
 
-Process in batches of 3-5 pages. Save **each page as a separate file**: `doc/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`, `page-P02.md`, `page-P03.md`). One file per page, named by the page ID from Phase 2 inventory.
+Process in batches of 3-5 pages. Save **each page as a separate file**: `docs/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`, `page-P02.md`, `page-P03.md`). One file per page, named by the page ID from Phase 2 inventory.
 
 **Page Tracking**:
 - After each batch, record the newly completed page IDs in `progress.json`
@@ -743,8 +743,8 @@ Process in batches of 3-5 pages. Save **each page as a separate file**: `doc/ixd
 **Page Completeness Check** (MANDATORY after all batches):
 
 After generating all page specs, verify completeness against Phase 2 inventory:
-1. Read expected pages from `doc/ixd/phase2-architecture.md`
-2. Scan `doc/ixd/phase4-page-specs/` to identify documented pages
+1. Read expected pages from `docs/ixd/phase2-architecture.md`
+2. Scan `docs/ixd/phase4-page-specs/` to identify documented pages
 3. Compare and identify missing pages
 4. If missing pages found: generate specs using the 10-section template
 5. Output a completeness report showing ✅ completed / ⚠️ missing for each page
@@ -778,7 +778,7 @@ Read: `references/phase4-page-interaction.md`
 - Title bar style: Native title bar / Custom title bar / No title bar (macOS traffic light area reserved)
 - Menu bar: System native menu bar (macOS) / In-app menu bar / No menu bar
 
-Save to: `doc/ixd/phase5-components.md`
+Save to: `docs/ixd/phase5-components.md`
 Read: `references/phase5-components.md`
 
 ---
@@ -811,7 +811,7 @@ Read: `references/phase5-components.md`
 - Listen to system theme changes and switch in real-time
 - Windows high contrast mode support
 
-Save to: `doc/ixd/phase6-visual.md`
+Save to: `docs/ixd/phase6-visual.md`
 Read: `references/phase6-visual.md`
 
 ---
@@ -882,17 +882,17 @@ For cross-platform (`platform: "both"`):
 Same approach — generate both mobile + desktop pages simultaneously.
 
 **Batch Output Strategy**:
-- Read page inventory from `doc/ixd/phase2-architecture.md`
+- Read page inventory from `docs/ixd/phase2-architecture.md`
 - Output in batches: 3-5 pages (single platform) or 2-3 pages × 2 platforms (cross-platform)
 - **After each batch**:
   1. Run `bundle-artifact.sh` to produce the latest prototype HTML file(s)
-  2. Save/overwrite the output to `doc/ixd/phase7-prototype*.html`
+  2. Save/overwrite the output to `docs/ixd/phase7-prototype*.html`
   3. Update `progress.json`: add newly completed page IDs to `pagesCompleted`
   4. **Verify Device Frames in Bundle**: Check each page uses PhoneFrame/WindowFrame
      - `grep -o "PhoneFrame" phase7-prototype.html | wc -l` >= page count
      - If NOT: Fix pages to use device frames, re-bundle
   5. **Batch Quality Check + Walkthrough**: Follow procedure in `references/phase7-prototype.md`
-     - Run Quality Checklist; fix all P0/P1 FAILs; record results in `doc/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
+     - Run Quality Checklist; fix all P0/P1 FAILs; record results in `docs/ixd/phase7-review-master.md` → `### Quality Check — Batch N`
      - Run Per-Page Verification (Tool 2 Heuristic, 47 items); append `## Batch N` section to `phase7-review-master.md`
   6. If issues found: fix and re-run until passing
   7. **PAUSE** — output a batch summary and ask the user:
@@ -907,16 +907,16 @@ Same approach — generate both mobile + desktop pages simultaneously.
 **Page Completeness Check** (MANDATORY after all batches):
 
 After generating all pages, verify completeness against Phase 2 inventory:
-1. Read expected pages from `doc/ixd/phase2-architecture.md`
+1. Read expected pages from `docs/ixd/phase2-architecture.md`
 2. Scan prototype code to identify implemented pages (check route definitions)
 3. Compare and identify missing pages
-4. If missing pages found: read corresponding specs from `doc/ixd/phase4-page-specs/` and implement
+4. If missing pages found: read corresponding specs from `docs/ixd/phase4-page-specs/` and implement
 5. Output a completeness report showing ✅ implemented / ⚠️ missing for each page
 6. Update `progress.json` with `pagesCompleted` and `pagesTotal` fields
-7. **Append to Master Report**: Add completeness check to `doc/ixd/phase7-review-master.md`
+7. **Append to Master Report**: Add completeness check to `docs/ixd/phase7-review-master.md`
 8. **Only after completeness check passes**: mark Phase 7 as `status: "done"` and proceed to Phase 8
 
-Save to: `doc/ixd/phase7-prototype.html` (mobile) or `doc/ixd/phase7-prototype-desktop.html` (desktop) or both files (cross-platform)
+Save to: `docs/ixd/phase7-prototype.html` (mobile) or `docs/ixd/phase7-prototype-desktop.html` (desktop) or both files (cross-platform)
 Read: `references/phase7-prototype.md`
 
 ---
@@ -955,7 +955,7 @@ Read: `references/phase7-prototype.md`
 - **CRITICAL**: This chapter must contain the FULL interaction specifications from Phase 4, NOT summaries
 - Each page includes 9 sections: Overview / Layout / Components / Interactions / States / Motion / Data Strategy / Adaptation / **Micro-interactions**
 - **Exclude Walkthrough section** from Phase 4 pages (walkthrough is done during Phase 4, not needed in final document)
-- Copy full content from `doc/ixd/phase4-page-specs/<page-id>.md` for each page:
+- Copy full content from `docs/ixd/phase4-page-specs/<page-id>.md` for each page:
   - Section 1: Overview (full content)
   - Section 2: Layout Structure (full content with grid/placement details)
   - Section 3: Component List (complete list with all elements)
@@ -1008,7 +1008,7 @@ Read: `references/phase7-prototype.md`
 - E. Page Exhaustiveness Checklist (complete version, including **Desktop-Exclusive Pages**)
 - **F. Keyboard Shortcut Mapping Table** (Desktop, macOS + Windows dual-column comparison)
 
-Save to: `doc/ixd/phase8-document.md`
+Save to: `docs/ixd/phase8-document.md`
 Read: `references/phase8-delivery.md`
 
 ---
@@ -1019,7 +1019,7 @@ Read: `references/phase8-delivery.md`
 
 #### Review Procedure
 
-**Step 1: Quality Checklist Verification** — Use each phase's Quality Checklist to verify the **completeness of the corresponding chapter** in `doc/ixd/phase8-document.md` (not the source phase files):
+**Step 1: Quality Checklist Verification** — Use each phase's Quality Checklist to verify the **completeness of the corresponding chapter** in `docs/ixd/phase8-document.md` (not the source phase files):
 
 - Phase 1 Quality Checklist → verify **Chapter 1** (Design Overview: background, goals, principles, scope, platform strategy)
 - Phase 2 Quality Checklist → verify **Chapter 2** (Information Architecture: sitemap, page inventory, navigation, exhaustiveness check)
@@ -1034,7 +1034,7 @@ Output the per-chapter verification results.
 
 **Step 2: Multi-Perspective Review** — Run the 6-perspective review (Tool 4 from `references/auxiliary-tools.md`) against the complete design. Output the priority table.
 
-**Step 3: Save review report** to `doc/ixd/phase8-review-round-<N>.md` (N = 1, 2, or 3).
+**Step 3: Save review report** to `docs/ixd/phase8-review-round-<N>.md` (N = 1, 2, or 3).
 
 **Step 4: Pass/Fail judgment**:
 
@@ -1051,20 +1051,20 @@ When review **FAILS**:
 
 1. List all blocking items (walkthrough priority fixes + review P0/P1 items)
 2. Trace each item to its **source phase and file**:
-   - Page interaction issues → fix `doc/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`)
-   - Component spec issues → fix `doc/ixd/phase5-components.md`
-   - Visual consistency issues → fix `doc/ixd/phase6-visual.md`
-   - Flow defects → fix `doc/ixd/phase3-userflows.md`
-   - Architecture/navigation issues → fix `doc/ixd/phase2-architecture.md`
-3. Fix the source files **and** update the corresponding sections in `doc/ixd/phase8-document.md`
+   - Page interaction issues → fix `docs/ixd/phase4-page-specs/<page-id>.md` (e.g., `page-P01.md`)
+   - Component spec issues → fix `docs/ixd/phase5-components.md`
+   - Visual consistency issues → fix `docs/ixd/phase6-visual.md`
+   - Flow defects → fix `docs/ixd/phase3-userflows.md`
+   - Architecture/navigation issues → fix `docs/ixd/phase2-architecture.md`
+3. Fix the source files **and** update the corresponding sections in `docs/ixd/phase8-document.md`
 4. Re-run Step 1-4 as **Round N+1**
 
 #### Hard Block (Three Strikes)
 
 If **Round 3 still FAILS**:
 
-1. Save `doc/ixd/phase8-review-round-3.md` with all remaining blocking items
-2. Update `doc/ixd/progress.json`:
+1. Save `docs/ixd/phase8-review-round-3.md` with all remaining blocking items
+2. Update `docs/ixd/progress.json`:
    ```json
    {
      "8": {
@@ -1150,7 +1150,7 @@ If **Round 3 still FAILS**:
 ### Fix Plan
 | # | Blocking Item | Source File | Fix Action |
 |---|---------------|-------------|------------|
-| 1 | <<item>> | `doc/ixd/<<file>>` | <<specific fix>> |
+| 1 | <<item>> | `docs/ixd/<<file>>` | <<specific fix>> |
 ```
 
 ---
@@ -1215,7 +1215,7 @@ This applies to all phases: page inventory tables (Phase 2), component specs (Ph
 ## Operational Notes
 
 1. **Language Detection**: Detect user's language from input; output dialogue and deliverables in the same language. Select the matching `[English]` or `[中文]` template variant in all reference files — never mix variants within the same deliverable.
-2. **Output First**: Always save deliverables to `doc/ixd/`.
+2. **Output First**: Always save deliverables to `docs/ixd/`.
 3. **Progressive disclosure**: Introduce one phase at a time.
 4. **Batch processing**: Phase 4 can produce 50+ pages. Process 3-5 per turn.
 5. **Mermaid diagrams**: Use Mermaid syntax for all diagrams.

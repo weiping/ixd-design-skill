@@ -225,7 +225,7 @@ Before moving to Phase 4:
 
 After completing Phase 3, perform the following verification:
 
-1. **Read Output File**: `doc/ixd/phase3-userflows.md`
+1. **Read Output File**: `docs/ixd/phase3-userflows.md`
 
 2. **Check Document Structure**:
    - [ ] All required sections present (Core Flows, Exception Flows, Flow Diagrams)

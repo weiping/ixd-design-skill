@@ -108,7 +108,7 @@ Chapter 4: Page Interaction Specifications
       Desktop additions (if cross-platform):
         - Hover / Context menu / Keyboard shortcuts / Drag / Focus order
       Multi-window: <<yes: independent window / no>>
-      Spec: `doc/ixd/phase4-page-specs/page-N.md § P01`
+      Spec: `docs/ixd/phase4-page-specs/page-N.md § P01`
     4.x.2 P02 <<Page Name>>
       Sections: Overview / Layout / Components / Interactions / States / Motion / Data / Adaptation / Micro-interactions
       …
@@ -392,7 +392,7 @@ Appendix
       核心交互要点：<<描述最重要的交互行为>>
       桌面端补充（跨平台时）：悬停态 / 右键菜单 / 快捷键 / 拖拽 / 焦点顺序
       多窗口：<<是（可独立窗口）/ 否>>
-      规格文件：`doc/ixd/phase4-page-specs/page-N.md § P01`
+      规格文件：`docs/ixd/phase4-page-specs/page-N.md § P01`
     4.x.2 P02 <<页面名>>
       包含章节：概述 / 布局结构 / 组件列表 / 交互规格 / 页面状态 / 动效规格 / 数据策略 / 适配规则 / 微交互
       …
@@ -658,7 +658,7 @@ Summary:
    - Phase 7 checklist → Appendix A (Prototype Demo — confirm prototype files exist and are complete)
    - Phase 8 checklist → Full document (all chapters present, no placeholders, cross-references correct)
 2. Run **Multi-Perspective Review** (Tool 4) against the complete design
-3. Save report to `doc/ixd/phase8-review-round-<N>.md`
+3. Save report to `docs/ixd/phase8-review-round-<N>.md`
 4. **PASS** if: all chapter checklists pass AND no P0/P1 review items
 5. **FAIL** → fix source files + corresponding document chapter → re-review (max 3 rounds)
 6. **BLOCK** after 3 failures → terminate, require human intervention

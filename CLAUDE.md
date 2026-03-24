@@ -10,7 +10,7 @@ This is an [AgentSkills](https://agentskills.io)-compatible skill that guides AI
 
 ```
 skills/ixd-design/
-├── SKILL.md                 # Main entry point (740+ lines) — the skill definition
+├── SKILL.md                 # Main entry point (1230+ lines) — the skill definition
 ├── INSTALL.md               # Installation guide
 ├── references/              # Phase-specific reference docs (phase1-context.md through phase8-delivery.md)
 │   ├── auxiliary-tools.md   # 6 auxiliary design tools
@@ -34,7 +34,7 @@ skills/ixd-design/
 P1 Context → P2 Architecture → P3 User Flows → P4 Page Specs → P5 Components → P6 Visual → P7 Prototype → P8 Delivery
 ```
 
-Each phase produces artifacts in `doc/ixd/` of the target project.
+Each phase produces artifacts in `docs/ixd/` of the target project.
 
 ### Phase Dependency for Context Loading
 

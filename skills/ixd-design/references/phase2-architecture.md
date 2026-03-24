@@ -366,7 +366,7 @@ Before moving to Phase 3:
 
 After completing Phase 2, perform the following verification:
 
-1. **Read Output File**: `doc/ixd/phase2-architecture.md`
+1. **Read Output File**: `docs/ixd/phase2-architecture.md`
 
 2. **Check Document Structure**:
    - [ ] All required sections present (Page Inventory, Navigation, Sitemap, etc.)

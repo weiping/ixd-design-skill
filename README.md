@@ -25,6 +25,9 @@ An [AgentSkills](https://agentskills.io)-compatible skill that guides AI assista
 - **6 auxiliary tools** — Competitor analysis, heuristic review, A/B comparison, visual style exploration, multi-perspective review, micro-interaction design
 - **Final review gate** — Mandatory walkthrough + multi-perspective review with fix cycle (max 3 rounds) before delivery
 - **Smart phase resumption** — Dependency-aware context loading, not "load everything"
+- **Phase scope enforcement** — Each phase has a strict boundary (MAY/MUST NOT produce table); no phase can produce content belonging to a later phase
+- **Token forward-reference rule** — Phases 1–4 reference visual attributes via named design tokens (e.g., `var(--color-surface)`), never raw values; actual hex/px values are assigned only in Phases 5–6
+- **px-only unit standard** — All measurement values across every phase and prototype code must use `px`; no `rem`, `em`, `vw`, or other units
 
 ## 📋 Workflow Overview
 
@@ -46,7 +49,7 @@ Context         Architecture     Flows        Interaction      Specs       Desig
 | P7 — Interactive Prototype | High-fidelity HTML prototype | `phase7-prototype*.html` |
 | P8 — Design Delivery | Complete spec document + review report | `phase8-document.md` |
 
-All outputs are saved to `doc/ixd/` in the working project directory.
+All outputs are saved to `docs/ixd/` in the working project directory.
 
 ## 🚀 Quick Start
 
@@ -192,6 +195,29 @@ Each phase loads only the prior outputs it directly depends on — not everythin
 
 This saves tokens and keeps context focused.
 
+### Phase Scope Constraints
+
+Each phase is strictly bounded. Producing content that belongs to a later phase breaks the progressive refinement model:
+
+| Phase | MAY Produce | MUST NOT Produce |
+|-------|-------------|-----------------|
+| P1 | Product positioning, user roles, design principles, visual direction *keywords* | Page inventory, flows, interaction specs, specific color/font values |
+| P2 | Page inventory, sitemap, navigation structure | Flow diagrams, interaction specs, component specs |
+| P3 | Task flows, step tables, decision points | Per-page interaction specs, component specs, visual decisions |
+| P4 | Layout, component inventory, interaction behaviors, motion concepts (token names) | Specific hex codes, px values, component Props/API |
+
+When any phase needs to reference a future visual attribute, it uses a **named token** — never the value:
+
+```
+✅ Correct (P4): transition: var(--motion-duration-page) var(--motion-easing-standard)
+❌ Wrong (P4):   transition: 300ms cubic-bezier(0.4, 0, 0.2, 1)
+
+✅ Correct (P4): background: var(--color-surface); border-radius: var(--radius-card)
+❌ Wrong (P4):   background: #FFFFFF; border-radius: 12px
+```
+
+Token names are defined structurally in Phase 5; token values (hex, px, ms) are filled in Phase 6.
+
 ### Final Review Gate (Phase 8)
 
 After the delivery document is generated, a mandatory review loop runs:
@@ -220,7 +246,7 @@ ixd-design-skill/
 ├── demo-prototype.html             ← Built demo prototype (open in browser)
 └── skills/
     └── ixd-design/                 ← AgentSkills-compatible skill folder
-        ├── SKILL.md                ← Main entry point (740+ lines)
+        ├── SKILL.md                ← Main entry point (1230+ lines)
         ├── INSTALL.md              ← Installation guide
         ├── references/
         │   ├── phase1-context.md       ← Product context gathering
@@ -267,7 +293,7 @@ pnpm dev
 ### Output Structure (generated per project)
 
 ```
-doc/ixd/
+docs/ixd/
 ├── progress.json               ← Phase tracker with per-phase summaries
 ├── phase1-context.md
 ├── phase2-architecture.md
